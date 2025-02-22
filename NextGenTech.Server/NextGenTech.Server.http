@@ -1,0 +1,6 @@
+@NextGenTech.Server_HostAddress = http://localhost:5240
+
+GET {{NextGenTech.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
