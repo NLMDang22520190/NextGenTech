@@ -65,6 +65,9 @@ export default defineConfig({
     },
     port: 3000,
     open: true,
-    https: process.env.NODE_ENV === "development", // Chỉ bật HTTPS khi chạy local
+    https: {
+      key: fs.readFileSync(keyFilePath),
+      cert: fs.readFileSync(certFilePath),
+    },
   },
 });
