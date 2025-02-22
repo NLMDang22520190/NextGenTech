@@ -1,0 +1,13 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP.NET Core service.
+
+version: '3.4'
+
+services:
+  nextgentechserver:
+    image: nextgentechserver
+    build:
+      context: .
+      dockerfile: NextGenTech.Server/Dockerfile
+    ports:
+      - 7214:7214
+      - 5240:5240
