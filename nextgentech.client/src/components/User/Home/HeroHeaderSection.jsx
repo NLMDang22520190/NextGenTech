@@ -29,13 +29,13 @@ const HeroHeaderSection = () => {
       <div className="flex flex-col gap-6 justify-start">
         <SplitText
           delay={5}
-          className="text-4xl font-medium"
+          className="text-4xl font-medium text-primary"
           textAlign="start"
           text="The next generation of tech is here"
         ></SplitText>
         <SplitText
           delay={2.5}
-          className="text-sm "
+          className="text-sm text-gray-600"
           textAlign="start"
           text="At NextGenTech, we are dedicated to bringing you the latest and greatest in technology. Our mission is to make online shopping for cutting-edge gadgets easy and enjoyable."
         ></SplitText>

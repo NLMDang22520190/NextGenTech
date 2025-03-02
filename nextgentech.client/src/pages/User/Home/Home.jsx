@@ -3,6 +3,7 @@ import React from "react";
 import HeroHeaderSection from "../../../components/User/Home/HeroHeaderSection";
 import FeatureBrandSection from "../../../components/User/Home/FeatureBrandSection";
 import FeatureProductSection from "../../../components/User/Home/FeatureProductSection";
+import Benefits from "../../../components/User/Home/BenefitSection";
 
 const Home = () => {
   return (
@@ -10,6 +11,7 @@ const Home = () => {
       <HeroHeaderSection />
       <FeatureBrandSection />
       <FeatureProductSection />
+      <Benefits />
     </div>
   );
 };
