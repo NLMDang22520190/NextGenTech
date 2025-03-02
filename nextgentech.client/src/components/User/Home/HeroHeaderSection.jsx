@@ -71,7 +71,7 @@ const HeroHeaderSection = () => {
             key={images[currentImage]}
             src={images[currentImage]}
             alt="Slideshow"
-            className="absolute w-1/2 h-1/2"
+            className="absolute w-1/3 h-1/3"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.1 }}

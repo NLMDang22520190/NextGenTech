@@ -65,6 +65,8 @@
 
   --animate-gradient: gradient 8s linear infinite;
 
+  --animate-marquee: marquee 15s linear infinite;
+
   @keyframes gradient {
     0% {
       background-position: 0% 50%;
@@ -75,5 +77,20 @@
     100% {
       background-position: 0% 50%;
     }
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0%);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+@layer utilities {
+  .translate-101 {
+    transform: translateX(101%);
   }
 }
