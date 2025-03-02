@@ -3,6 +3,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 import AllUserRoutes from "./routes/AllUserRoutes";
 import AllAdminRoutes from "./routes/AllAdminRoutes";
+import Navbar from "./components/User/Navbar/Navbar";
 import "./App.css";
 
 function App() {
@@ -15,9 +16,12 @@ function App() {
           <AllAdminRoutes />
         </Router>
       ) : (
-        <Router>
-          <AllUserRoutes />
-        </Router>
+        <div className="min-h-screen bg-bg ">
+          <Router>
+            <Navbar />
+            <AllUserRoutes />
+          </Router>
+        </div>
       )}
     </div>
   );

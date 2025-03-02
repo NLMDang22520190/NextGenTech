@@ -1,9 +1,11 @@
 import React from "react";
 
+import HeroHeaderSection from "../../../components/User/Home/HeroHeaderSection";
+
 const Home = () => {
   return (
-    <div className="min-h-screen bg-white-smoke text-primary-400 text-9xl">
-      Home
+    <div className="pt-20">
+      <HeroHeaderSection />
     </div>
   );
 };

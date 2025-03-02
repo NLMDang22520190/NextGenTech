@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
 @theme {
+  --color-primary: #50bbf5;
+  --color-secondary: #5069f5;
+
   --color-primary-50: #e3f6fe;
   --color-primary-100: #b9e7fc;
   --color-primary-200: #8dd7fa;
@@ -57,4 +60,20 @@
   --color-oxford-blue: #212437;
   --color-card-dark: #1f2937;
   --color-gunmetal: #1d1f21;
+
+  --color-bg: #f5f5f5;
+
+  --animate-gradient: gradient 8s linear infinite;
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
 }
