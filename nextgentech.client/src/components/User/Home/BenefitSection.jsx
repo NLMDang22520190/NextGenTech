@@ -76,7 +76,7 @@ const Benefits = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            Trusted by Leading Brands
+            The techlandia Difference
           </motion.h2>
           <motion.p2
             initial={{ opacity: 0, y: 10 }}

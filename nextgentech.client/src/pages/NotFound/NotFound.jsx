@@ -12,7 +12,7 @@ const NotFound = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <FuzzyText color="black" baseIntensity={0.1}>
+      <FuzzyText color="black" fontSize={80} baseIntensity={0.1}>
         404
       </FuzzyText>
       <FuzzyText color="black" fontSize={32} baseIntensity={0.1}>
