@@ -63,6 +63,10 @@
 
   --color-bg: #f5f5f5;
 
+  --color-amber-light: #F8D199;
+  --color-amber-dark: #D28C1A;
+  --color-coral-dark: #E64A19;
+
   --animate-gradient: gradient 8s linear infinite;
 
   --animate-marquee: marquee 15s linear infinite;

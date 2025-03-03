@@ -42,7 +42,7 @@ const Navbar = () => {
     <div className="flex items-center space-x-6">
       <SearchBar />
       <Link
-        to="/account"
+        to="/auth/login"
         aria-label="Account"
         className="text-foreground hover:text-primary transition-colors"
       >
