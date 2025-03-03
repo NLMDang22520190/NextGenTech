@@ -30,13 +30,13 @@ const HeroHeaderSection = () => {
         <div className="flex flex-col gap-6 justify-start">
           <SplitText
             delay={5}
-            className="text-4xl font-medium text-primary"
+            className="text-6xl font-bold text-primary"
             textAlign="start"
             text="The next generation of tech is here"
           ></SplitText>
           <SplitText
             delay={2.5}
-            className="text-sm text-gray-600"
+            className="text-base font-medium text-gray-600"
             textAlign="start"
             text="At NextGenTech, we are dedicated to bringing you the latest and greatest in technology. Our mission is to make online shopping for cutting-edge gadgets easy and enjoyable."
           ></SplitText>
@@ -44,7 +44,7 @@ const HeroHeaderSection = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut", delay: 1.5 }}
-            class="border text-gray-50  duration-300 relative group cursor-pointer   overflow-hidden h-16 w-48 rounded-md bg-primary-100 p-2  font-extrabold hover:bg-primary"
+            class="border text-gray-50  duration-300 relative group cursor-pointer text-lg  overflow-hidden h-16 w-48 rounded-md bg-primary-100 p-2  font-extrabold hover:bg-primary"
           >
             <div class="absolute group-hover:-top-1 group-hover:-right-2 z-10 w-16 h-16 rounded-full group-hover:scale-150  duration-700 right-12 top-12 bg-yellow-500"></div>
             <div class="absolute group-hover:-top-1 group-hover:-right-2 z-10 w-12 h-12 rounded-full group-hover:scale-150  duration-700 right-20 -top-6 bg-orange-500"></div>
