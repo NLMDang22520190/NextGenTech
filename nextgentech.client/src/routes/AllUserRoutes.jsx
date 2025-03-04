@@ -4,6 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from "../pages/User/Home/Home";
 import Products from "../pages/User/Products/Products";
 import NotFound from "../pages/NotFound/NotFound";
+import Login from "../pages/Auth/Login";
 
 const AllUserRoutes = () => {
   return (
@@ -12,6 +13,8 @@ const AllUserRoutes = () => {
       <Route path="/products" element={<Products />} />
 
       <Route path="*" element={<NotFound />} />
+
+      <Route path="/auth/login" element={<Login />} />
     </Routes>
   );
 };
