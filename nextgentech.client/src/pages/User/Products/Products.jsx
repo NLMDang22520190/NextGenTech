@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
+import { useSearchParams } from "react-router-dom";
 
 import SideBar from "../../../components/User/Products/SideBar";
 import SearchAndSort from "../../../components/User/Products/SearchAndSort";
@@ -73,11 +74,24 @@ const categories = generateCategories(mockProducts);
 const brands = generateBrands(mockProducts);
 
 const Products = ({ initialSearchTerm = "", initialCategory = null }) => {
-  const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
+  const [searchParams] = useSearchParams();
+
+  // Lấy searchKeyword từ URL nếu có, nếu không thì dùng initialSearchTerm
+  const initialSearch = useMemo(
+    () => searchParams.get("searchkeyword") || initialSearchTerm,
+    [searchParams, initialSearchTerm]
+  );
+
+  const [searchTerm, setSearchTerm] = useState(initialSearch);
   const [sortOption, setSortOption] = useState("newest");
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedBrands, setSelectedBrands] = useState([]);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Cập nhật searchTerm khi URL thay đổi
+  useEffect(() => {
+    setSearchTerm(searchParams.get("searchkeyword") || "");
+  }, [searchParams]);
 
   const minPrice = Math.min(...mockProducts.map((p) => p.price));
   const maxPrice = Math.max(...mockProducts.map((p) => p.price));
@@ -193,14 +207,17 @@ const Products = ({ initialSearchTerm = "", initialCategory = null }) => {
                   delay: index * 0.05,
                 }} // Delay theo index
               >
-                <ProductCard {...product} />
+                <ProductCard product={product} />
               </motion.div>
             ))}
           </div>
         ) : (
           <div className="flex items-center justify-center h-[50vh]">
             <div className="text-center">
-              <p className="text-xl font-medium mb-2">No products found</p>
+              <p className="text-xl font-medium mb-2">
+                No products found for{" "}
+                {searchTerm && `search term "${searchTerm}"`}
+              </p>
               <p className="text-muted-foreground">
                 Try adjusting your filters or search term
               </p>
