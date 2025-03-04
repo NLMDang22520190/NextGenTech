@@ -15,7 +15,7 @@ const HeroSection = () => {
         className="container px-4 md:px-6 max-w-5xl mx-auto"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true }}
+        viewport={{ amount: 0.2 }}
         variants={fadeUp}
       >
         <div className="flex flex-col items-center text-center space-y-6">

@@ -31,7 +31,7 @@ const FeatureBrandSection = () => {
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      viewport={{ once: true }}
+      viewport={{ amount: 0.2 }}
     >
       <div className="text-center mb-12">
         <motion.h2
