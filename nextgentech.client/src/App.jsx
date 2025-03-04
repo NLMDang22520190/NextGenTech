@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { BrowserRouter as Router } from "react-router-dom";
+import "@ant-design/v5-patch-for-react-19";
 
 import AllUserRoutes from "./routes/AllUserRoutes";
 import AllAdminRoutes from "./routes/AllAdminRoutes";

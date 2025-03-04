@@ -67,11 +67,11 @@ const Benefits = () => {
     <section id="benefits" ref={sectionRef} className="py-20 ">
       <div className="container mx-auto px-4 md:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">
-          <div className="inline-block px-3 py-1 rounded-full bg-primary-50 text-xs font-medium text-secondary-400">
+          <div className="inline-block px-3 py-1 rounded-full bg-primary-50 text-base font-bold text-secondary-400">
             Why Choose Us
           </div>
           <motion.h2
-            className="text-3xl bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent font-bold mb-2"
+            className="text-5xl bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent font-bold mb-2"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -82,7 +82,7 @@ const Benefits = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-muted-foreground text-gray-600"
+            className="text-muted-foreground text-gray-600 text-base font-medium"
           >
             We're committed to providing exceptional products and service that
             enhance your tech experience.

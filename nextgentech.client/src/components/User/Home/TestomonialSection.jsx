@@ -37,10 +37,10 @@ const TestomonialSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+          <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
             What Our Customers Say
           </h2>
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 text-base font-medium">
             Don't just take our word for it
           </p>
         </motion.div>

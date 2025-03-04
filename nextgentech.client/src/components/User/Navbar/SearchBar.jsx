@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { Search } from "lucide-react";
-import { Input } from "antd";
+import { useNavigate } from "react-router-dom";
 
 const SearchBar = () => {
-  //const navigate = useNavigate();
+  const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
-  //   const handleSendMessage = (e) => {
-  //     e.preventDefault();
-  //     if (!searchValue.trim()) return;
-  //     setSearchValue("");
-  //     navigate(`/all-post/keyword/${encodeURIComponent(searchValue)}`);
-  //   };
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+    if (!searchValue.trim()) return;
+    setSearchValue("");
+    navigate(`/products?searchkeyword=${encodeURIComponent(searchValue)}`);
+  };
 
   return (
     <div className="p-1.5 gap-2 overflow-hidden group size-8 hover:w-[270px] bg-gradient-to-br from-primary-dark to-secondary-dark shadow-[2px_2px_20px_rgba(0,0,0,0.08)] rounded-full flex items-center hover:duration-300 duration-300">

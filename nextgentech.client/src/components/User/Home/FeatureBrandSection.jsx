@@ -35,7 +35,7 @@ const FeatureBrandSection = () => {
     >
       <div className="text-center mb-12">
         <motion.h2
-          className="text-3xl bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent font-bold mb-2"
+          className="text-5xl p-2 bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent font-bold mb-2"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -43,7 +43,7 @@ const FeatureBrandSection = () => {
           Trusted by Leading Brands
         </motion.h2>
         <motion.p
-          className="text-muted-foreground text-gray-600 max-w-2xl mx-auto"
+          className="text-muted-foreground text-base font-medium text-gray-600 max-w-2xl mx-auto"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.4 }}
