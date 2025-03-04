@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const benefits = [
   {
@@ -60,6 +61,11 @@ const BenefitCard = ({ benefit, index }) => {
 };
 
 const Benefits = () => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate("/products");
+  };
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, threshold: 0.1 });
 
@@ -67,7 +73,7 @@ const Benefits = () => {
     <section id="benefits" ref={sectionRef} className="py-20 ">
       <div className="container mx-auto px-4 md:px-8">
         <div className="text-center max-w-2xl mx-auto mb-12 space-y-4">
-          <div className="inline-block px-3 py-1 rounded-full bg-primary-50 text-base font-bold text-secondary-400">
+          <div className="inline-block px-3 py-1 rounded-full bg-primary-50 text-base font-bold text-primary-400">
             Why Choose Us
           </div>
           <motion.h2
@@ -109,7 +115,11 @@ const Benefits = () => {
             Join thousands of satisfied customers who have elevated their tech
             experience with our premium products.
           </p>
-          <button class="cursor-pointer group relative bg-white hover:bg-zinc-300 text-black font-semibold text-sm px-6 py-3 rounded-full transition-all duration-200 ease-in-out shadow hover:shadow-lg w-40 h-12">
+          <button
+            to="/products"
+            onClick={() => handleClick()}
+            class="cursor-pointer group relative bg-white hover:bg-zinc-300 text-black font-semibold text-sm px-6 py-3 rounded-full transition-all duration-200 ease-in-out shadow hover:shadow-lg w-40 h-12"
+          >
             <div class="relative flex items-center justify-center gap-2">
               <span class="relative inline-block overflow-hidden">
                 <span class="block transition-transform duration-300 group-hover:-translate-y-full">
