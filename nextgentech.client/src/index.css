@@ -63,16 +63,28 @@
 
   --color-bg: #f5f5f5;
 
-  --color-amber-light: #F8D199;
-  --color-amber-dark: #D28C1A;
-  --color-coral-dark: #E64A19;
+  --color-amber-light: #f8d199;
+  --color-amber-dark: #d28c1a;
+  --color-coral-dark: #e64a19;
 
   --animate-gradient: gradient 8s linear infinite;
 
   --animate-marquee: marquee 15s linear infinite;
+
+  --animate-fadeIn: fadeIn 0.3s ease-out;
 }
 
 @layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
   .translate-101 {
     transform: translateX(101%);
   }

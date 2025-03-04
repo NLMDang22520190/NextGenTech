@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Slider from "rc-slider";
+import "rc-slider/assets/index.css";
 import { Checkbox, Button } from "antd";
 import {
   ChevronDown,
@@ -43,7 +44,7 @@ const SideBar = ({
   return (
     <>
       {/* Mobile Filter Button */}
-      <div className="md:hidden sticky top-0 z-10 bg-background py-2">
+      <div className="md:hidden sticky top-0 z-10 bg-background ">
         <Button
           variant="outline"
           size="sm"
@@ -64,9 +65,9 @@ const SideBar = ({
 
       {/* Sidebar Content */}
       <aside
-        className={`fixed md:sticky top-15 md:top-4 bg-white border rounded-lg overflow-hidden md:h-[calc(100vh-2rem)] z-30 w-[280px] transition-all duration-300 ease-in-out md:transition-none h-full ${
+        className={`fixed md:sticky  top-15  bg-white border rounded-lg overflow-hidden md:h-[calc(100vh-2rem)] z-30 w-[280px] transition-all duration-300 ease-in-out md:transition-none h-full ${
           isMobileOpen
-            ? "-translate-x-1/6"
+            ? "translate-x-0"
             : "-translate-x-full left-0 md:translate-x-0"
         }`}
       >
@@ -102,7 +103,7 @@ const SideBar = ({
         </div>
 
         {/* Scrollable Content */}
-        <div className="h-[calc(100%-60px)] p-4">
+        <div className="h-[calc(100%-60px)] p-4 overflow-auto no-scrollbar">
           {/* Category Section */}
           <div className="filter-section">
             <button
@@ -171,7 +172,7 @@ const SideBar = ({
 
             {isPriceOpen && (
               <div className="px-2 pt-4 pb-2 animate-fade-in">
-                <Slider
+                {/* <Slider
                   defaultValue={[priceRange[0], priceRange[1]]}
                   min={priceRange[0]}
                   max={maxPrice}
@@ -181,6 +182,17 @@ const SideBar = ({
                     onPriceRangeChange([value[0], value[1]]);
                   }}
                   className="price-slider"
+                /> */}
+
+                <Slider
+                  range
+                  min={priceRange[0]}
+                  max={priceRange[1]}
+                  value={[selectedPriceRange[0], selectedPriceRange[1]]}
+                  onChange={(value) => {
+                    onPriceRangeChange([value[0], value[1]]);
+                  }}
+                  className="mb-4"
                 />
 
                 <div className="flex items-center justify-between mt-4 text-sm">

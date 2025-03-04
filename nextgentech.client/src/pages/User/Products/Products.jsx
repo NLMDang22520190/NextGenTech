@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
 import SideBar from "../../../components/User/Products/SideBar";
+import SearchAndSort from "../../../components/User/Products/SearchAndSort";
+import ProductCard from "../../../components/User/Products/ProductCard";
 import { useIsMobile } from "../../../hooks/use-mobile";
 
 const mockProducts = Array.from({ length: 20 }).map((_, i) => ({
@@ -22,7 +25,7 @@ const mockProducts = Array.from({ length: 20 }).map((_, i) => ({
   oldPrice:
     Math.random() > 0.7 ? Math.floor(Math.random() * 1200) + 150 : undefined,
   rating: parseFloat((Math.random() * 3 + 2).toFixed(1)),
-  image: `https://source.unsplash.com/random/300x300?product=${i + 1}`,
+  image: `https://picsum.photos/300/300?random=${i}`,
   category: ["Electronics", "Home", "Clothing", "Sports", "Beauty"][
     Math.floor(i / 4)
   ],
@@ -31,7 +34,6 @@ const mockProducts = Array.from({ length: 20 }).map((_, i) => ({
     i % 8
   ],
   brandId: (i % 8) + 1,
-  isNew: Math.random() > 0.8,
   dateAdded: new Date(
     Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000
   ),
@@ -148,7 +150,7 @@ const Products = ({ initialSearchTerm = "", initialCategory = null }) => {
   };
 
   return (
-    <div className="flex pt-20 min-h-screen container mx-auto">
+    <div className="flex py-20 min-h-screen container mx-auto gap-6 px-4 md:px-6">
       {/* Sidebar */}
       <SideBar
         categories={categories}
@@ -167,41 +169,44 @@ const Products = ({ initialSearchTerm = "", initialCategory = null }) => {
       />
 
       {/* Main Content */}
-      <div className="flex-1 p-4 md:p-6">
+      <div className="flex-1 ">
         {/* Search and Sort */}
-        {/* <SearchAndSort
-      searchTerm={searchTerm}
-      onSearchChange={setSearchTerm}
-      sortOption={sortOption}
-      onSortChange={setSortOption}
-      totalProducts={filteredProducts.length}
-    /> */}
+        <SearchAndSort
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          sortOption={sortOption}
+          onSortChange={setSortOption}
+          totalProducts={filteredProducts.length}
+        />
 
         {/* Products Grid */}
-        {/* {sortedProducts.length > 0 ? (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-6">
-        {sortedProducts.map((product, index) => (
-          <div 
-            key={product.id} 
-            className="transform transition-all duration-300"
-            style={{ 
-              opacity: 0,
-              animation: 'fade-in 0.5s ease-out forwards',
-              animationDelay: `${index * 50}ms`
-            }}
-          >
-            <ProductCard {...product} />
+        {sortedProducts.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-6">
+            {sortedProducts.map((product, index) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.5,
+                  ease: "easeOut",
+                  delay: index * 0.05,
+                }} // Delay theo index
+              >
+                <ProductCard {...product} />
+              </motion.div>
+            ))}
           </div>
-        ))}
-      </div>
-    ) : (
-      <div className="flex items-center justify-center h-[50vh]">
-        <div className="text-center">
-          <p className="text-xl font-medium mb-2">No products found</p>
-          <p className="text-muted-foreground">Try adjusting your filters or search term</p>
-        </div>
-      </div>
-    )} */}
+        ) : (
+          <div className="flex items-center justify-center h-[50vh]">
+            <div className="text-center">
+              <p className="text-xl font-medium mb-2">No products found</p>
+              <p className="text-muted-foreground">
+                Try adjusting your filters or search term
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
