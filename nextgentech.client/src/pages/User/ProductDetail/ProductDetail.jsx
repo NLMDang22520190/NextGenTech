@@ -1,0 +1,351 @@
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+//import { ProductReviews } from "@/components/products/ProductReviews";
+import { motion } from "framer-motion";
+import { Skeleton } from "antd";
+import { ShoppingCart, ArrowLeft } from "lucide-react";
+
+import { ProductImageCarousel } from "../../../components/User/ProductDetail/ProductImageCarousel";
+import ProductReviews from "../../../components/User/ProductDetail/ProductReviews";
+
+// Mock product data - in a real app this would come from an API
+const mockProduct = {
+  id: 1,
+  name: "NextGen Pro Wireless Headphones",
+  description:
+    "Experience premium sound with our NextGen Pro Wireless Headphones. These over-ear headphones feature active noise cancellation, 40-hour battery life, and comfortable memory foam ear cushions. Perfect for music lovers, gamers, and professionals who need crystal clear audio.",
+  longDescription: `
+      <p>Experience premium sound quality with our NextGen Pro Wireless Headphones. These cutting-edge over-ear headphones combine sophisticated technology with exceptional comfort for an immersive audio experience.</p>
+      
+      <h4>Key Features:</h4>
+      <ul>
+        <li>Active Noise Cancellation technology blocks out ambient noise</li>
+        <li>40-hour battery life on a single charge</li>
+        <li>Memory foam ear cushions for extended comfort</li>
+        <li>Voice assistant compatibility with Siri, Google Assistant, and Alexa</li>
+        <li>Bluetooth 5.2 with multi-device connection</li>
+        <li>Built-in high-quality microphone for calls</li>
+        <li>Touch controls for volume, track selection, and calls</li>
+        <li>Foldable design for easy storage and travel</li>
+      </ul>
+      
+      <h4>Technical Specifications:</h4>
+      <ul>
+        <li>Driver Size: 40mm</li>
+        <li>Frequency Response: 20Hz - 20kHz</li>
+        <li>Impedance: 32 Ohm</li>
+        <li>Bluetooth Range: Up to 10 meters</li>
+        <li>Weight: 250g</li>
+        <li>Fast charging: 10 minutes charge for 5 hours playback</li>
+        <li>USB-C charging port</li>
+      </ul>
+    `,
+  price: 249.99,
+  oldPrice: 299.99,
+  stockQuantity: 45,
+  categoryId: 3,
+  categoryName: "Audio",
+  brandId: 2,
+  brandName: "NextGen Audio",
+  rating: 4.7,
+  reviewCount: 128,
+  images: [
+    "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1577174881658-0f30ed549adc?q=80&w=1974&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?q=80&w=2069&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1484704849700-f032a568e944?q=80&w=2070&auto=format&fit=crop",
+  ],
+  colors: ["Black", "Silver", "Blue"],
+  createdAt: "2023-11-15T14:48:00.000Z",
+  features: [
+    "Noise Cancellation",
+    "40hr Battery",
+    "Bluetooth 5.2",
+    "Voice Assistant",
+  ],
+};
+
+// Mock reviews data
+const mockReviews = [
+  {
+    id: 1,
+    userId: 101,
+    userName: "Alex Johnson",
+    userAvatar: "https://i.pravatar.cc/150?img=1",
+    productId: 1,
+    rating: 5,
+    comment:
+      "These headphones are amazing! The sound quality is crystal clear, and the noise cancellation works perfectly. I use them during work and commuting, and they've made a huge difference.",
+    createdAt: "2024-02-10T09:23:00.000Z",
+    helpfulCount: 24,
+  },
+  {
+    id: 2,
+    userId: 102,
+    userName: "Sarah Miller",
+    userAvatar: "https://i.pravatar.cc/150?img=5",
+    productId: 1,
+    rating: 4,
+    comment:
+      "Great headphones overall. The sound is excellent and the battery life is impressive. My only complaint is that they're a bit tight on my head, but they might loosen up over time.",
+    createdAt: "2024-01-25T15:41:00.000Z",
+    helpfulCount: 15,
+  },
+  {
+    id: 3,
+    userId: 103,
+    userName: "Michael Chen",
+    userAvatar: "https://i.pravatar.cc/150?img=8",
+    productId: 1,
+    rating: 5,
+    comment:
+      "Best headphones I've ever owned! The sound is balanced with great bass, and the noise cancellation is top notch. They're comfortable enough to wear all day, and I love the touch controls.",
+    createdAt: "2023-12-18T11:30:00.000Z",
+    helpfulCount: 32,
+  },
+  {
+    id: 4,
+    userId: 104,
+    userName: "Emily Rodriguez",
+    userAvatar: "https://i.pravatar.cc/150?img=9",
+    productId: 1,
+    rating: 4,
+    comment:
+      "Very good product that delivers on its promises. The sound quality is excellent and the battery lasts forever. The only downside is that the app is a bit buggy sometimes.",
+    createdAt: "2023-12-05T14:12:00.000Z",
+    helpfulCount: 8,
+  },
+];
+
+const ProductDetail = () => {
+  const { productId } = useParams();
+  const navigate = useNavigate();
+  const [product, setProduct] = useState(mockProduct);
+  const [reviews, setReviews] = useState(mockReviews);
+  const [quantity, setQuantity] = useState(1);
+  const [selectedColor, setSelectedColor] = useState(mockProduct.colors[0]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, [productId]);
+
+  const handleAddToCart = () => {
+    console.log("Product added to cart");
+  };
+
+  // Handle quantity change
+  const handleQuantityChange = (newQuantity) => {
+    if (newQuantity > 0 && newQuantity <= product.stockQuantity) {
+      setQuantity(newQuantity);
+    }
+  };
+
+  const handleBackToProducts = () => navigate("/products");
+
+  if (loading) {
+    return (
+      <motion.div
+        className="min-h-screen flex items-center justify-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Skeleton active style={{ width: 300, height: 300 }} />
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      className="container mx-auto px-4 md:px-6 pt-20"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
+      <motion.button
+        onClick={handleBackToProducts}
+        className="flex items-center cursor-pointer text-gray-500 hover:text-black transition mb-6 group"
+        whileHover={{ x: -5 }}
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        <span>Back to Products</span>
+      </motion.button>
+
+      <motion.div
+        className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <motion.div
+          className="bg-white rounded-lg shadow-sm overflow-hidden"
+          whileHover={{ scale: 1.02 }}
+        >
+          <ProductImageCarousel
+            images={product.images}
+            productName={product.name}
+          />
+        </motion.div>
+
+        {/* Product Details */}
+        <div className="flex flex-col">
+          <div className="flex flex-col space-y-4">
+            {/* Title and Brand */}
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-semibold">
+                {product.name}
+              </h1>
+              <div className="flex items-center mt-2">
+                <span className="text-muted-foreground">By </span>
+                <span className="ml-1 font-medium">{product.brandName}</span>
+                <span className="mx-2 text-muted-foreground">in</span>
+                <div className=" px-2 py-1 text-sm font-medium bg-gray-200 rounded">
+                  {product.categoryName}
+                </div>
+              </div>
+            </div>
+
+            {/* Rating Summary */}
+            <div className="flex items-center space-x-1">
+              {[...Array(5)].map((_, i) => (
+                <svg
+                  key={i}
+                  className={`w-5 h-5 ${
+                    i < Math.floor(product.rating)
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-muted fill-muted"
+                  }`}
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" />
+                </svg>
+              ))}
+              <div className="text-sm font-medium ml-1">{product.rating}</div>
+              <div className="text-sm text-muted-foreground">
+                ({product.reviewCount} reviews)
+              </div>
+            </div>
+
+            {/* Price */}
+            <div className="flex items-baseline space-x-2 mt-1">
+              <span className="text-2xl font-bold">
+                ${product.price.toFixed(2)}
+              </span>
+              {product.oldPrice && (
+                <span className="text-muted-foreground line-through">
+                  ${product.oldPrice.toFixed(2)}
+                </span>
+              )}
+              {product.oldPrice && (
+                <div className="ml-2 px-2 py-1 text-sm font-medium bg-red-300 rounded">
+                  Save ${(product.oldPrice - product.price).toFixed(2)}
+                </div>
+              )}
+            </div>
+
+            {/* Short Description */}
+            <p className="text-muted-foreground line-clamp-2">
+              {product.description}
+            </p>
+
+            {/* Color Selection */}
+            <div className="mt-2">
+              <span className="text-sm font-medium mb-2 block">
+                Color: {selectedColor}
+              </span>
+              <div className="flex space-x-2">
+                {product.colors.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`w-10 h-10 rounded-full border-2 cursor-pointer ${
+                      selectedColor === color
+                        ? "border-primary"
+                        : "border-transparent"
+                    } transform transition-transform ${
+                      selectedColor === color ? "scale-110" : "scale-100"
+                    } hover:scale-110`}
+                    style={{
+                      backgroundColor:
+                        color.toLowerCase() === "silver"
+                          ? "#C0C0C0"
+                          : color.toLowerCase(),
+                      boxShadow:
+                        selectedColor === color
+                          ? "0 0 0 2px rgba(59, 130, 246, 0.3)"
+                          : "none",
+                    }}
+                    aria-label={`Select ${color} color`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity Controls */}
+            <div className="flex items-center mt-2">
+              <span className="text-sm font-medium mr-4">Quantity:</span>
+              <div className="flex items-center border rounded-md">
+                <button
+                  onClick={() => handleQuantityChange(quantity - 1)}
+                  disabled={quantity <= 1}
+                  className="px-3 py-1 text-lg disabled:opacity-50 cursor-pointer hover:bg-muted transition-colors"
+                >
+                  -
+                </button>
+                <span className="px-4 py-1 font-medium">{quantity}</span>
+                <button
+                  onClick={() => handleQuantityChange(quantity + 1)}
+                  disabled={quantity >= product.stockQuantity}
+                  className="px-3 py-1 text-lg disabled:opacity-50 cursor-pointer hover:bg-muted transition-colors"
+                >
+                  +
+                </button>
+              </div>
+              <span className="ml-4 text-sm text-muted-foreground">
+                {product.stockQuantity} available
+              </span>
+            </div>
+
+            {/* Action Buttons */}
+            <motion.button
+              onClick={handleAddToCart}
+              className="flex items-center px-4 py-2 bg-gradient-to-br from-primary to-secondary w-fit cursor-pointer text-white rounded-lg hover:from-primary-500 hover:to-primary-500 transition mt-4"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <ShoppingCart className="mr-2 h-5 w-5" />
+              Add to Cart
+            </motion.button>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Additional Details & Specs */}
+      <motion.div
+        className="pb-12"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+      >
+        <h2 className="text-2xl font-semibold mb-4">Product Details</h2>
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div
+            className="prose prose-stone max-w-none"
+            dangerouslySetInnerHTML={{ __html: product.longDescription }}
+          />
+        </div>
+      </motion.div>
+      <ProductReviews
+        reviews={reviews}
+        productId={product.id}
+        averageRating={product.rating}
+        totalReviews={product.reviewCount}
+      />
+    </motion.div>
+  );
+};
+
+export default ProductDetail;
