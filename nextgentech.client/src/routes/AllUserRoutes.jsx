@@ -6,6 +6,7 @@ import AboutUs from "../pages/User/AboutUs/AboutUs";
 import Products from "../pages/User/Products/Products";
 import NotFound from "../pages/NotFound/NotFound";
 import Login from "../pages/Auth/Login";
+import SignUp from"../pages/Auth/SignUp";
 
 const AllUserRoutes = () => {
   return (
@@ -17,6 +18,7 @@ const AllUserRoutes = () => {
       <Route path="*" element={<NotFound />} />
 
       <Route path="/auth/login" element={<Login />} />
+      <Route path="/auth/signup" element={<SignUp />}/>
     </Routes>
   );
 };
