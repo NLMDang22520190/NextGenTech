@@ -91,7 +91,7 @@ const Navbar = () => {
           </div>
 
           <button
-            className="md:hidden text-foreground"
+            className="md:hidden cursor-pointer text-foreground"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >

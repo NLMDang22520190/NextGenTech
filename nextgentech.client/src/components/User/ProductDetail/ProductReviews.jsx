@@ -115,7 +115,7 @@ const ProductReviews = ({
 
           {/* Bộ lọc */}
           <div className="mt-4 flex items-center justify-between">
-            <div className="flex space-x-2">
+            <div className="flex space-x-2 space-y-2 flex-wrap">
               <Button
                 variant="outline"
                 size="sm"

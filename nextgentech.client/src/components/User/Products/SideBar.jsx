@@ -51,10 +51,8 @@ const SideBar = ({
           className="w-full flex items-center justify-between"
           onClick={() => setIsMobileOpen(true)}
         >
-          <span className="flex items-center gap-2">
-            <Filter size={16} />
-            Filters
-          </span>
+          <Filter size={16} />
+
           {activeFiltersCount > 0 && (
             <span className="bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
               {activeFiltersCount}
