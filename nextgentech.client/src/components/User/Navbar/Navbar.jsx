@@ -21,6 +21,7 @@ const Navbar = () => {
   const navLinks = [
     { to: "/products", label: "Products" },
     { to: "/about", label: "About" },
+    { to: "/setting", label:"Setting"}
   ];
 
   const NavItems = ({ onClick }) => (

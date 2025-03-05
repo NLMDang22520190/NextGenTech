@@ -5,7 +5,7 @@ import RightPanel from "../../components/Auth/RightPanel";
 
 const Login = () => {
   return (
-    <div className="h-screen w-full flex relative">
+    <div className="h-screen w-full md:top-20 flex relative">
       
       {/* LeftPanel */}
       <motion.div

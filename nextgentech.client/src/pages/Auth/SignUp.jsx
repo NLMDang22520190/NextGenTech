@@ -5,7 +5,7 @@ import RightPanel from "../../components/Auth/RightPanel";
 
 const SignUp = () => {
   return (
-    <div className="h-screen w-full flex relative">
+    <div className="h-screen w-full md:top-20 flex relative">
       
       {/* LeftPanel */}
       <motion.div
@@ -24,7 +24,7 @@ const SignUp = () => {
 
       {/* SignUpForm */}
       <motion.div
-        className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2  w-full max-w-xl shadow-xl z-10"
+        className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-xl shadow-xl z-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
