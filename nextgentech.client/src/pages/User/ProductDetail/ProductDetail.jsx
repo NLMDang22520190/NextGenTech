@@ -127,7 +127,7 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 800);
+    const timer = setTimeout(() => setLoading(false), 300);
     return () => clearTimeout(timer);
   }, [productId]);
 
@@ -167,7 +167,7 @@ const ProductDetail = () => {
     >
       <motion.button
         onClick={handleBackToProducts}
-        className="flex items-center cursor-pointer text-gray-500 hover:text-black transition mb-6 group"
+        className="flex items-center cursor-pointer text-primary-300 hover:text-primary-500 transition mb-6 group"
         whileHover={{ x: -5 }}
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
@@ -180,15 +180,12 @@ const ProductDetail = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <motion.div
-          className="bg-white rounded-lg shadow-sm overflow-hidden"
-          whileHover={{ scale: 1.02 }}
-        >
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <ProductImageCarousel
             images={product.images}
             productName={product.name}
           />
-        </motion.div>
+        </div>
 
         {/* Product Details */}
         <div className="flex flex-col">
@@ -202,7 +199,7 @@ const ProductDetail = () => {
                 <span className="text-muted-foreground">By </span>
                 <span className="ml-1 font-medium">{product.brandName}</span>
                 <span className="mx-2 text-muted-foreground">in</span>
-                <div className=" px-2 py-1 text-sm font-medium bg-gray-200 rounded">
+                <div className=" px-2 py-1 text-sm font-medium bg-primary-100 rounded">
                   {product.categoryName}
                 </div>
               </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Skeleton } from "antd";
+import { Skeleton, Image } from "antd";
 
 export function ProductImageCarousel({ images, productName }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -56,41 +56,54 @@ export function ProductImageCarousel({ images, productName }) {
     <div className="relative h-full flex flex-col items-center justify-center">
       {/* Main Image Display */}
       <div className="relative w-full h-[300px] sm:h-[400px] md:h-[300px] overflow-hidden bg-muted/20">
-        {images.map((image, index) => (
-          <div
-            key={index}
-            className={`absolute inset-0 transition-opacity duration-500 ${
-              index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
-          >
-            {/* Loading Placeholder */}
-            {!imagesLoaded[index] && (
-              <Skeleton.Image className="w-full h-full object-contain" active />
-            )}
+        <Image.PreviewGroup
+          preview={{
+            current: currentIndex,
+            onChange: (current) => setCurrentIndex(current),
+          }}
+        >
+          {images.map((image, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-opacity duration-500 flex justify-center ${
+                index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+              }`}
+            >
+              {/* Loading Placeholder */}
+              {!imagesLoaded[index] && (
+                <Skeleton.Image
+                  className="w-full h-full object-contain"
+                  active
+                />
+              )}
 
-            {/* Actual Image */}
-            <img
-              src={image}
-              alt={`${productName} - Image ${index + 1}`}
-              className="w-full h-full object-contain transition-transform duration-300 hover:scale-105"
-              onLoad={() => handleImageLoad(index)}
-            />
-          </div>
-        ))}
+              {/* Actual Image */}
+              <Image
+                src={image}
+                alt={`${productName} - Image ${index + 1}`}
+                className="max-h-full cursor-zoom-in object-contain transition-transform duration-300 hover:scale-105"
+                onLoad={() => handleImageLoad(index)}
+                preview={{
+                  mask: false,
+                }}
+              />
+            </div>
+          ))}
+        </Image.PreviewGroup>
 
         {/* Navigation Arrows */}
         {images.length > 1 && (
           <>
             <button
               onClick={goToPrevious}
-              className="absolute cursor-pointer left-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-colors"
+              className="absolute cursor-pointer left-4 top-1/2 transform -translate-y-1/2 z-20 bg-primary/30 hover:bg-primary/50 text-white p-2 rounded-full transition-colors"
               aria-label="Previous image"
             >
               <ChevronLeft size={20} />
             </button>
             <button
               onClick={goToNext}
-              className="absolute cursor-pointer right-4 top-1/2 transform -translate-y-1/2 z-20 bg-black/30 hover:bg-black/50 text-white p-2 rounded-full transition-colors"
+              className="absolute cursor-pointer right-4 top-1/2 transform -translate-y-1/2 z-20 bg-primary/30 hover:bg-primary/50 text-white p-2 rounded-full transition-colors"
               aria-label="Next image"
             >
               <ChevronRight size={20} />
