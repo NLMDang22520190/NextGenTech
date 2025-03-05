@@ -6,15 +6,18 @@ import AllUserRoutes from "./routes/AllUserRoutes";
 import AllAdminRoutes from "./routes/AllAdminRoutes";
 import Navbar from "./components/User/Navbar/Navbar";
 import "./App.css";
+import AdminLayout from "./components/Admin/Layout/AdminLayout";
 
 function App() {
-  const userRole = "user";
+  const userRole = "admin";
 
   return (
     <div>
       {userRole === "admin" ? (
         <Router>
-          <AllAdminRoutes />
+          <AdminLayout>
+            <AllAdminRoutes />
+          </AdminLayout>
         </Router>
       ) : (
         <div className="min-h-screen bg-bg ">
