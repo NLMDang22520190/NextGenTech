@@ -11,6 +11,7 @@ import CheckoutSuccess from "../pages/User/Checkout/CheckoutSuccess";
 import NotFound from "../pages/NotFound/NotFound";
 import Login from "../pages/Auth/Login";
 import SignUp from "../pages/Auth/SignUp";
+import Setting from "../pages/User/Setting/Setting"
 
 const AllUserRoutes = () => {
   return (
@@ -28,6 +29,7 @@ const AllUserRoutes = () => {
 
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/signup" element={<SignUp />} />
+      <Route path="/setting" element={<Setting />}/>
     </Routes>
   );
 };
