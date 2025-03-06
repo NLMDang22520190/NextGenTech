@@ -23,13 +23,13 @@ const AdminLayout = ({ children }) => {
                 </svg>
               </motion.button>
               
-              <div className="relative w-64">
+              <div className="relative w-64" >
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                   <Search size={18} />
                 </span>
                 <input
                   type="text"
-                  className="pl-10 pr-4 py-2 w-full border rounded-md text-sm focus:outline-none focus:border-dashblue"
+                  className="pl-10 pr-4 py-2 w-[150px] border rounded-full text-sm focus:outline-none focus:border-primary-600 hover:w-full hover:duration-300 duration-300"
                   placeholder="Search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -53,7 +53,7 @@ const AdminLayout = ({ children }) => {
               
               <div className="flex items-center border-l pl-6 gap-3">
                 <div className="flex items-center">
-                  <img src="https://flagcdn.com/gb.svg" width="24" className="mr-2" alt="English" />
+                  <img src="https://flagcdn.com/gb.svg" width="30" className="mr-2" alt="English" />
                   <span className="text-sm font-medium text-gray-700">English</span>
                   <ChevronDown size={16} className="ml-1 text-gray-500" />
                 </div>
