@@ -58,7 +58,7 @@ const dealsData = [
   {
     id: 1,
     productName: "Apple Watch",
-    productImage: "/lovable-uploads/cf7fdb07-79ef-4690-854a-4fb8391f79dc.png",
+    productImage: "src/assets/AdminDashboardImage/AppleWatch.png",
     location: "6096 Marjolaine Landing",
     dateTime: "12.09.2019 - 12.53 PM",
     price: 423,

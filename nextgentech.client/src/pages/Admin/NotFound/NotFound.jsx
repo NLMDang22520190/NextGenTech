@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 
@@ -28,14 +28,14 @@ const NotFound = () => {
           className="h-1 bg-primary-600 mx-auto my-6"
         />
         <p className="text-xl text-gray-600 mb-8">The page you're looking for doesn't exist.</p>
-        <motion.a
-          href="/"
+        <Link
+          to={"/"}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className="px-6 py-3 bg-primary-600 text-white rounded-md font-medium hover:bg-primary-700 transition-colors"
         >
           Return to Dashboard
-        </motion.a>
+        </Link>
       </motion.div>
     </div>
   );
