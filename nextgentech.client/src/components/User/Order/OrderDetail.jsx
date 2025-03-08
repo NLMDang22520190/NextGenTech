@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Plus, CheckCircle, Truck, Package, MapPin, CheckCircle2, FileCheck, FileText } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import RatingModal from '../../../components/User/Order/RatingModal';
 
-const OrderDetails = () => {
+const OrderDetail = () => {
   const navigate = useNavigate();
   const { orderId } = useParams();
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   
   const orderData = {
     id: '96459761',
@@ -92,10 +94,19 @@ const OrderDetails = () => {
           <ArrowLeft size={20} className="mr-2" /> ORDER DETAILS
         </button>
         
-        <button className="flex items-center text-orange-500 hover:text-orange-600 transition-colors">
+        <button 
+          onClick={() => setIsRatingModalOpen(true)}
+          className="flex items-center text-orange-500 hover:text-orange-600 transition-colors"
+        >
           Leave a Rating <Plus size={20} className="ml-2" />
         </button>
       </div>
+
+      <RatingModal 
+        isOpen={isRatingModalOpen} 
+        onClose={() => setIsRatingModalOpen(false)} 
+        orderId={orderData.id}
+      />
       
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -242,4 +253,4 @@ const OrderDetails = () => {
   );
 };
 
-export default OrderDetails;
+export default OrderDetail;
