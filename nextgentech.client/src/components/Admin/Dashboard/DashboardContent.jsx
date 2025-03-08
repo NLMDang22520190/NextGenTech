@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { 
-  Users, 
-  ShoppingCart, 
+  Users,
   DollarSign,
   Package,
   ArrowUp,
@@ -73,7 +72,7 @@ const DashboardContent = () => {
       <h1 className="text-2xl font-semibold text-gray-800">Dashboard</h1>
 
       <motion.div 
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, staggerChildren: 0.1 }}
@@ -140,12 +139,12 @@ const DashboardContent = () => {
           <table className="w-full">
             <thead>
               <tr className="bg-gray-100">
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 rounded-l-lg">Product Name</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Location</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Date - Time</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Piece</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Amount</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-gray-500 rounded-r-lg">Status</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 rounded-l-lg">Product Name</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Location</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Date - Time</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Piece</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Amount</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-gray-700 rounded-r-lg">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -153,8 +152,8 @@ const DashboardContent = () => {
                 <tr key={deal.id} className="">
                   <td className="px-4 py-4">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                        <img src={deal.productImage} alt="" className="w-6 h-6" />
+                      <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
+                        <img src={deal.productImage} alt="" className="p-1 rounded-lg" />
                       </div>
                       <span className="text-sm font-medium">{deal.productName}</span>
                     </div>
