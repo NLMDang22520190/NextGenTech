@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Heart, ChevronLeft, ChevronRight } from "lucide-react";
 
 const StarRating = ({ rating, reviews }) => {
   return (
@@ -28,7 +27,7 @@ const ProductCard = ({ product, onEdit = '' }) => {
   return (
     <motion.div
       variants={itemVariants}
-      className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md hover:scale-102 transition-all duration-100"
+      className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-md hover:shadow-lg hover:scale-102 transition-all duration-100 flex flex-col"
     >
       <div className="relative">
         <div className="relative w-full aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">          
@@ -40,9 +39,9 @@ const ProductCard = ({ product, onEdit = '' }) => {
         </div>
       </div>
       
-      <div className="p-4">
-        <div className="mb-1">
-          <h3 className="text-base font-semibold text-gray-800 line-clamp-2 mb-1">{product.name}</h3>
+      <div className="px-4 pt-3 pb-4 flex flex-col flex-1 justify-between space-y-1">
+        <div>
+          <h3 className="text-base font-semibold text-gray-800 line-clamp-2">{product.name}</h3>
           <p className="text-blue-500 font-semibold">${product.price.toFixed(2)}</p>
         </div>
         
@@ -54,7 +53,7 @@ const ProductCard = ({ product, onEdit = '' }) => {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onEdit(product.id)}
-          className="w-full py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200"
+          className="w-full py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
         >
           Edit Product
         </motion.button>

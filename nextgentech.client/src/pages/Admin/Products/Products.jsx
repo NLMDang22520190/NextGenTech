@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import ProductCard from "../../../components/Admin/Products/ProductCard";
 
-const products = Array.from({length: 10}).map((_,i) => ({
+const products = Array.from({length: 14}).map((_,i) => ({
   id: i + 1,
   name:
     [
@@ -19,8 +19,8 @@ const products = Array.from({length: 10}).map((_,i) => ({
     ][i % 10],
   price: Math.floor(Math.random() * 900) + 100,
   image: `https://picsum.photos/300/300?random=${i}`,
-  rating: 3,
-  reviews: 45
+  rating: Math.floor(Math.random() * 4.5) + 0.5,
+  reviews: Math.floor(Math.random() * 999) + 1
 }))
 
 export default function Products() {
