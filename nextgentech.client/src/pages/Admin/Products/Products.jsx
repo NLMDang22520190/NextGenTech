@@ -20,7 +20,19 @@ const products = Array.from({length: 14}).map((_,i) => ({
   price: Math.floor(Math.random() * 900) + 100,
   image: `https://picsum.photos/300/300?random=${i}`,
   rating: Math.floor(Math.random() * 4.5) + 0.5,
-  reviews: Math.floor(Math.random() * 999) + 1
+  reviews: Math.floor(Math.random() * 999) + 1,
+  brand: [
+    "Apple",
+    "Microsoft",
+    "Amazon",
+    "Samsung",
+    "Intel",
+    "NVIDIA",
+    "AMD",
+    "Sony",
+    "Dell",
+    "Cisco",
+  ][i%10],
 }))
 
 export default function Products() {
