@@ -167,7 +167,7 @@ const OrderList = () => {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8 font-sans">
+    <div className="w-full max-w-7xl mx-auto font-sans">
       <motion.h1 
         className="text-2xl font-medium text-gray-800 mb-6"
         initial={{ opacity: 0, y: -10 }}

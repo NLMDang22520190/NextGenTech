@@ -11,7 +11,7 @@ const AdminLayout = ({ children }) => {
     <div className="flex h-screen bg-gray-50">
       <AdminSidebar isCollapsed={isCollapsed} toggleSidebar={() => setIsCollapsed(!isCollapsed)}/>
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white border-b border-gray-100 py-4 px-6 drop-shadow-sm">
+        <header className="bg-white border-b border-gray-100 py-2 px-6 drop-shadow-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <motion.button 

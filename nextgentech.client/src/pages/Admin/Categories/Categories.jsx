@@ -84,7 +84,7 @@ export default function Categories() {
     };
 
     return (
-    <div className="space-y-3">
+    <div className="space-y-4">
         <h1 className="text-2xl font-semibold text-gray-800">Categories</h1>
 
         <div className="flex space-x-2">
@@ -119,16 +119,16 @@ export default function Categories() {
               <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-primary-300">
                     <tr>
-                      <th scope="col" className="px-4 py-2 text-center text-md font-bold text-white uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-center text-sm font-medium text-white uppercase tracking-wider">
                           STT
                       </th>
-                      <th scope="col" className="px-4 py-2 text-center text-md font-bold text-white uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-center text-sm font-medium text-white uppercase tracking-wider">
                           ID
                       </th>
-                      <th scope="col" className="px-4 py-2 text-left text-md font-bold text-white uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">
                           NAME
                       </th>
-                      <th scope="col" className="px-4 py-2 text-left text-md font-bold text-white uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">
                           DESCRIPTION
                       </th>
                     </tr>
