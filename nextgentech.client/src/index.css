@@ -240,3 +240,31 @@
     @apply flex items-center gap-2 text-sm py-1.5 hover:text-primary transition-colors;
   }
 }
+
+/* Đặt trong src/index.css hoặc global.css */
+
+/* Căn giữa header của Calendar */
+.custom-calendar .ant-picker-calendar-header {
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Định dạng ngày hôm nay */
+.custom-calendar .ant-picker-cell-today .ant-picker-cell-inner {
+  border: 1px solid #1890ff;
+  border-radius: 50%;
+}
+
+/* Ngày được chọn */
+.custom-calendar .ant-picker-cell-selected .ant-picker-cell-inner {
+  background-color: #1890ff;
+  color: white;
+  border-radius: 50%;
+}
+
+/* Các thứ trong tuần */
+.custom-calendar th {
+  font-weight: bold;
+  text-align: center;
+}
+
