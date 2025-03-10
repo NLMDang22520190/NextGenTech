@@ -9,7 +9,7 @@ import "./App.css";
 import AdminLayout from "./components/Admin/Layout/AdminLayout";
 
 function App() {
-  const userRole = "admin";
+  const userRole = "user";
 
   return (
     <div>

@@ -1,37 +1,97 @@
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, ArrowLeft, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight, ArrowLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const orderData = [
-  { id: '96459761', status: 'IN PROGRESS', date: 'Dec 30, 2019 07:52', total: '$80 (5 Products)' },
-  { id: '71667167', status: 'COMPLETED', date: 'Dec 7, 2019 23:26', total: '$70 (4 Products)' },
-  { id: '95214362', status: 'CANCELED', date: 'Dec 7, 2019 23:26', total: '$2,300 (2 Products)' },
-  { id: '71667167', status: 'COMPLETED', date: 'Feb 2, 2019 19:28', total: '$250 (1 Products)' },
-  { id: '51746385', status: 'COMPLETED', date: 'Dec 30, 2019 07:52', total: '$360 (2 Products)' },
-  { id: '51746385', status: 'CANCELED', date: 'Dec 4, 2019 21:42', total: '$220 (7 Products)' },
-  { id: '6739717143', status: 'COMPLETED', date: 'Feb 2, 2019 19:28', total: '$80 (1 Products)' },
-  { id: '6739717143', status: 'COMPLETED', date: 'Mar 20, 2019 23:14', total: '$160 (1 Products)' },
-  { id: '6739717143', status: 'COMPLETED', date: 'Dec 4, 2019 21:42', total: '$1,500 (3 Products)' },
-  { id: '6739717143', status: 'COMPLETED', date: 'Dec 30, 2019 07:52', total: '$1,200 (19 Products)' },
-  { id: '6739717143', status: 'CANCELED', date: 'Dec 30, 2019 05:18', total: '$1,500 (1 Products)' },
-  { id: '6739717143', status: 'COMPLETED', date: 'Dec 30, 2019 07:52', total: '$80 (1 Products)' },
+  {
+    id: "96459761",
+    status: "IN PROGRESS",
+    date: "Dec 30, 2019 07:52",
+    total: "$80 (5 Products)",
+  },
+  {
+    id: "71667167",
+    status: "COMPLETED",
+    date: "Dec 7, 2019 23:26",
+    total: "$70 (4 Products)",
+  },
+  {
+    id: "95214362",
+    status: "CANCELED",
+    date: "Dec 7, 2019 23:26",
+    total: "$2,300 (2 Products)",
+  },
+  {
+    id: "71667167",
+    status: "COMPLETED",
+    date: "Feb 2, 2019 19:28",
+    total: "$250 (1 Products)",
+  },
+  {
+    id: "51746385",
+    status: "COMPLETED",
+    date: "Dec 30, 2019 07:52",
+    total: "$360 (2 Products)",
+  },
+  {
+    id: "51746385",
+    status: "CANCELED",
+    date: "Dec 4, 2019 21:42",
+    total: "$220 (7 Products)",
+  },
+  {
+    id: "6739717143",
+    status: "COMPLETED",
+    date: "Feb 2, 2019 19:28",
+    total: "$80 (1 Products)",
+  },
+  {
+    id: "6739717143",
+    status: "COMPLETED",
+    date: "Mar 20, 2019 23:14",
+    total: "$160 (1 Products)",
+  },
+  {
+    id: "6739717143",
+    status: "COMPLETED",
+    date: "Dec 4, 2019 21:42",
+    total: "$1,500 (3 Products)",
+  },
+  {
+    id: "6739717143",
+    status: "COMPLETED",
+    date: "Dec 30, 2019 07:52",
+    total: "$1,200 (19 Products)",
+  },
+  {
+    id: "6739717143",
+    status: "CANCELED",
+    date: "Dec 30, 2019 05:18",
+    total: "$1,500 (1 Products)",
+  },
+  {
+    id: "6739717143",
+    status: "COMPLETED",
+    date: "Dec 30, 2019 07:52",
+    total: "$80 (1 Products)",
+  },
 ];
 
 const OrderHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
-  
+
   const getStatusColor = (status) => {
     switch (status) {
-      case 'COMPLETED':
-        return 'text-green-500';
-      case 'IN PROGRESS':
-        return 'text-orange-500';
-      case 'CANCELED':
-        return 'text-red-500';
+      case "COMPLETED":
+        return "text-green-500";
+      case "IN PROGRESS":
+        return "text-orange-500";
+      case "CANCELED":
+        return "text-red-500";
       default:
-        return 'text-gray-500';
+        return "text-gray-500";
     }
   };
 
@@ -40,9 +100,9 @@ const OrderHistory = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <h1 className="text-xl font-bold mb-4">ORDER HISTORY</h1>
-      
+    <div className="container mx-auto px-4 md:px-6">
+      <h1 className="text-3xl font-bold mb-6">ORDER HISTORY</h1>
+
       <div className="bg-gray-50 rounded-lg overflow-hidden shadow-sm mb-6">
         <div className="grid grid-cols-12 bg-gray-100 py-3 px-4 border-b border-gray-200">
           <div className="col-span-2 font-medium text-gray-700">ORDER ID</div>
@@ -51,9 +111,9 @@ const OrderHistory = () => {
           <div className="col-span-3 font-medium text-gray-700">TOTAL</div>
           <div className="col-span-2 font-medium text-gray-700">ACTION</div>
         </div>
-        
+
         {orderData.map((order, index) => (
-          <motion.div 
+          <motion.div
             key={index}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -61,7 +121,11 @@ const OrderHistory = () => {
             className="grid grid-cols-12 py-3 px-4 border-b border-gray-100 hover:bg-gray-50"
           >
             <div className="col-span-2 font-medium">#{order.id}</div>
-            <div className={`col-span-2 font-medium ${getStatusColor(order.status)}`}>
+            <div
+              className={`col-span-2 font-medium ${getStatusColor(
+                order.status
+              )}`}
+            >
               {order.status}
             </div>
             <div className="col-span-3 text-gray-600">{order.date}</div>
@@ -79,7 +143,7 @@ const OrderHistory = () => {
           </motion.div>
         ))}
       </div>
-      
+
       <div className="flex justify-center items-center space-x-2 my-8">
         <motion.button
           whileHover={{ scale: 1.1 }}
@@ -88,23 +152,23 @@ const OrderHistory = () => {
         >
           <ArrowLeft size={18} />
         </motion.button>
-        
+
         {[1, 2, 3, 4, 5, 6].map((page) => (
           <motion.button
             key={page}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              currentPage === page 
-                ? 'bg-orange-500 text-white' 
-                : 'border border-gray-300 text-gray-600 hover:bg-gray-100'
+              currentPage === page
+                ? "bg-orange-500 text-white"
+                : "border border-gray-300 text-gray-600 hover:bg-gray-100"
             } transition-colors`}
             onClick={() => setCurrentPage(page)}
           >
-            {page.toString().padStart(2, '0')}
+            {page.toString().padStart(2, "0")}
           </motion.button>
         ))}
-        
+
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
