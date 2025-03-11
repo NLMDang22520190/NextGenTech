@@ -8,6 +8,7 @@ import Categories from "../pages/Admin/Categories";
 import Order from "../pages/Admin/Order/Order";
 import Stock from "../pages/Admin/ProductStock/ProductStock"
 import Customers from "../pages/Admin/Customers";
+import Promotions from "../pages/Admin/Promotions";
 
 const AllAdminRoutes = () => {
   return (
@@ -19,6 +20,7 @@ const AllAdminRoutes = () => {
       <Route path="/orders" element={<Order/>}/>  
       <Route path="/stock" element={<Stock/>}/>
       <Route path="/customers" element={<Customers/>}/>
+      <Route path="/promotions" element={<Promotions/>}/>
       
       <Route path="*" element={<NotFound />} />
     </Routes>

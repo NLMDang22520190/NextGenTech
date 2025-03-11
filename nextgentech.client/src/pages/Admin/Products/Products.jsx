@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import ProductCard from "../../../components/Admin/Products/ProductCard";
+import { Search } from "lucide-react";
 
 const products = Array.from({length: 14}).map((_,i) => ({
   id: i + 1,
@@ -36,11 +37,32 @@ const products = Array.from({length: 14}).map((_,i) => ({
 }))
 
 export default function Products() {
-  const [productList, setProductList] = useState(products);
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  const filterProductsData = products.filter(row => 
+    row.name.toLowerCase().includes(searchQuery.toLowerCase())
+    // && ((filter != "" && subfilter != "") ? (filter === 'Loại' ? row.categoryName === subfilter : row.supplierName === subfilter): true)
+  );
 
   return (
     <div className='space-y-6'>
       <h1 className="text-2xl font-semibold text-gray-800">Products</h1>
+
+      <div className={`relative ${searchQuery.length > 0 ? "w-64" : "w-40"} focus-within:w-64 hover:w-64 hover:duration-300 duration-300`}>
+        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+          <Search size={18} />
+        </span>
+        <input
+          type="text"
+          className="pl-10 pr-4 py-2 w-full border rounded-full text-sm focus:outline-none focus:border-primary-600"
+          placeholder="Search product"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value)
+            console.log(searchQuery)             
+          }}
+        />
+      </div>
 
       <motion.div
         className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
@@ -48,7 +70,7 @@ export default function Products() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, staggerChildren: 0.1 }}
       >
-        {productList.map((product) => (
+        {filterProductsData.map((product) => (
           <ProductCard
             key={product.id}
             product={product}

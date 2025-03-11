@@ -93,39 +93,18 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
           transition={{ staggerChildren: 0.05, delayChildren: 0.1 }}
         >
           <div className="flex flex-col justify-around h-9/10">            
-              {sidebarItems.map((item) => (
-                <div>
-                  <SidebarItem 
-                    key={item.path}
-                    icon={item.icon}
-                    label={item.label}
-                    path={item.path}
-                    isActive={location.pathname === item.path}
-                    isCollapsed={isCollapsed}
-                  />
-                </div>
-              ))}
-            
-            {/* Section Title */}
-            {/* {!isCollapsed && (
-              <div className="py-0.5 px-3">
-                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">PAGES</p>
+            {sidebarItems.map((item) => (
+              <div>
+                <SidebarItem 
+                  key={item.path}
+                  icon={item.icon}
+                  label={item.label}
+                  path={item.path}
+                  isActive={location.pathname === item.path}
+                  isCollapsed={isCollapsed}
+                />
               </div>
-            )} */}
-
-            {/* Bottom Items */}
-              {/* {pageItems.map((item) => (
-                <div>
-                  <SidebarItem 
-                    key={item.path}
-                    icon={item.icon}
-                    label={item.label}
-                    path={item.path}
-                    isActive={location.pathname === item.path}
-                    isCollapsed={isCollapsed}
-                  />
-                </div>
-              ))} */}
+            ))}
           </div>
         </motion.div>
       </nav>

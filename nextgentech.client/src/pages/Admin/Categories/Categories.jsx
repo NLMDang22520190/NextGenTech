@@ -87,22 +87,20 @@ export default function Categories() {
     <div className="space-y-4">
       <h1 className="text-2xl font-semibold text-gray-800">Categories</h1>
 
-      <div className="flex space-x-2">
-          <div className="relative mr-6 w-45 hover:w-64 hover:duration-300 duration-300">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-              <Search size={18} />
-            </span>
-            <input
-              type="text"
-              className="pl-10 pr-4 py-2 w-45 border rounded-full text-sm focus:outline-none focus:border-primary-600 hover:w-full hover:duration-300 duration-300"
-              placeholder="Search category..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value)
-                console.log(searchQuery)             
-              }}
-            />
-          </div>
+      <div className={`relative mr-6 ${searchQuery.length > 0 ? "w-64" : "w-44"} focus-within:w-64 hover:w-64 hover:duration-300 duration-300`}>
+        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+          <Search size={18} />
+        </span>
+        <input
+          type="text"
+          className="pl-10 pr-4 py-2 w-full border rounded-full text-sm focus:outline-none focus:border-primary-600"
+          placeholder="Search category"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value)
+            console.log(searchQuery)             
+          }}
+        />
       </div>
 
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">

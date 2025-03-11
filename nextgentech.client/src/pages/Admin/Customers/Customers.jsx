@@ -3,106 +3,16 @@ import { motion } from "framer-motion";
 import { Filter, ChevronLeft, ChevronRight, Search, ChevronDown, Eye, Pencil, Trash2 } from "lucide-react";
 
 const customersData = [
-    {
-        id: 1,
-        name: "John Bushmill",
-        email: "John@gmail.com",
-        phone: "078 5054 8877",
-        orders: 124,
-        balance: "$121.00",
-        status: "Blocked",
-        created: "29 Dec 2022"
-    },
-    {
-        id: 2,
-        name: "Laura Prichet",
-        email: "laura_prichet@gmail.com",
-        phone: "215 302 3376",
-        orders: 45,
-        balance: "$590.00",
-        status: "Active",
-        created: "24 Dec 2022"
-    },
-    {
-        id: 3,
-        name: "Mohammad Karim",
-        email: "m_karim@gmail.com",
-        phone: "050 414 8778",
-        orders: 984,
-        balance: "$125.00",
-        status: "Blocked",
-        created: "12 Dec 2022"
-    },
-    {
-        id: 4,
-        name: "Josh Bill",
-        email: "josh_bill@gmail.com",
-        phone: "216 75 612 706",
-        orders: 99,
-        balance: "$348.00",
-        status: "Blocked",
-        created: "21 Oct 2022"
-    },
-    {
-        id: 5,
-        name: "Josh Adam",
-        email: "josh_adam@gmail.com",
-        phone: "02 75 150 655",
-        orders: 1540,
-        balance: "$607.00",
-        status: "Active",
-        created: "21 Oct 2022"
-    },
-    {
-        id: 6,
-        name: "Sin Tae",
-        email: "sin_tae@gmail.com",
-        phone: "078 6013 3854",
-        orders: 431,
-        balance: "$234.00",
-        status: "Active",
-        created: "21 Oct 2022"
-    },
-    {
-        id: 7,
-        name: "Rajesh Masvidal",
-        email: "rajesh_m@gmail.com",
-        phone: "828 216 2190",
-        orders: 36,
-        balance: "$760.00",
-        status: "Blocked",
-        created: "19 Sep 2022"
-    },
-    {
-        id: 8,
-        name: "Fajar Surya",
-        email: "fsurya@gmail.com",
-        phone: "078 7173 9261",
-        orders: 77,
-        balance: "$400.00",
-        status: "Active",
-        created: "19 Sep 2022"
-    },
-    {
-        id: 9,
-        name: "Lisa Greg",
-        email: "lisa@gmail.com",
-        phone: "077 6157 4248",
-        orders: 89,
-        balance: "$812.00",
-        status: "Active",
-        created: "19 Sep 2022"
-    },
-    {
-        id: 10,
-        name: "Linda Blair",
-        email: "lindablair@gmail.com",
-        phone: "050 414 8778",
-        orders: 1296,
-        balance: "$723.00",
-        status: "Active",
-        created: "10 Aug 2022"
-    }
+    { id: 1, name: "John Bushmill", email: "John@gmail.com", phone: "078 5054 8877", orders: 124, balance: "$121.00", status: "Blocked", created: "29 Dec 2022" },
+    { id: 2, name: "Laura Prichet", email: "laura_prichet@gmail.com", phone: "215 302 3376", orders: 45, balance: "$590.00", status: "Active", created: "24 Dec 2022" },
+    { id: 3, name: "Mohammad Karim", email: "m_karim@gmail.com", phone: "050 414 8778", orders: 984, balance: "$125.00", status: "Blocked", created: "12 Dec 2022" },
+    { id: 4, name: "Josh Bill", email: "josh_bill@gmail.com", phone: "216 75 612 706", orders: 99, balance: "$348.00", status: "Blocked", created: "21 Oct 2022" },
+    { id: 5, name: "Josh Adam", email: "josh_adam@gmail.com", phone: "02 75 150 655", orders: 1540, balance: "$607.00", status: "Active", created: "21 Oct 2022" },
+    { id: 6, name: "Sin Tae", email: "sin_tae@gmail.com", phone: "078 6013 3854", orders: 431, balance: "$234.00", status: "Active", created: "21 Oct 2022" },
+    { id: 7, name: "Rajesh Masvidal", email: "rajesh_m@gmail.com", phone: "828 216 2190", orders: 36, balance: "$760.00", status: "Blocked", created: "19 Sep 2022" },
+    { id: 8, name: "Fajar Surya", email: "fsurya@gmail.com", phone: "078 7173 9261", orders: 77, balance: "$400.00", status: "Active", created: "19 Sep 2022" },
+    { id: 9, name: "Lisa Greg", email: "lisa@gmail.com", phone: "077 6157 4248", orders: 89, balance: "$812.00", status: "Active", created: "19 Sep 2022" },
+    { id: 10, name: "Linda Blair", email: "lindablair@gmail.com", phone: "050 414 8778", orders: 1296, balance: "$723.00", status: "Active", created: "10 Aug 2022" }
 ];
 
 const CustomerStatusBadge = ({ status }) => {
@@ -143,9 +53,11 @@ export default function Customers() {
     const [itemsPerPage, setItemsPerPage] = React.useState(8);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCustomers, setSelectedCustomers] = useState([]);
+    const [filterStatus, setFilterStatus] = useState("");
 
     const filterCustomersData = customersData.filter(row => 
       row.name.toLowerCase().includes(searchQuery.toLowerCase())
+      && (filterStatus != "" ? row.status === filterStatus : true)
       // && ((filter != "" && subfilter != "") ? (filter === 'Loại' ? row.categoryName === subfilter : row.supplierName === subfilter): true)
     );
 
@@ -181,21 +93,27 @@ export default function Customers() {
     const itemVariants = {
       hidden: { opacity: 0, y: 20 },
       visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
-    };    
+    };
+
+    const handleFilterChange = async (e) => {
+        const value = e.target.value;
+        setFilterStatus(value);
+    };
 
     return (
         <div className="space-y-4">
-            <h1 className="text-2xl font-semibold text-gray-800">Customers</h1>
+            <h1 className="text-2xl font-semibold text-gray-800">Customers</h1> {/* Header */}
     
-            <div className="flex space-x-2">
-                <div className="relative w-40 hover:w-64 hover:duration-300 duration-300" >
+            {/* Search and Filter */}
+            <div className="flex justify-between">
+                <div className={`relative ${searchQuery.length > 0 ? "w-64" : "w-44"} focus-within:w-64 hover:w-64 hover:duration-300 duration-300`}>
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                     <Search size={18} />
                     </span>
                     <input
                     type="text"
-                    className="pl-10 pr-4 py-2 w-[160px] border rounded-full text-sm focus:outline-none focus:border-primary-600 hover:w-full hover:duration-300 duration-300"
-                    placeholder="Search"
+                    className="pl-10 pr-4 py-2 w-full border rounded-full text-sm focus:outline-none focus:border-primary-600"
+                    placeholder="Search customer"
                     value={searchQuery}
                     onChange={(e) => {
                         setSearchQuery(e.target.value)
@@ -204,26 +122,49 @@ export default function Customers() {
                     />
                 </div>
     
-                <div className="flex items-center px-4 py-2">
-                    <Filter size={18} className="mr-2 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-700">Filter By</span>
-                </div>
-                
-                <div className="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-md shadow-sm">
-                    <span className="text-sm font-medium text-gray-700 mr-2">Status</span>
-                    <ChevronDown size={16} className="text-gray-500" />
-                </div>
+                <div className="flex space-x-4">
+                    <div className="flex items-center py-2">
+                        <Filter size={18} className="mr-2 text-gray-500" />
+                        <span className="text-sm font-medium text-gray-700">Filter By</span>
+                    </div>
 
-                <div className="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-md shadow-sm">
-                    <span className="text-sm font-medium text-gray-700 mr-2">Orders</span>
-                    <ChevronDown size={16} className="text-gray-500" />
-                </div>
+                    <div class="relative w-30">
+                        <select
+                            title="status filter"
+                            class="w-full bg-white border border-gray-200 rounded-md shadow-sm py-2 px-4 focus:outline-none text-sm text-gray-700 appearance-none"
+                            value={filterStatus}
+                            onChange={handleFilterChange}
+                        >
+                            <option value="" className="italic">
+                                <em>Status</em>
+                            </option>
+                            <option value="Active">Active</option>
+                            <option value="Blocked">Blocked</option>
+                        </select>
 
-                <button className="flex items-center px-4 py-2 text-red-500 font-medium text-sm">
-                    <span className="cursor-pointer">Reset Filter</span>
-                </button>
+                        <ChevronDown size={16} className="text-gray-500 absolute inset-y-3 right-3 flex items-center pointer-events-none" />
+                    </div>
+                    
+                    {/* <div className="flex items-center py-2 bg-white border border-gray-200 rounded-md shadow-sm">
+                        <span className="text-sm font-medium text-gray-700 mr-2">Status</span>
+                        <ChevronDown size={16} className="text-gray-500" />
+                    </div>
+
+                    <div className="flex items-center py-2 bg-white border border-gray-200 rounded-md shadow-sm">
+                        <span className="text-sm font-medium text-gray-700 mr-2">Orders</span>
+                        <ChevronDown size={16} className="text-gray-500" />
+                    </div> */}
+
+                    <button 
+                        className="flex items-center py-2 text-red-500 font-medium text-sm"
+                        onClick={() => {setFilterStatus("")}}
+                    >
+                        <span className="cursor-pointer">Reset Filter</span>
+                    </button>
+                </div>
             </div>
-    
+
+            {/* Table */}    
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
@@ -337,6 +278,7 @@ export default function Customers() {
                     </table>
                 </div>
                 
+                {/* Table Footer */}
                 <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
                 <div className="text-sm text-gray-500">
                     Showing {currentPage * itemsPerPage + 1}-{Math.min((currentPage + 1) * itemsPerPage,totalItems)} of {totalItems}
