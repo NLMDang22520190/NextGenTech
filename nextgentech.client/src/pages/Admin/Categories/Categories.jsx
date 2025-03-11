@@ -85,109 +85,100 @@ export default function Categories() {
 
     return (
     <div className="space-y-4">
-        <h1 className="text-2xl font-semibold text-gray-800">Categories</h1>
+      <h1 className="text-2xl font-semibold text-gray-800">Categories</h1>
 
-        <div className="flex space-x-2">
-            <div className="relative mr-6 w-40 hover:w-64 hover:duration-300 duration-300" >
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                <Search size={18} />
-              </span>
-              <input
-                type="text"
-                className="pl-10 pr-4 py-2 w-[160px] border rounded-full text-sm focus:outline-none focus:border-primary-600 hover:w-full hover:duration-300 duration-300"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value)
-                  console.log(searchQuery)             
-                }}
-              />
-            </div>
+      <div className="flex space-x-2">
+          <div className="relative mr-6 w-45 hover:w-64 hover:duration-300 duration-300">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+              <Search size={18} />
+            </span>
+            <input
+              type="text"
+              className="pl-10 pr-4 py-2 w-45 border rounded-full text-sm focus:outline-none focus:border-primary-600 hover:w-full hover:duration-300 duration-300"
+              placeholder="Search category..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value)
+                console.log(searchQuery)             
+              }}
+            />
+          </div>
+      </div>
 
-            <button className="flex items-center px-4 py-2 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50 hover:shadow-md cursor-pointer">
-                <Filter size={18} className="mr-2 text-gray-500" />
-                <span className="text-sm font-medium text-gray-700">Filter By</span>
-            </button>
-
-            <button className="flex items-center px-4 py-2 text-red-500 font-medium text-sm">
-                <span className="cursor-pointer">Reset Filter</span>
-            </button>
-        </div>
-
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-primary-300">
-                    <tr>
-                      <th scope="col" className="px-4 py-3 text-center text-sm font-medium text-white uppercase tracking-wider">
+      <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-100">
+                  <tr>
+                      <th scope="col" className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
                           STT
                       </th>
-                      <th scope="col" className="px-4 py-3 text-center text-sm font-medium text-white uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
                           ID
                       </th>
-                      <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                           NAME
                       </th>
-                      <th scope="col" className="px-4 py-3 text-left text-sm font-medium text-white uppercase tracking-wider">
+                      <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                           DESCRIPTION
                       </th>
-                    </tr>
-                  </thead>
-                  <motion.tbody
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    className="bg-white divide-y divide-gray-200 h-[60vh]"
-                  >
-                    {filterCategoryData
-                      .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
-                      .map((category, index) => (
-                    <motion.tr key={category.id} variants={itemVariants} className="hover:bg-gray-50 h-[7.5vh]">
-                      <td className="px-4 py-2 text-sm text-gray-900 text-center">
-                        {currentPage * itemsPerPage + index + 1}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-500">{category.id}</td>
-                      <td className="px-4 py-2">
-                        <div className="text-sm font-medium text-black">{category.name}</div>
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-500">{category.description}</td>
-                    </motion.tr>
-                    ))}
+                  </tr>
+                </thead>
+                <motion.tbody
+                  variants={containerVariants}
+                  initial="hidden"
+                  animate="visible"
+                  className="bg-white divide-y divide-gray-200 h-[60vh]"
+                >
+                  {filterCategoryData
+                    .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
+                    .map((category, index) => (
+                  <motion.tr key={category.id} variants={itemVariants} className="hover:bg-gray-50 h-[7.5vh]">
+                    <td className="px-4 py-2 text-sm text-gray-900 text-center">
+                      {currentPage * itemsPerPage + index + 1}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">{category.id}</td>
+                    <td className="px-4 py-2">
+                      <div className="text-sm font-medium text-black">{category.name}</div>
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-500">{category.description}</td>
+                  </motion.tr>
+                  ))}
 
-                    {Array.from({ length: itemsPerPage - Math.min(itemsPerPage,totalItems-(currentPage * itemsPerPage)) }).map((_, i) => (
-                        <tr key={`empty-${i}`} className="h-[7.5vh]">
-                            <td className="px-4 py-2 text-sm text-gray-300 text-center">-</td>
-                            <td className="px-4 py-2 text-sm text-gray-300">-</td>
-                            <td className="px-4 py-2 text-sm text-gray-300">-</td>
-                            <td className="px-4 py-2 text-sm text-gray-300">-</td>
-                        </tr>
-                    ))}
-                  </motion.tbody>
-              </table>
+                  {Array.from({ length: itemsPerPage - Math.min(itemsPerPage,totalItems-(currentPage * itemsPerPage)) }).map((_, i) => (
+                      <tr key={`empty-${i}`} className="h-[7.5vh]">
+                          <td className="px-4 py-2 text-sm text-gray-300 text-center">-</td>
+                          <td className="px-4 py-2 text-sm text-gray-300">-</td>
+                          <td className="px-4 py-2 text-sm text-gray-300">-</td>
+                          <td className="px-4 py-2 text-sm text-gray-300">-</td>
+                      </tr>
+                  ))}
+                </motion.tbody>
+            </table>
+        </div>
+          
+        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+          <div className="text-sm text-gray-500">
+            Showing {currentPage * itemsPerPage + 1}-{Math.min((currentPage + 1) * itemsPerPage,totalItems)} of {totalItems}
           </div>
-            
-          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-            <div className="text-sm text-gray-500">
-              Showing {currentPage * itemsPerPage + 1}-{Math.min((currentPage + 1) * itemsPerPage,totalItems)} of {totalItems}
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                  className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-                  disabled={currentPage === 0}
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
-              >
-                  <ChevronLeft size={20} className="text-gray-600" />
-              </button>
-              <button
-                  className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-                  disabled={(currentPage + 1) === totalPages}
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))}
-              >
-                  <ChevronRight size={20} className="text-gray-600" />
-              </button>
-            </div>
+          <div className="flex items-center space-x-2">
+            <button
+                className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
+            >
+                <ChevronLeft size={20} className="text-gray-600" />
+            </button>
+            <button
+                className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                disabled={(currentPage + 1) === totalPages}
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))}
+            >
+                <ChevronRight size={20} className="text-gray-600" />
+            </button>
           </div>
         </div>
+      </div>
     </div>
   )
 }
