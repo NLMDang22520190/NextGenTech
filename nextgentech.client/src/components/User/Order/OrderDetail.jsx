@@ -89,16 +89,16 @@ const OrderDetail = () => {
       <div className="flex justify-between items-center mb-6">
         <button 
           onClick={() => navigate(-1)}
-          className="flex items-center text-gray-700 hover:text-gray-900 transition-colors text-xl font-bold mb-4"
+          className="flex items-center text-primary-600 hover:text-primary-700 transition-colors text-xl font-bold mb-4 cursor-pointer"
         >
-          <ArrowLeft size={20} className="mr-2" /> ORDER DETAILS
+          <ArrowLeft size={20} className="mr-2 text-primary-700" /> ORDER DETAILS
         </button>
         
         <button 
           onClick={() => setIsRatingModalOpen(true)}
-          className="flex items-center text-orange-500 hover:text-orange-600 transition-colors"
+          className="flex items-center bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent font-bold cursor-pointer"
         >
-          Leave a Rating <Plus size={20} className="ml-2" />
+          Leave a Rating <Plus size={20} className="ml-2 text-primary-600" />
         </button>
       </div>
 
@@ -129,18 +129,18 @@ const OrderDetail = () => {
         <div className="relative mb-8">
           <div className="absolute top-4 left-0 right-0 h-1 bg-gray-200 z-0"></div>
           
-          <div className="absolute top-4 left-0 h-1 bg-orange-500 z-0" style={{ width: `${orderData.currentStep * 33}%` }}></div>
+          <div className="absolute top-4 left-0 h-1 bg-primary-500 z-0" style={{ width: `${orderData.currentStep * 33}%` }}></div>
           
           <div className="flex justify-between relative z-10">
             <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-orange-500 border-4 border-white flex items-center justify-center mb-2">
+              <div className="w-8 h-8 rounded-full bg-primary-500 border-4 border-white flex items-center justify-center mb-2">
                 <FileText size={16} className="text-white" />
               </div>
               <p className="text-sm text-gray-700">Order Placed</p>
             </div>
             
             <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-orange-500 border-4 border-white flex items-center justify-center mb-2">
+              <div className="w-8 h-8 rounded-full bg-primary-500 border-4 border-white flex items-center justify-center mb-2">
                 <Package size={16} className="text-white" />
               </div>
               <p className="text-sm text-gray-700">Packaging</p>

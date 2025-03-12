@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 const LeftPanel = () => {
   return (
     <motion.div 
-      className="h-full w-full relative overflow-hidden"
+      className="h-full w-full relative overflow-hidden bg-primary-100"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
@@ -29,7 +29,7 @@ const LeftPanel = () => {
             {/* Scooter base */}
             <motion.ellipse 
               cx="75" cy="125" rx="25" ry="15" 
-              fill="#FFD700"
+              fill="#46aff2"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.8, delay: 0.7 }}
@@ -75,7 +75,6 @@ const LeftPanel = () => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, delay: 1.5 }}
       >
-        {/* <span className="text-coral-dark text-lg font-medium">Your Logo</span> */}
       </motion.div>
     </motion.div>
   );

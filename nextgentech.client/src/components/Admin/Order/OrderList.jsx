@@ -5,7 +5,6 @@ import { format, parse, isValid } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "../../../components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger} from "../../../components/ui/popover";
 import  { Calendar } from "../../../components/ui/calendar";
-import { Button } from "../../../components/ui/button";
 
 const OrderList = () => {
   const [selectedDate, setSelectedDate] = useState(undefined);
@@ -253,7 +252,7 @@ const OrderList = () => {
         <div className="flex items-center ml-auto">
           <button 
             onClick={resetFilters}
-            className="px-4 py-3 flex items-center text-red-500 hover:text-red-600 transition-colors duration-200"
+            className="px-4 py-3 flex items-center text-red-500 hover:text-red-600 transition-colors duration-200 cursor-pointer" 
           >
             <X size={16} className="mr-2" />
             <span className="text-sm font-medium">Reset Filter</span>

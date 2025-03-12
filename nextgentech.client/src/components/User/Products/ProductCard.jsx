@@ -90,8 +90,7 @@ const ProductCard = ({ product }) => {
             e.stopPropagation(); // Ngăn chặn sự kiện click lan lên div cha
             console.log("Added to cart:", product.name);
           }}
-          className="mt-auto w-full flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-secondary cursor-pointer text-white py-2 text-sm rounded-lg hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-all"
-        >
+          className="mt-auto w-full flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-secondary cursor-pointer text-white py-2 text-sm rounded-lg hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-all">
           <ShoppingCart />
           Add to Cart
         </button>
