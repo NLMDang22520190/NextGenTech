@@ -22,17 +22,17 @@ const orderData = [
 const OrderHistory = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
-  
+
   const getStatusColor = (status) => {
     switch (status) {
-      case 'COMPLETED':
-        return 'text-green-500';
-      case 'IN PROGRESS':
-        return 'text-orange-500';
-      case 'CANCELED':
-        return 'text-red-500';
+      case "COMPLETED":
+        return "text-green-500";
+      case "IN PROGRESS":
+        return "text-orange-500";
+      case "CANCELED":
+        return "text-red-500";
       default:
-        return 'text-gray-500';
+        return "text-gray-500";
     }
   };
 
@@ -66,9 +66,9 @@ const OrderHistory = () => {
           <div className="col-span-3 font-medium text-gray-700">TOTAL</div>
           <div className="col-span-2 font-medium text-gray-700">ACTION</div>
         </div>
-        
+
         {orderData.map((order, index) => (
-          <motion.div 
+          <motion.div
             key={index}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -95,7 +95,7 @@ const OrderHistory = () => {
           </motion.div>
         ))}
       </div>
-      
+
       <div className="flex justify-center items-center space-x-2 my-8">
         <motion.button
           whileHover={{ scale: 1.1 }}
@@ -104,7 +104,7 @@ const OrderHistory = () => {
         >
           <ArrowLeft size={18} />
         </motion.button>
-        
+
         {[1, 2, 3, 4, 5, 6].map((page) => (
           <motion.button
             key={page}
@@ -117,10 +117,10 @@ const OrderHistory = () => {
             } transition-colors`}
             onClick={() => setCurrentPage(page)}
           >
-            {page.toString().padStart(2, '0')}
+            {page.toString().padStart(2, "0")}
           </motion.button>
         ))}
-        
+
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
