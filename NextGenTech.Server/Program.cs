@@ -1,4 +1,13 @@
+using Microsoft.EntityFrameworkCore;
+using NextGenTech.Server.Models;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<NextGenTechContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("NextGenTech"), sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure();
+    }));
 
 // Add services to the container.
 
