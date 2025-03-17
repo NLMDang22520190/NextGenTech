@@ -11,6 +11,8 @@ public partial class ProductColor
 
     public string Color { get; set; } = null!;
 
+    public string ColorCode { get; set; } = null!;
+
     public int? StockQuantity { get; set; }
 
     public virtual Product? Product { get; set; }
