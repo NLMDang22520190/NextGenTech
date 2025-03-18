@@ -20,11 +20,11 @@ namespace NextGenTech.Server.Models.DTO.GET
 
         public virtual CategoryDTO? Category { get; set; }
 
-        private ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
+        public ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
 
         // public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
-        private ICollection<CustomerProductPromotionDTO> Promotions { get; set; } = new List<CustomerProductPromotionDTO>();
+        public ICollection<CustomerProductPromotionDTO> Promotions { get; set; } = new List<CustomerProductPromotionDTO>();
 
         // Lấy phần trăm giảm giá cao nhất nếu có
         public string ImageUrl => ProductImages.Count > 0 ? ProductImages.Where(i => i.IsPrimary == true).FirstOrDefault().ImageUrl : string.Empty;

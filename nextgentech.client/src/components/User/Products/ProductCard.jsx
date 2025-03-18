@@ -10,12 +10,14 @@ const ProductCard = ({ product }) => {
     navigate(`/products/${product.id}`);
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setImageLoaded(true);
-    }, Math.random() * 800 + 200);
-    return () => clearTimeout(timer);
-  }, []);
+  const isSale = product.oldPrice !== product.price;
+
+  // useEffect(() => {
+  //   const timer = setTimeout(() => {
+  //     setImageLoaded(true);
+  //   }, Math.random() * 800 + 200);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   return (
     <div
@@ -38,7 +40,7 @@ const ProductCard = ({ product }) => {
           onLoad={() => setImageLoaded(true)}
         />
 
-        {product.oldPrice && (
+        {isSale && (
           <div className="absolute top-2 left-2 bg-red-500 text-white text-xs px-2 py-1 rounded">
             Sale
           </div>
@@ -74,7 +76,7 @@ const ProductCard = ({ product }) => {
 
         {/* Pricing */}
         <div className="flex items-baseline">
-          {product.oldPrice && (
+          {isSale && (
             <span className="text-sm text-gray-500 line-through mr-2">
               ${product.oldPrice.toFixed(2)}
             </span>
@@ -90,7 +92,8 @@ const ProductCard = ({ product }) => {
             e.stopPropagation(); // Ngăn chặn sự kiện click lan lên div cha
             console.log("Added to cart:", product.name);
           }}
-          className="mt-auto w-full flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-secondary cursor-pointer text-white py-2 text-sm rounded-lg hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-all">
+          className="mt-auto w-full flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-secondary cursor-pointer text-white py-2 text-sm rounded-lg hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-all"
+        >
           <ShoppingCart />
           Add to Cart
         </button>
