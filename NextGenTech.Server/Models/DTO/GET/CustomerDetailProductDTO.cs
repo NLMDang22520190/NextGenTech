@@ -22,13 +22,19 @@ namespace NextGenTech.Server.Models.DTO.GET
 
         public virtual CategoryDTO? Category { get; set; }
 
-        public virtual ICollection<ProductImageDTO> ProductImages { get; set; } = new List<ProductImageDTO>();
-        public virtual ICollection<ProductColorDTO> ProductColors { get; set; } = new List<ProductColorDTO>();
-
-        // public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
+        public ICollection<ProductImageDTO> ProductImages { get; set; } = new List<ProductImageDTO>();
+        public ICollection<ProductColorDTO> ProductColors { get; set; } = new List<ProductColorDTO>();
 
         // public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
-        // public virtual ICollection<Promotion> Promotions { get; set; } = new List<Promotion>();
+        private ICollection<CustomerProductPromotionDTO> Promotions { get; set; } = new List<CustomerProductPromotionDTO>();
+
+        public decimal? DiscountPercentage => Promotions
+         .Where(p => p.StartDate <= DateTime.UtcNow && p.EndDate >= DateTime.UtcNow)
+         .Select(p => p.DiscountPercentage)
+         .DefaultIfEmpty(0)
+         .Max();
+
+        public decimal SalePrice => DiscountPercentage.HasValue ? Price * (1 - DiscountPercentage.Value / 100) : Price;
     }
 }

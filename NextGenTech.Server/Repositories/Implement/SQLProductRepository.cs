@@ -15,6 +15,7 @@ namespace NextGenTech.Server.Repositories.Implement
             return await dbContext.Products
             .Include(p => p.Brand)
             .Include(p => p.Category)
+            .Include(p => p.Promotions)
             .ToListAsync();
         }
 
