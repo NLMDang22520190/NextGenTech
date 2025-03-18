@@ -19,6 +19,7 @@ namespace HealthBuddy.Server.Mapping
             CreateMap<Promotion, CustomerProductPromotionDTO>().ReverseMap();
             CreateMap<Brand, BrandDTO>().ReverseMap();
             CreateMap<Category, CategoryDTO>().ReverseMap();
+            CreateMap<Promotion, CustomerPromotionDTO>().ReverseMap();
         }
     }
 }
