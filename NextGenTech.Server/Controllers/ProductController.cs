@@ -33,6 +33,20 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
+        [HttpGet("CustomerGetProductById/{id}")]
+        public async Task<ActionResult> CustomerGetProductById(int id)
+        {
+            try
+            {
+                var product = await _productRepository.CustomerGetProductByIdAsync(id);
+                return Ok(_mapper.Map<CustomerDetailProductDTO>(product));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
 
     }
 

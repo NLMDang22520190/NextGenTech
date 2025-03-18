@@ -5,5 +5,7 @@ namespace NextGenTech.Server.Repositories
     public interface IProductRepository : INextGenTechRepository<Product>
     {
         Task<List<Product>> CustomerGetAllProductAsync();
+
+        Task<Product> CustomerGetProductByIdAsync(int id);
     }
 }

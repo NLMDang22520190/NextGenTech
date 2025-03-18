@@ -6,7 +6,6 @@ namespace NextGenTech.Server.Models.DTO.GET
 
         public string BrandName { get; set; } = null!;
 
-        public string? BrandImageUrl { get; set; }
 
     }
 }

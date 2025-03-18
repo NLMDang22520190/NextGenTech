@@ -13,6 +13,9 @@ namespace HealthBuddy.Server.Mapping
         public AutoMapperProfile()
         {
             CreateMap<Product, CustomerProductDTO>().ReverseMap();
+            CreateMap<Product, CustomerDetailProductDTO>().ReverseMap();
+            CreateMap<ProductImage, ProductImageDTO>().ReverseMap();
+            CreateMap<ProductColor, ProductColorDTO>().ReverseMap();
             CreateMap<Brand, BrandDTO>().ReverseMap();
             CreateMap<Category, CategoryDTO>().ReverseMap();
         }
