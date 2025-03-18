@@ -10,5 +10,12 @@ namespace NextGenTech.Server.Repositories.Implement
         {
         }
 
+        public async Task<List<Product>> CustomerGetAllProductAsync()
+        {
+            return await dbContext.Products
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .ToListAsync();
+        }
     }
 }

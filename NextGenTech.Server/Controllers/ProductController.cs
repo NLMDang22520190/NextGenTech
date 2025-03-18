@@ -2,6 +2,7 @@ using AutoMapper;
 using NextGenTech.Server.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NextGenTech.Server.Models.DTO.GET;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -18,11 +19,21 @@ namespace HealthBuddy.Server.Controllers
             _mapper = mapper;
         }
 
-        // [HttpGet]
-        // public async Task<ActionResult> GetAllUsers()
-        // {
+        [HttpGet("CustomerGetAllProduct")]
+        public async Task<ActionResult> CustomerGetAllProduct()
+        {
+            try
+            {
+                var products = await _productRepository.CustomerGetAllProductAsync();
+                return Ok(_mapper.Map<List<CustomerProductDTO>>(products));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
 
-        // }
 
     }
+
 }
