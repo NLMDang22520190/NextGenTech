@@ -7,6 +7,7 @@ import SideBar from "../../../components/User/Products/SideBar";
 import SearchAndSort from "../../../components/User/Products/SearchAndSort";
 import ProductCard from "../../../components/User/Products/ProductCard";
 import { useIsMobile } from "../../../hooks/use-mobile";
+import SkeletonProductCard from "../../../components/User/Products/SkeletonProductCard";
 import api from "../../../features/AxiosInstance/AxiosInstance";
 
 // const mockProducts = Array.from({ length: 20 }).map((_, i) => ({
@@ -150,13 +151,10 @@ const Products = ({ initialSearchTerm = "", initialCategory = null }) => {
 
   useEffect(() => {
     if (products.length > 0) {
-      // Chỉ chạy khi products đã có dữ liệu
-      console.log("Products loaded:", products.length);
-      Promise.all(fetchBrands(), fetchCategories()).then(() => {
+      Promise.all([fetchBrands(), fetchCategories()]).then(() => {
         setLoading(false);
       });
     }
-    console.log(products);
     setMinPrice(Math.min(...products.map((p) => p.price)));
     setMaxPrice(Math.max(...products.map((p) => p.price)));
     setSelectedPriceRange([minPrice, maxPrice]);
@@ -195,6 +193,7 @@ const Products = ({ initialSearchTerm = "", initialCategory = null }) => {
     }
   }, [isMobile, isMobileOpen]);
 
+  //#region filter and sort
   const filteredProducts = products.filter((product) => {
     if (
       searchTerm &&
@@ -249,6 +248,7 @@ const Products = ({ initialSearchTerm = "", initialCategory = null }) => {
         : [...prev, brandId]
     );
   };
+  //#endregion
 
   return (
     <div className="flex py-20 min-h-screen container mx-auto gap-6 px-4 md:px-6">
@@ -281,7 +281,13 @@ const Products = ({ initialSearchTerm = "", initialCategory = null }) => {
         />
 
         {/* Products Grid */}
-        {sortedProducts.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <SkeletonProductCard key={i} />
+            ))}
+          </div>
+        ) : sortedProducts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mt-6">
             {sortedProducts.map((product, index) => (
               <motion.div

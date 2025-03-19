@@ -7,6 +7,7 @@ import { ShoppingCart, ArrowLeft } from "lucide-react";
 
 import { ProductImageCarousel } from "../../../components/User/ProductDetail/ProductImageCarousel";
 import ProductReviews from "../../../components/User/ProductDetail/ProductReviews";
+import SkeletonProductDetail from "./SkeletonProductDetail";
 
 // Mock product data - in a real app this would come from an API
 const mockProduct = {
@@ -127,7 +128,7 @@ const ProductDetail = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 300);
+    const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
   }, [productId]);
 
@@ -145,16 +146,7 @@ const ProductDetail = () => {
   const handleBackToProducts = () => navigate("/products");
 
   if (loading) {
-    return (
-      <motion.div
-        className="min-h-screen flex items-center justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Skeleton active style={{ width: 300, height: 300 }} />
-      </motion.div>
-    );
+    return <SkeletonProductDetail />;
   }
 
   return (
