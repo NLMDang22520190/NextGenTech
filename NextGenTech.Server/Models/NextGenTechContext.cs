@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using NextGenTech.Server.Models.Domain;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace NextGenTech.Server.Models;
 
