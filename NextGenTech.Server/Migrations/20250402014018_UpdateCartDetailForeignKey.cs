@@ -126,12 +126,6 @@ namespace NextGenTech.Server.Migrations
                 principalTable: "ProductColors",
                 principalColumn: "ProductColorID");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_CartDetails_Products_ProductId",
-                table: "CartDetails",
-                column: "ProductId",
-                principalTable: "Products",
-                principalColumn: "ProductID");
         }
 
         /// <inheritdoc />
@@ -215,13 +209,7 @@ namespace NextGenTech.Server.Migrations
                 table: "CartDetails",
                 newName: "IX_CartDetails_ProductID");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK__CartDetai__Produ__5441852A",
-                table: "CartDetails",
-                column: "ProductID",
-                principalTable: "Products",
-                principalColumn: "ProductID",
-                onDelete: ReferentialAction.Cascade);
+
         }
     }
 }

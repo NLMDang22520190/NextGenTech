@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NextGenTech.Server.Models;
 
@@ -11,9 +12,11 @@ using NextGenTech.Server.Models;
 namespace NextGenTech.Server.Migrations
 {
     [DbContext(typeof(NextGenTechContext))]
-    partial class NextGenTechContextModelSnapshot : ModelSnapshot
+    [Migration("20250402023900_UpdateCartDetails")]
+    partial class UpdateCartDetails
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,13 +92,14 @@ namespace NextGenTech.Server.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.HasKey("CartDetailId");
+                    b.HasKey("CartDetailId")
+                        .HasName("PK__CartDeta__01B6A6D4FABBC2D5");
 
                     b.HasIndex("CartId");
 
-                    b.HasIndex("ProductColorId");
-
                     b.HasIndex("ProductId");
+
+                    b.HasIndex(new[] { "ProductColorId" }, "IX_CartDetails_ProductColorId");
 
                     b.ToTable("CartDetails");
                 });
@@ -552,21 +556,18 @@ namespace NextGenTech.Server.Migrations
                     b.HasOne("NextGenTech.Server.Models.Domain.Cart", "Cart")
                         .WithMany("CartDetails")
                         .HasForeignKey("CartId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK__CartDetai__CartI__534D60F1");
 
                     b.HasOne("NextGenTech.Server.Models.Domain.ProductColor", "ProductColor")
                         .WithMany("CartDetails")
-                        .HasForeignKey("ProductColorId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ProductColorId");
 
-                    b.HasOne("NextGenTech.Server.Models.Domain.Product", "Product")
+                    b.HasOne("NextGenTech.Server.Models.Domain.Product", null)
                         .WithMany("CartDetails")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ProductId");
 
                     b.Navigation("Cart");
-
-                    b.Navigation("Product");
 
                     b.Navigation("ProductColor");
                 });

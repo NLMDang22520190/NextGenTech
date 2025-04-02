@@ -1,5 +1,6 @@
 using AutoMapper;
 using NextGenTech.Server.Models.Domain;
+using NextGenTech.Server.Models.DTO.ADD;
 using NextGenTech.Server.Models.DTO.GET;
 // using NextGenTech.Server.Models.DTO;
 // using NextGenTech.Server.Models.DTO.ADD;
@@ -21,6 +22,9 @@ namespace HealthBuddy.Server.Mapping
             CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<Promotion, CustomerPromotionDTO>().ReverseMap();
             CreateMap<Order, OrderDTO>().ReverseMap();
+            CreateMap<CartDetail, CartItemDetailDTO>().ReverseMap();
+            CreateMap<ProductColor, CartItemDTO>().ReverseMap();
+            CreateMap<AddItemToCartRequestDTO, CartDetail>().ReverseMap();
         }
     }
 }

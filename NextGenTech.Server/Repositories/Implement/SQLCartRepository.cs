@@ -10,6 +10,21 @@ namespace NextGenTech.Server.Repositories.Implement
         {
         }
 
+        public Task<bool> ClearCustomerCart(string userId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Cart> GetCartByCustomerId(string userId)
+        {
+            var cart = await dbContext.Carts
+                .FirstOrDefaultAsync(x => x.UserId == Convert.ToInt32(userId));
+
+            if (cart == null)
+                throw new ArgumentException("Cart not found for this user.");
+
+            return cart;
+        }
 
     }
 }

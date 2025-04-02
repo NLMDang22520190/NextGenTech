@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NextGenTech.Server.Models;
 
@@ -11,9 +12,11 @@ using NextGenTech.Server.Models;
 namespace NextGenTech.Server.Migrations
 {
     [DbContext(typeof(NextGenTechContext))]
-    partial class NextGenTechContextModelSnapshot : ModelSnapshot
+    [Migration("20250402025030_RemoveProductIdFromCartDetailss")]
+    partial class RemoveProductIdFromCartDetailss
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -559,14 +562,11 @@ namespace NextGenTech.Server.Migrations
                         .HasForeignKey("ProductColorId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("NextGenTech.Server.Models.Domain.Product", "Product")
+                    b.HasOne("NextGenTech.Server.Models.Domain.Product", null)
                         .WithMany("CartDetails")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("ProductId");
 
                     b.Navigation("Cart");
-
-                    b.Navigation("Product");
 
                     b.Navigation("ProductColor");
                 });
