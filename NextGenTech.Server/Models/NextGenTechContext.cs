@@ -71,17 +71,17 @@ public partial class NextGenTechContext : DbContext
 
             entity.Property(e => e.CartDetailId).HasColumnName("CartDetailID");
             entity.Property(e => e.CartId).HasColumnName("CartID");
-            entity.Property(e => e.ProductId).HasColumnName("ProductID");
+            // entity.Property(e => e.ProductId).HasColumnName("ProductID");
 
             entity.HasOne(d => d.Cart).WithMany(p => p.CartDetails)
                 .HasForeignKey(d => d.CartId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__CartDetai__CartI__534D60F1");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.CartDetails)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__CartDetai__Produ__5441852A");
+            // entity.HasOne(d => d.Product).WithMany(p => p.CartDetails)
+            //     .HasForeignKey(d => d.ProductId)
+            //     .OnDelete(DeleteBehavior.Cascade)
+            //     .HasConstraintName("FK__CartDetai__Produ__5441852A");
         });
 
         modelBuilder.Entity<Category>(entity =>
