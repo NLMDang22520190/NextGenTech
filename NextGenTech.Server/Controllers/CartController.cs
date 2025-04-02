@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NextGenTech.Server.Models.Domain;
 using NextGenTech.Server.Models.DTO.GET;
 using NextGenTech.Server.Models.DTO.ADD;
+using NextGenTech.Server.Models.DTO.UPDATE;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -43,7 +44,7 @@ namespace HealthBuddy.Server.Controllers
                 return NotFound($"No cart found for UserId {customerId}");
             }
 
-            var cartDetailsDomain = await _cartDetailRepository.GetCartDetailByCartId(cartDomain.CartId);
+            var cartDetailsDomain = await _cartDetailRepository.GetLongCartDetailByCartId(cartDomain.CartId);
             if (cartDetailsDomain == null)
             {
                 return NotFound($"No cart details found for CartId {cartDomain.CartId}");
@@ -61,7 +62,7 @@ namespace HealthBuddy.Server.Controllers
                 // Gọi phương thức AddCartDetailAsync để thêm sản phẩm vào giỏ
                 var cartDetailDomain = _mapper.Map<CartDetail>(requestDto);
 
-                var cartDetailByUserDomain = await _cartDetailRepository.GetCartDetailByCartId(requestDto.CartId);
+                var cartDetailByUserDomain = await _cartDetailRepository.GetShortCartDetailByCartId(requestDto.CartId);
 
                 // Kiểm tra xem sản phẩm đã tồn tại trong giỏ chưa
                 var existingCartDetail = cartDetailByUserDomain.FirstOrDefault(cd => cd.ProductColorId == requestDto.ProductColorId);
@@ -91,41 +92,40 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
-        // [HttpPut("UpdateItemInCart")]
-        // public async Task<IActionResult> UpdateItemInCart([FromBody] UpdateCartItemRequestDTO requestDto)
-        // {
-        //     try
-        //     {
-        //         // Ánh xạ dữ liệu từ DTO sang đối tượng CartDetail
-        //         var cartDetail = _mapper.Map<CartDetail>(requestDto);
+        [HttpPut("UpdateItemInCart")]
+        public async Task<IActionResult> UpdateItemInCart([FromBody] UpdateCartItemRequestDTO requestDto)
+        {
+            try
+            {
+                // Ánh xạ dữ liệu từ DTO sang đối tượng CartDetail
+                var cartDetail = _mapper.Map<CartDetail>(requestDto);
 
-        //         // Sử dụng hàm tổng quan để cập nhật
-        //         var updatedCartDetail = await _cartDetailRepository.UpdateAsync(
-        //             cd => cd.CartDetailId == requestDto.CartDetailId, // filter
-        //             existingRecord =>
-        //             {
-        //                 existingRecord.Quantity = cartDetail.Quantity;
+                // Sử dụng hàm tổng quan để cập nhật
+                var updatedCartDetail = await _cartDetailRepository.UpdateAsync(
+                    cd => cd.CartDetailId == requestDto.CartDetailId, // filter
+                    existingRecord =>
+                    {
+                        existingRecord.Quantity = cartDetail.Quantity;
+                    }
+                );
 
-        //             }
-        //         );
+                if (updatedCartDetail == null)
+                {
+                    return NotFound($"Cart detail with ID {requestDto.CartDetailId} not found.");
+                }
 
-        //         if (updatedCartDetail == null)
-        //         {
-        //             return NotFound($"Cart detail with ID {requestDto.CartDetailId} not found.");
-        //         }
+                var cartDetailsDomain = await _cartDetailRepository.GetLongCartDetailByCartId((int)updatedCartDetail.CartId!);
 
-        //         var cartDetailsDomain = await _cartDetailRepository.GetCartDetailByCartId(updatedCartDetail.CartId);
+                var cartDomain = cartDetailsDomain.FirstOrDefault(x => x.CartDetailId == updatedCartDetail.CartDetailId);
 
-        //         var cartDomain = cartDetailsDomain.FirstOrDefault(x => x.CartDetailId == updatedCartDetail.CartDetailId);
-
-        //         return Ok(_mapper.Map<CartItemDetailDTO>(cartDomain));
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         // Xử lý lỗi chung
-        //         return BadRequest($"Error updating item in cart: {ex.Message}");
-        //     }
-        // }
+                return Ok(_mapper.Map<CartItemDetailDTO>(cartDomain));
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi chung
+                return BadRequest($"Error updating item in cart: {ex.Message}");
+            }
+        }
 
         [HttpDelete("DeleteItemFromCart/{cartDetailId}")]
         public async Task<IActionResult> DeleteItemFromCart(int cartDetailId)
@@ -148,7 +148,20 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
+        [HttpDelete("ClearCustomerCart/{customerId}")]
+        public async Task<IActionResult> ClearCustomerCart(int customerId)
+        {
+            try
+            {
+                var isDeleted = await _cartRepository.ClearCustomerCart(customerId);
+                return Ok("Clear cart success");
 
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error clearing cart: {ex.Message}");
+            }
+        }
 
     }
 }

@@ -3,9 +3,6 @@ namespace NextGenTech.Server.Models.DTO.GET
     public class CartItemDTO
     {
         public int ProductColorId { get; set; }
-
-        public int? ProductId { get; set; }
-
         public string Color { get; set; } = null!;
 
         public string ColorCode { get; set; } = null!;

@@ -26,10 +26,25 @@ namespace NextGenTech.Server.Repositories.Implement
             return true;
         }
 
-        public async Task<List<CartDetail>> GetCartDetailByCartId(int cartId)
+        public async Task<List<CartDetail>> GetLongCartDetailByCartId(int cartId)
         {
             var cartDetails = await dbContext.CartDetails
-                .ToListAsync();
+            .Include(cd => cd.ProductColor)
+                .ThenInclude(pc => pc.Product)
+                    .ThenInclude(p => p.ProductImages)
+            .Include(cd => cd.ProductColor)
+                .ThenInclude(pc => pc.Product)
+                    .ThenInclude(p => p.Promotions)
+            .Where(cd => cd.CartId == cartId)
+            .ToListAsync();
+            return cartDetails;
+        }
+
+        public async Task<List<CartDetail>> GetShortCartDetailByCartId(int cartId)
+        {
+            var cartDetails = await dbContext.CartDetails
+            .Where(cd => cd.CartId == cartId)
+            .ToListAsync();
             return cartDetails;
         }
     }
