@@ -16,4 +16,6 @@ public partial class ProductColor
     public int? StockQuantity { get; set; }
 
     public virtual Product? Product { get; set; }
+
+    public virtual ICollection<CartDetail> CartDetails { get; set; } = new List<CartDetail>();
 }

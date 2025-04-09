@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using NextGenTech.Server.Models.Domain;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
+
 
 namespace NextGenTech.Server.Models;
 
@@ -41,7 +40,6 @@ public partial class NextGenTechContext : DbContext
     public virtual DbSet<Review> Reviews { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -69,23 +67,27 @@ public partial class NextGenTechContext : DbContext
         });
 
         modelBuilder.Entity<CartDetail>(entity =>
-        {
-            entity.HasKey(e => e.CartDetailId).HasName("PK__CartDeta__01B6A6D4FABBC2D5");
+   {
+       entity.HasKey(e => e.CartDetailId);
 
-            entity.Property(e => e.CartDetailId).HasColumnName("CartDetailID");
-            entity.Property(e => e.CartId).HasColumnName("CartID");
-            entity.Property(e => e.ProductId).HasColumnName("ProductID");
+       entity.Property(e => e.CartDetailId).HasColumnName("CartDetailID");
+       entity.Property(e => e.CartId).HasColumnName("CartID");
 
-            entity.HasOne(d => d.Cart).WithMany(p => p.CartDetails)
-                .HasForeignKey(d => d.CartId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__CartDetai__CartI__534D60F1");
+       entity.HasOne(d => d.Cart)
+           .WithMany(p => p.CartDetails)
+           .HasForeignKey(d => d.CartId)
+           .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(d => d.Product).WithMany(p => p.CartDetails)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__CartDetai__Produ__5441852A");
-        });
+       entity.HasOne(d => d.ProductColor)
+           .WithMany(p => p.CartDetails)
+           .HasForeignKey(d => d.ProductColorId)
+           .OnDelete(DeleteBehavior.Cascade);
+
+       //    entity.HasOne(d => d.Product)
+       //   .WithMany(p => p.CartDetails)
+       //   .HasForeignKey(d => d.ProductId)
+       //   .OnDelete(DeleteBehavior.Cascade);
+   });
 
         modelBuilder.Entity<Category>(entity =>
         {
@@ -191,6 +193,7 @@ public partial class NextGenTechContext : DbContext
 
             entity.Property(e => e.ProductColorId).HasColumnName("ProductColorID");
             entity.Property(e => e.Color).HasMaxLength(100);
+            entity.Property(e => e.ColorCode).HasDefaultValue("");
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
             entity.Property(e => e.StockQuantity).HasDefaultValue(0);
 
@@ -255,7 +258,28 @@ public partial class NextGenTechContext : DbContext
                 .HasConstraintName("FK__Reviews__UserID__68487DD7");
         });
 
-        
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC5FAA6141");
+
+            entity.ToTable(tb => tb.HasTrigger("trg_AfterInsertUser"));
+
+            entity.HasIndex(e => e.Email, "UQ__Users__A9D1053432CE74E8").IsUnique();
+
+            entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.AvatarImageUrl).HasMaxLength(512);
+            entity.Property(e => e.City).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.District).HasMaxLength(255);
+            entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.FullName).HasMaxLength(255);
+            entity.Property(e => e.PasswordHash).HasMaxLength(512);
+            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.Role).HasMaxLength(50);
+            entity.Property(e => e.Ward).HasMaxLength(255);
+        });
 
         OnModelCreatingPartial(modelBuilder);
     }
