@@ -4,9 +4,12 @@ using Microsoft.IdentityModel.Tokens;
 using NextGenTech.Server.Models;
 using NextGenTech.Server.Models.Domain;
 using NextGenTech.Server.Models.RequestModels;
+using NextGenTech.Server.Hepers;
+using NextGenTech.Server.Models.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BCrypt.Net;
 using AutoMapper;
 using System.Text.RegularExpressions;
 
@@ -14,38 +17,64 @@ namespace NextGenTech.Server.Repositories.Implement
 {
     public class SQLUserRepository : NextGenTechRepository<User>, IUserRepository
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
-        public SQLUserRepository(NextGenTechContext dbContext, UserManager<User> userManager, SignInManager<User> signInManager)
+        private readonly NextGenTechContext _context;
+        public SQLUserRepository(NextGenTechContext dbContext)
             : base(dbContext)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
+            _context = dbContext;
         }
 
-        // Triển khai SignUpAsync
-        public async Task<IdentityResult> SignUpAsync(SignUpModel model)
+        public async Task<User> RegisterUserAsync(User user)
         {
-            var user = new User
-            {
-                FullName = model.Email,
-                Email = model.Email
-            };
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+            return user;
+        }
+         
 
-            var result = await _userManager.CreateAsync(user, model.Password);
-            return result;
+        public async Task<bool> IsEmailExistsAsync(string email)
+        {
+            return await _context.Users.AnyAsync(u => u.Email == email);
         }
 
-        // Triển khai SignInAsync
-         public async Task<string> SignInAsync(SignInModel model)
-{
-            var result = await _signInManager.PasswordSignInAsync(
-                model.Email, model.Password, model.ConfirmPassword, false);
 
-            return result.Succeeded ? "Login successful" : "Invalid credentials";
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _context.Users.FindAsync(userId);
+        }
+
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
+
+        public async Task<User?> AuthenticateAsync(string email, string password)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
+            
+            if (user == null || string.IsNullOrEmpty(user.PasswordHash))
+                return null;
+
+            Console.WriteLine($"Hash value: {user.PasswordHash}");
+
+            try
+            {
+                var isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+                Console.WriteLine($"Password match: {isPasswordValid}");
+                return isPasswordValid ? user : null;
+            }
+            catch (BCrypt.Net.SaltParseException ex)
+            {
+                // Log lỗi để dễ debug nếu có
+                Console.WriteLine($"Invalid BCrypt hash: {user.PasswordHash}");
+                Console.WriteLine($"Error: {ex.Message}");
+                return null;
+            }
+            
         }
 
         
+
     }
     
 }

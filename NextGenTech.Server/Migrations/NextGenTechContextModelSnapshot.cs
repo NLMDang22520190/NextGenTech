@@ -43,7 +43,7 @@ namespace NextGenTech.Server.Migrations
                     b.HasKey("BrandId")
                         .HasName("PK__Brands__DAD4F3BE023E6EED");
 
-                    b.ToTable("Brands");
+                    b.ToTable("Brands", (string)null);
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Cart", b =>
@@ -64,7 +64,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Carts");
+                    b.ToTable("Carts", (string)null);
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.CartDetail", b =>
@@ -94,7 +94,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartDetails");
+                    b.ToTable("CartDetails", (string)null);
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Category", b =>
@@ -118,7 +118,7 @@ namespace NextGenTech.Server.Migrations
                     b.HasKey("CategoryId")
                         .HasName("PK__Categori__19093A2B2FF41DFF");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Order", b =>
@@ -166,7 +166,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.OrderDetail", b =>
@@ -202,7 +202,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderDetails");
+                    b.ToTable("OrderDetails", (string)null);
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Product", b =>
@@ -253,7 +253,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.ProductColor", b =>
@@ -288,7 +288,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductColors");
+                    b.ToTable("ProductColors", (string)null);
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.ProductImage", b =>
@@ -324,7 +324,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages");
+                    b.ToTable("ProductImages", (string)null);
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Promotion", b =>
@@ -365,7 +365,7 @@ namespace NextGenTech.Server.Migrations
                     b.HasIndex(new[] { "PromotionCode" }, "UQ__Promotio__A617E4B6F177945F")
                         .IsUnique();
 
-                    b.ToTable("Promotions");
+                    b.ToTable("Promotions", (string)null);
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Review", b =>
@@ -403,7 +403,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.User", b =>
@@ -466,7 +466,7 @@ namespace NextGenTech.Server.Migrations
                     b.HasIndex(new[] { "Email" }, "UQ__Users__A9D1053432CE74E8")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("ProductPromotion", b =>

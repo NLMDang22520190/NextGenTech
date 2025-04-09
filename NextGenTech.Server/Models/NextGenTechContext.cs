@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using NextGenTech.Server.Models.Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace NextGenTech.Server.Models;
 
@@ -43,6 +44,8 @@ public partial class NextGenTechContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Brand>(entity =>
         {
             entity.HasKey(e => e.BrandId).HasName("PK__Brands__DAD4F3BE023E6EED");
@@ -252,26 +255,7 @@ public partial class NextGenTechContext : DbContext
                 .HasConstraintName("FK__Reviews__UserID__68487DD7");
         });
 
-        modelBuilder.Entity<User>(entity =>
-        {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC5FAA6141");
-
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D1053432CE74E8").IsUnique();
-
-            entity.Property(e => e.UserId).HasColumnName("UserID");
-            entity.Property(e => e.AvatarImageUrl).HasMaxLength(512);
-            entity.Property(e => e.City).HasMaxLength(255);
-            entity.Property(e => e.CreatedAt)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
-            entity.Property(e => e.District).HasMaxLength(255);
-            entity.Property(e => e.Email).HasMaxLength(255);
-            entity.Property(e => e.FullName).HasMaxLength(255);
-            entity.Property(e => e.PasswordHash).HasMaxLength(512);
-            entity.Property(e => e.Phone).HasMaxLength(20);
-            entity.Property(e => e.Role).HasMaxLength(50);
-            entity.Property(e => e.Ward).HasMaxLength(255);
-        });
+        
 
         OnModelCreatingPartial(modelBuilder);
     }

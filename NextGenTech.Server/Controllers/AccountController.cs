@@ -5,6 +5,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NextGenTech.Server.Models.RequestModels;
 using NextGenTech.Server.Models;
+using NextGenTech.Server.Models.Domain;
+using NextGenTech.Server.Models.DTO.GET;
+using NextGenTech.Server.Models.DTOs;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -17,55 +20,27 @@ namespace HealthBuddy.Server.Controllers
         private readonly IMemoryCache _cache = cache;
         private readonly IMapper _mapper = mapper;
 
-        [HttpPost("create-user")]
-        public async Task<IActionResult> CreateUser(CreateUserModel createUserModel )
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            
-            var signUpModel = new SignUpModel
+            var hashPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            var user = new User
             {
-                Email = createUserModel.Email,
-                Password = "12345678",
+                Email = request.Email,
+                PasswordHash =hashPassword
             };
-            var result = await userRepository.SignUpAsync(signUpModel);
-            if (result.Succeeded)
-            {
-                return Ok(new ApiResponse<bool>
-                {
-                    StatusCode = StatusCodes.Status200OK,
-                    Message = "Sign-up successful.",
-                    Data = true
-                });
-            }
 
-            return Unauthorized(new ApiResponse<bool>
-            {
-                StatusCode = StatusCodes.Status401Unauthorized,
-                Message = "Create failed.",
-                Data = false
-            });
+            var result = await userRepository.RegisterUserAsync(user);
+            return Ok(result);
         }
 
-        [HttpPost("SignUp")]
-
-        public async Task<IActionResult> SignUp(SignUpModel signUpModel)
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var result = await userRepository.SignUpAsync(signUpModel);
-            if (result.Succeeded)
-            {
-                return Ok(new ApiResponse<bool>
-                {
-                    StatusCode = StatusCodes.Status200OK,
-                    Message = "Sign-up successful.",
-                    Data = true
-                });
-            }
-
-            return Unauthorized(new ApiResponse<bool>
-            {
-                StatusCode = StatusCodes.Status401Unauthorized,
-                Message = "Sign-up failed.",
-                Data = false
-            });
+            var user = await userRepository.AuthenticateAsync(request.Email, request.Password);
+            if (user == null)
+                return Unauthorized("Invalid email or password");
+            return Ok(user);
         }
 
     }

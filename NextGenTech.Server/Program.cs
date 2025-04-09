@@ -15,9 +15,6 @@ builder.Services.AddDbContext<NextGenTechContext>(options =>
     {
         sqlOptions.EnableRetryOnFailure();
     }));
-builder.Services.AddIdentity<User, IdentityRole>()
-    .AddEntityFrameworkStores<NextGenTechContext>()
-    .AddDefaultTokenProviders();
 
 builder.Services.AddCors(options =>
 {

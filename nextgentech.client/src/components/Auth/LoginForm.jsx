@@ -101,9 +101,14 @@ const LoginForm = () => {
               </button>
             </div>
             <div className="flex justify-end mt-2">
+              <Link
+              to = "/auth/forgot-password">
+              
               <a href="#" className="text-xs text-primary-500 hover:underline transition-all">
                 Forgot Password
               </a>
+              </Link>
+              
             </div>
           </motion.div>
           

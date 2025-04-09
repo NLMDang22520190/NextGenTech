@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity;
+
 
 namespace NextGenTech.Server.Models.Domain;
 
-public partial class User:IdentityUser
-{
-    public int UserId { get; set; }
+public partial class User
+{   
+    public int UserID { get; set; }
+    public string? FullName { get; set; } 
 
-    public string FullName { get; set; } = null!;
+    public string? Email { get; set; } 
 
-    public string Email { get; set; } = null!;
-
-    public string PasswordHash { get; set; } = null!;
+    public string? PasswordHash { get; set; } 
 
     public string? Phone { get; set; }
 
@@ -24,7 +23,7 @@ public partial class User:IdentityUser
 
     public string? AvatarImageUrl { get; set; }
 
-    public string Role { get; set; } = null!;
+    public string Role { get; set; } = "customer"!;
 
     public DateTime? CreatedAt { get; set; }
 
