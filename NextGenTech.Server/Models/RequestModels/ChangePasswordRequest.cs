@@ -6,7 +6,7 @@ namespace NextGenTech.Server.Models.RequestModels
     {
         [Required]
         [EmailAddress]
-        public string Emai { get; set; }
+        public string Email { get; set; }
         [Required]
         public string NewPassword { get; set; }
     }

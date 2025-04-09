@@ -8,6 +8,8 @@ using NextGenTech.Server.Models;
 using NextGenTech.Server.Models.Domain;
 using NextGenTech.Server.Models.DTO.GET;
 using NextGenTech.Server.Models.DTOs;
+using System.Drawing;
+using System.Reflection.Metadata.Ecma335;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -41,6 +43,50 @@ namespace HealthBuddy.Server.Controllers
             if (user == null)
                 return Unauthorized("Invalid email or password");
             return Ok(user);
+        }
+
+        [HttpPost("ChangePassword")]
+
+        public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.NewPassword))
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Email và mật khẩu mới không được để trống."
+                });
+            }
+
+            try{
+                var userToChangePassword = await userRepository.GetUserByEmailAsync(request.Email);
+
+                if (userToChangePassword == null)
+                {
+                    return NotFound(new
+                    {
+                        status = "error",
+                        message = "Không tìm thấy người dùng với Email đã cung cấp."
+                    });
+                }
+
+                var hashPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+
+                await userRepository.UpdatePassword(userToChangePassword, hashPassword);
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Đổi mật khẩu thành công."
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = ex.Message
+                });
+            }
         }
 
     }

@@ -69,8 +69,14 @@ namespace NextGenTech.Server.Repositories.Implement
                 Console.WriteLine($"Invalid BCrypt hash: {user.PasswordHash}");
                 Console.WriteLine($"Error: {ex.Message}");
                 return null;
-            }
-            
+            }   
+        }
+
+        public async Task<bool> UpdatePassword(User user, string newPassword)
+        {
+            user.PasswordHash = newPassword;
+            _context.Entry(user).Property(u => u.PasswordHash).IsModified = true;
+            return await _context.SaveChangesAsync() > 0;
         }
 
         

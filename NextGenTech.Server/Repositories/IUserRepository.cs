@@ -12,6 +12,7 @@ namespace NextGenTech.Server.Repositories
         Task<bool> IsEmailExistsAsync(string email);
         Task<User?> AuthenticateAsync(string email, string password);
         Task<User?> GetUserByIdAsync(int userId);
+        Task<bool> UpdatePassword(User user, string newPassword);
 
     }
 }
