@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NextGenTech.Server.Models;
 using NextGenTech.Server.Models.Domain;
+using NextGenTech.Server.Models.DTO.UPDATE;
 using NextGenTech.Server.Models.RequestModels;
 using NextGenTech.Server.Hepers;
 using NextGenTech.Server.Models.DTOs;
@@ -77,6 +78,26 @@ namespace NextGenTech.Server.Repositories.Implement
             user.PasswordHash = newPassword;
             _context.Entry(user).Property(u => u.PasswordHash).IsModified = true;
             return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> UpdateUserInfo(int userId, UpdateUserInfoRequestDTO request)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.FullName = request.FullName;
+            user.Phone = request.Phone;
+            user.City = request.City;
+            user.District=request.District;
+            user.Ward = request.Ward;
+            user.AvatarImageUrl = request.PhotoUrl;
+
+            _context.Users.Update(user);
+            return await _context.SaveChangesAsync() > 0;
+
         }
 
         

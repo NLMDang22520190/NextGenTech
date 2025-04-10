@@ -7,6 +7,7 @@ using NextGenTech.Server.Models.RequestModels;
 using NextGenTech.Server.Models;
 using NextGenTech.Server.Models.Domain;
 using NextGenTech.Server.Models.DTO.GET;
+using NextGenTech.Server.Models.DTO.UPDATE;
 using NextGenTech.Server.Models.DTOs;
 using System.Drawing;
 using System.Reflection.Metadata.Ecma335;
@@ -206,6 +207,47 @@ namespace HealthBuddy.Server.Controllers
                 status = "expired",
                 message = "Mã xác nhận đã hết hạn hoặc không tồn tại."
             });
+        }
+
+        [HttpPut("Update-info/{userId}")]
+        public async Task<IActionResult> UpdateUserInfo(int userId, [FromBody] UpdateUserInfoRequestDTO request)
+        {
+            if (request == null)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Dữ liệu gửi lên không hợp lệ."
+                });
+            }
+
+            try
+            {
+                var success = await userRepository.UpdateUserInfo(userId, request);
+                if (!success)
+                {
+                    return NotFound(new
+                    {
+                        status = "error",
+                        message = "Không tìm thấy người dùng hoặc không thể cập nhật."
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Cập nhật thông tin người dùng thành công."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = "Lỗi khi cập nhật thông tin người dùng.",
+                    details = ex.Message
+                });
+            }
         }
 
     }
