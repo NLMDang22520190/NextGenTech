@@ -10,6 +10,8 @@ using NextGenTech.Server.Models.DTO.GET;
 using NextGenTech.Server.Models.DTOs;
 using System.Drawing;
 using System.Reflection.Metadata.Ecma335;
+using NextGenTech.Server.Services;
+using System.Runtime.CompilerServices;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -21,6 +23,7 @@ namespace HealthBuddy.Server.Controllers
         private readonly IOrderRepository orderRepository = orderRepository;
         private readonly IMemoryCache _cache = cache;
         private readonly IMapper _mapper = mapper;
+        private readonly EmailService _emailService = new EmailService();
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
@@ -87,6 +90,122 @@ namespace HealthBuddy.Server.Controllers
                     message = ex.Message
                 });
             }
+        }
+
+        [HttpPost("validateUser")]
+        public async Task<IActionResult> ValidateUser([FromBody] LoginRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Email và mật khẩu không được để trống."
+                });
+            }
+
+            try
+            {
+                var user = await userRepository.AuthenticateAsync(request.Email, request.Password);
+
+                if (user == null)
+                {
+                    return Unauthorized(new
+                    {
+                        status = "error",
+                        message = "Email hoặc mật khẩu không đúng."
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Xác thực thành công."
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = ex.Message
+                });
+            }
+        }
+
+
+        [HttpPost("send-verification-code/{email}")]
+        public async Task<IActionResult> SendVerificationCode(string email)
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Email không được để trống."
+                });
+            }
+
+            try
+            {
+                var code = await _emailService.SendVerificationCodeAsync(email);
+                cache.Set(email, code, TimeSpan.FromMinutes(5));
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Mã xác nhận đã được gửi đến email của bạn."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = "Đã xảy ra lỗi khi gửi mã xác nhận.",
+                    details = ex.Message // (tuỳ chọn)
+                });
+            }
+        }
+
+        [HttpPost("verify-code")]
+        public IActionResult VerifyCode([FromBody] VerifyCodeRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Code))
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Email và mã xác nhận không được để trống."
+                });
+            }
+
+            if (cache.TryGetValue(request.Email, out string storedCode))
+            {
+                if (storedCode == request.Code)
+                {
+                    cache.Remove(request.Email);
+                    return Ok(new
+                    {
+                        status = "success",
+                        message = "Mã xác nhận chính xác. Bạn có thể tiếp tục."
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        status = "error",
+                        message = "Mã xác nhận không đúng. Vui lòng thử lại."
+                    });
+                }
+            }
+
+            return BadRequest(new
+            {
+                status = "expired",
+                message = "Mã xác nhận đã hết hạn hoặc không tồn tại."
+            });
         }
 
     }
