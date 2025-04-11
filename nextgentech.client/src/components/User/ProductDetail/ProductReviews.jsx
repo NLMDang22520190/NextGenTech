@@ -12,13 +12,11 @@ const ProductReviews = ({
   const [filter, setFilter] = useState(null);
   const [sortBy, setSortBy] = useState("recent");
 
-  // Tính toán số lượng đánh giá theo từng sao
   const ratingCounts = reviews.reduce((acc, review) => {
     acc[review.rating] = (acc[review.rating] || 0) + 1;
     return acc;
   }, {});
 
-  // Lọc và sắp xếp đánh giá
   const filteredReviews = reviews.filter(
     (review) => filter === null || review.rating === filter
   );
@@ -31,7 +29,6 @@ const ProductReviews = ({
     }
   });
 
-  // Format ngày
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",

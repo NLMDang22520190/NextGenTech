@@ -15,12 +15,12 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="relative w-full max-w-xl min-h-[550px] mx-auto border border-gray-300 shadow-xl rounded-3xl p-10 bg-white">
+    <div className="relative w-full max-w-xl min-h-[500px] mx-auto border border-gray-300 shadow-xl rounded-3xl p-10 bg-white">
       <div className="absolute top-4 right-4 md:top-8 md:right-8 text-sm">
           <span className="text-gray-500">No Account?</span>{" "} <br></br>
           <Link
           to="/auth/signup"
-          className="text-amber-dark font-medium hover:underline transition-all"
+          className="text-primary-600 font-medium hover:underline transition-all"
         >
           Sign up
         </Link>
@@ -41,7 +41,7 @@ const LoginForm = () => {
         </motion.h2>
         
         <motion.h1 
-          className="text-4xl font-bold mb-8"
+          className="text-4xl font-bold mb-8 text-primary-600"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
@@ -64,7 +64,7 @@ const LoginForm = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
+              className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
               placeholder="Email address"
               required
             />
@@ -87,7 +87,7 @@ const LoginForm = () => {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
+                className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                 placeholder="Password"
                 required
               />
@@ -101,15 +101,20 @@ const LoginForm = () => {
               </button>
             </div>
             <div className="flex justify-end mt-2">
-              <a href="#" className="text-xs text-coral-dark hover:underline transition-all">
+              <Link
+              to = "/auth/forgot-password">
+              
+              <a href="#" className="text-xs text-primary-500 hover:underline transition-all">
                 Forgot Password
               </a>
+              </Link>
+              
             </div>
           </motion.div>
           
           <motion.button
             type="submit"
-            className="w-full bg-amber-dark text-white py-3 rounded-md hover:bg-amber-dark/90 transition-all focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 mb-6"
+            className="w-full cursor-pointer bg-gradient-to-br from-primary to-secondary text-white py-3 rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             initial={{ opacity: 0 }}

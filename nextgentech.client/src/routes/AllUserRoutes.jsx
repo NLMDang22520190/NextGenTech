@@ -14,6 +14,7 @@ import SignUp from "../pages/Auth/SignUp";
 import Setting from "../pages/User/Setting/Setting"
 import OrderHistory from "../pages/User/Order/OrderHistory"
 import OrderDetail from "../pages/User/Order/OrderDetail"
+import ForgorPassword from "../pages/ForgotPassword/ForgotPassword";
 
 const AllUserRoutes = () => {
   return (
@@ -33,6 +34,7 @@ const AllUserRoutes = () => {
       <Route path="/order/:orderId" element={<OrderDetail />} />
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/signup" element={<SignUp />} />
+      <Route path="/auth/forgot-password" element={<ForgorPassword />} />
       <Route path="/setting" element={<Setting />}/>
     </Routes>
   );

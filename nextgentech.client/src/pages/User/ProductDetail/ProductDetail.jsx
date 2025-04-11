@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 //import { ProductReviews } from "@/components/products/ProductReviews";
 import { motion } from "framer-motion";
-import { Skeleton } from "antd";
+import { message } from "antd";
 import { ShoppingCart, ArrowLeft } from "lucide-react";
 
 import { ProductImageCarousel } from "../../../components/User/ProductDetail/ProductImageCarousel";
 import ProductReviews from "../../../components/User/ProductDetail/ProductReviews";
+import SkeletonProductDetail from "./SkeletonProductDetail";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 // Mock product data - in a real app this would come from an API
 const mockProduct = {
@@ -118,18 +120,63 @@ const mockReviews = [
 ];
 
 const ProductDetail = () => {
-  const { productId } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [product, setProduct] = useState(mockProduct);
+  const [product, setProduct] = useState({});
   const [reviews, setReviews] = useState(mockReviews);
   const [quantity, setQuantity] = useState(1);
-  const [selectedColor, setSelectedColor] = useState(mockProduct.colors[0]);
+  const [selectedColor, setSelectedColor] = useState({});
   const [loading, setLoading] = useState(true);
 
+  //#region fetch data
+  const fetchProduct = async () => {
+    try {
+      const response = await api.get(
+        `/api/Product/CustomerGetProductById/${id}`
+      );
+      const data = response.data;
+      const mappedData = {
+        id: data.productId,
+        name: data.name,
+        description: data.description,
+        longDescription: data.longDescription || "",
+        price: data.salePrice,
+        oldPrice: data.price,
+        stockQuantity: data.stockQuantity,
+        categoryId: data.category.categoryId,
+        categoryName: data.category.categoryName,
+        brandId: data.brand.brandId,
+        brandName: data.brand.brandName,
+        rating: 4.7,
+        reviewCount: 128,
+        images: [
+          "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1577174881658-0f30ed549adc?q=80&w=1974&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1524678606370-a47ad25cb82a?q=80&w=2069&auto=format&fit=crop",
+          "https://images.unsplash.com/photo-1484704849700-f032a568e944?q=80&w=2070&auto=format&fit=crop",
+        ],
+        productColors: data.productColors.map((color) => ({
+          id: color.productColorId,
+          name: color.color,
+          code: color.colorCode,
+          stock: color.stockQuantity,
+        })),
+        createdAt: data.createdAt,
+      };
+      setProduct(mappedData);
+      console.log(product);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+      message.error("Error fetching product: " + error.message);
+    }
+  };
+
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(timer);
-  }, [productId]);
+    fetchProduct();
+    console.log(id);
+  }, [id]);
+  //#endregion
 
   const handleAddToCart = () => {
     console.log("Product added to cart");
@@ -144,17 +191,8 @@ const ProductDetail = () => {
 
   const handleBackToProducts = () => navigate("/products");
 
-  if (loading) {
-    return (
-      <motion.div
-        className="min-h-screen flex items-center justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Skeleton active style={{ width: 300, height: 300 }} />
-      </motion.div>
-    );
+  if (loading && id) {
+    return <SkeletonProductDetail />;
   }
 
   return (
@@ -251,31 +289,28 @@ const ProductDetail = () => {
             {/* Color Selection */}
             <div className="mt-2">
               <span className="text-sm font-medium mb-2 block">
-                Color: {selectedColor}
+                Color: {selectedColor?.name || "None"}
               </span>
               <div className="flex space-x-2">
-                {product.colors.map((color) => (
+                {product.productColors.map((color) => (
                   <button
-                    key={color}
+                    key={color.id}
                     onClick={() => setSelectedColor(color)}
                     className={`w-10 h-10 rounded-full border-2 cursor-pointer ${
-                      selectedColor === color
+                      selectedColor?.id === color.id
                         ? "border-primary"
                         : "border-transparent"
                     } transform transition-transform ${
-                      selectedColor === color ? "scale-110" : "scale-100"
+                      selectedColor?.id === color.id ? "scale-110" : "scale-100"
                     } hover:scale-110`}
                     style={{
-                      backgroundColor:
-                        color.toLowerCase() === "silver"
-                          ? "#C0C0C0"
-                          : color.toLowerCase(),
+                      backgroundColor: color.code,
                       boxShadow:
-                        selectedColor === color
+                        selectedColor?.id === color.id
                           ? "0 0 0 2px rgba(59, 130, 246, 0.3)"
                           : "none",
                     }}
-                    aria-label={`Select ${color} color`}
+                    aria-label={`Select ${color.name} color`}
                   />
                 ))}
               </div>
@@ -328,7 +363,7 @@ const ProductDetail = () => {
         transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
       >
         <h2 className="text-2xl font-semibold mb-4">Product Details</h2>
-        <div className="bg-white rounded-lg shadow-sm p-6">
+        <div className="bg-white rounded-lg shadow-sm p-6 min-h-96">
           <div
             className="prose prose-stone max-w-none"
             dangerouslySetInnerHTML={{ __html: product.longDescription }}

@@ -21,7 +21,7 @@ const SignUpForm = () => {
 
           <Link
           to="/auth/login"
-          className="text-amber-dark font-medium hover:underline transition-all"
+          className="text-primary-600 font-medium hover:underline transition-all"
         >
           Sign in
         </Link>
@@ -42,7 +42,7 @@ const SignUpForm = () => {
         </motion.h2>
         
         <motion.h1 
-          className="text-4xl font-bold mb-8"
+          className="text-4xl font-bold mb-8 text-primary-600"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
@@ -65,7 +65,7 @@ const SignUpForm = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
+              className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
               placeholder="Email address"
               required
             />
@@ -84,7 +84,7 @@ const SignUpForm = () => {
               id="username"
               type="text"
               
-              className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
+              className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
               placeholder="User name"
               required
             />
@@ -108,7 +108,7 @@ const SignUpForm = () => {
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
+                className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                 placeholder="Password"
                 required
               />
@@ -117,7 +117,7 @@ const SignUpForm = () => {
           
           <motion.button
             type="submit"
-            className="w-full bg-amber-dark text-white py-3 rounded-md hover:bg-amber-dark/90 transition-all focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2 mb-6"
+            className="w-full cursor-pointer bg-gradient-to-br from-primary to-secondary text-white py-3 rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 mb-6"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             initial={{ opacity: 0 }}

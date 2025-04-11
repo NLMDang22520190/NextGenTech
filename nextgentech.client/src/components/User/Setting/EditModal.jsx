@@ -84,7 +84,7 @@ const EditModal = ({ isOpen, onClose, onSave, title, children }) => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                className="px-4 py-2 text-sm cursor-pointer font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
               >
                 Cancel
               </motion.button>
@@ -92,7 +92,7 @@ const EditModal = ({ isOpen, onClose, onSave, title, children }) => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={onSave}
-                className="px-4 py-2 text-sm font-medium text-white bg-orange-500 rounded-md hover:bg-orange-600 transition-colors"
+                className="px-4 py-2 text-sm font-medium cursor-pointer text-white bg-gradient-to-br from-primary to-secondary rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-colors"
               >
                 Save Changes
               </motion.button>

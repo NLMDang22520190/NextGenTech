@@ -62,13 +62,13 @@ const RatingModal = ({ isOpen, onClose, orderId }) => {
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHoveredRating(star)}
                   onMouseLeave={() => setHoveredRating(0)}
-                  className="focus:outline-none transform transition-transform duration-200 hover:scale-110"
+                  className="focus:outline-none transform transition-transform duration-200 hover:scale-110 cursor-pointer"
                 >
                   <Star
                     size={24}
                     className={`${
                       star <= (hoveredRating || rating)
-                        ? 'text-orange-500 fill-orange-500'
+                        ? 'text-primary-500 fill-primary-500'
                         : 'text-gray-300'
                     } transition-colors duration-150`}
                   />
@@ -86,7 +86,7 @@ const RatingModal = ({ isOpen, onClose, orderId }) => {
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Write down your feedback about our product & services."
-              className="w-full px-3 py-2 text-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none h-24"
+              className="w-full px-3 py-2 text-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none h-24"
             />
           </div>
           
@@ -95,7 +95,7 @@ const RatingModal = ({ isOpen, onClose, orderId }) => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleSubmit}
-              className="w-full max-w-xs px-4 py-2 font-medium text-white bg-orange-500 rounded-md hover:bg-orange-600 transition-colors"
+              className="w-full max-w-xs px-4 py-2 font-medium cursor-pointer text-white bg-gradient-to-br from-primary to-secondary rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-colors"
             >
               PUBLISH REVIEW
             </motion.button>
