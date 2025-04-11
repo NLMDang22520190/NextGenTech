@@ -7,5 +7,7 @@ namespace NextGenTech.Server.Repositories
         Task<List<Product>> CustomerGetAllProductAsync();
 
         Task<Product> CustomerGetProductByIdAsync(int id);
+
+        Task<List<Product>> AdminGetAllProductAsync();
     }
 }

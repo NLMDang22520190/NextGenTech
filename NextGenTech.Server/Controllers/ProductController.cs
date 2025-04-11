@@ -49,7 +49,19 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
-
+        [HttpGet("AdminGetAllProduct")]
+        public async Task<ActionResult> AdminGetAllProduct()
+        {
+            try
+            {
+                var products = await _productRepository.AdminGetAllProductAsync();
+                return Ok(_mapper.Map<List<AdminProductDTO>>(products));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 
 }
