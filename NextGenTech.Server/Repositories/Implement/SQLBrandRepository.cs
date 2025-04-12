@@ -8,8 +8,13 @@ namespace NextGenTech.Server.Repositories.Implement
     {
         public SQLBrandRepository(NextGenTechContext dbContext) : base(dbContext)
         {
-
         }
 
+        public async Task<List<Brand>> AdminGetAllBrandAsync()
+        {
+            return await dbContext.Brands
+                .Include(b => b.Products)
+                .ToListAsync();
+        }
     }
 }

@@ -62,6 +62,20 @@ namespace HealthBuddy.Server.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
+        [HttpGet("AdminGetProductById/{id}")]
+        public async Task<ActionResult> AdminGetProductById(int id)
+        {
+            try
+            {
+                var product = await _productRepository.AdminGetProductByIdAsync(id);
+                return Ok(_mapper.Map<AdminDetailProductDTO>(product));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 
 }

@@ -17,11 +17,14 @@ namespace HealthBuddy.Server.Mapping
             CreateMap<Product, CustomerProductDTO>().ReverseMap();
             CreateMap<Product, CustomerDetailProductDTO>().ReverseMap();
             CreateMap<Product, AdminProductDTO>().ReverseMap();
+            CreateMap<Product, AdminDetailProductDTO>().ReverseMap();
             CreateMap<ProductImage, ProductImageDTO>().ReverseMap();
             CreateMap<ProductColor, ProductColorDTO>().ReverseMap();
             CreateMap<Promotion, CustomerProductPromotionDTO>().ReverseMap();
             CreateMap<Brand, BrandDTO>().ReverseMap();
+            CreateMap<Brand, AdminBrandDTO>().ReverseMap();
             CreateMap<Category, CategoryDTO>().ReverseMap();
+            CreateMap<Category, AdminCategoryDTO>().ReverseMap();
             CreateMap<Promotion, CustomerPromotionDTO>().ReverseMap();
             CreateMap<Order, OrderDTO>().ReverseMap();
             CreateMap<CartDetail, CartItemDetailDTO>().ReverseMap();

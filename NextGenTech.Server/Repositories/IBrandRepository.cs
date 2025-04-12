@@ -4,5 +4,6 @@ namespace NextGenTech.Server.Repositories
 {
     public interface IBrandRepository : INextGenTechRepository<Brand>
     {
+        Task<List<Brand>> AdminGetAllBrandAsync();
     }
 }

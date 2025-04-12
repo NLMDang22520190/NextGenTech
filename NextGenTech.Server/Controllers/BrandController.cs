@@ -33,5 +33,18 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
+        [HttpGet("AdminGetAllBrand")]
+        public async Task<ActionResult> AdminGetAllBrand()
+        {
+            try
+            {
+                var brands = await _brandRepository.AdminGetAllBrandAsync();
+                return Ok(_mapper.Map<List<AdminBrandDTO>>(brands));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 }

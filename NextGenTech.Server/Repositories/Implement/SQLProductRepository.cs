@@ -37,5 +37,14 @@ namespace NextGenTech.Server.Repositories.Implement
             .Include(p => p.ProductImages)
             .ToListAsync();
         }
+        public async Task<Product> AdminGetProductByIdAsync(int id)
+        {
+            return await dbContext.Products
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .Include(p => p.ProductImages)
+            .Include(p => p.ProductColors)
+            .FirstOrDefaultAsync(p => p.ProductId == id);
+        }        
     }
 }

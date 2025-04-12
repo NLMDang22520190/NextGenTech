@@ -33,5 +33,18 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
+        [HttpGet("AdminGetAllCategory")]
+        public async Task<ActionResult> AdminGetAllCategory()
+        {
+            try
+            {
+                var categories = await _categoryRepository.AdminGetAllCategoryAsync();
+                return Ok(_mapper.Map<List<AdminCategoryDTO>>(categories));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 }
