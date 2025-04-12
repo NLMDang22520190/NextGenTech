@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Search, Edit, Trash } from "lucide-react";
+import { Modal, Input, InputNumber, Select } from "antd";
+
 
 const ProductStock = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+
   const [products, setProducts] = useState([
     {
       id: 1,
@@ -69,6 +75,22 @@ const ProductStock = () => {
       image: "/lovable-uploads/67e7eb43-08e4-4375-ab40-06eb193e81cd.png"
     }
   ]);
+
+  const openEditModal = (product) => {
+    setEditingProduct({ ...product }); // clone to avoid mutating original
+    setIsEditModalOpen(true);
+  };
+  
+  const handleEditChange = (field, value) => {
+    setEditingProduct(prev => ({ ...prev, [field]: value }));
+  };
+  
+  const handleSaveEdit = () => {
+    setProducts(prev =>
+      prev.map(p => (p.id === editingProduct.id ? editingProduct : p))
+    );
+    setIsEditModalOpen(false);
+  };
 
   // Filter products based on search term
   const filteredProducts = products.filter(product => 
@@ -212,7 +234,8 @@ const ProductStock = () => {
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
                     <div className="flex space-x-2">
-                      <button className="p-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+                      <button className="p-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                        onClick={() => openEditModal(product)}>
                         <Edit className="h-4 w-4" />
                       </button>
                       <button className="p-1 rounded border border-gray-200 text-red-500 hover:bg-gray-50 transition-colors">
@@ -232,6 +255,88 @@ const ProductStock = () => {
           </tbody>
         </table>
       </motion.div>
+      <Modal
+  title="Edit Product"
+  open={isEditModalOpen}
+  onCancel={() => setIsEditModalOpen(false)}
+  onOk={handleSaveEdit}
+  okText="Save"
+  cancelText="Cancel"
+>
+  {editingProduct && (
+    <div className="flex flex-col gap-4">
+      <div>
+        <label className="block text-sm mb-1">Product Name</label>
+        <Input
+          value={editingProduct.name}
+          onChange={(e) => handleEditChange("name", e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm mb-1">Price</label>
+        <Input
+          value={editingProduct.price}
+          onChange={(e) => handleEditChange("price", e.target.value)}
+        />
+      </div>
+
+      <div>
+  <label className="block text-sm mb-1">Image</label>
+  
+  {/* Preview + trigger file input */}
+  <div
+    onClick={() => document.getElementById("imageUpload").click()}
+    className="w-24 h-24 rounded border border-gray-200 cursor-pointer overflow-hidden flex items-center justify-center hover:opacity-80 transition"
+  >
+    <img
+      src={imagePreview || editingProduct.image}
+      alt="Preview"
+      className="object-cover w-full h-full"
+    />
+  </div>
+
+  {/* File input hidden */}
+  <input
+    type="file"
+    id="imageUpload"
+    accept="image/*"
+    className="hidden"
+    onChange={(e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImagePreview(reader.result); 
+          handleEditChange("image", reader.result); 
+        };
+        reader.readAsDataURL(file);
+      }
+    }}
+  />
+</div>
+
+
+      <div>
+        <label className="block text-sm mb-1">Available Colors</label>
+        <Select
+          mode="tags"
+          style={{ width: "100%" }}
+          value={editingProduct.availableColors}
+          onChange={(value) => handleEditChange("availableColors", value)}
+        >
+          {/* Optional: preset color options */}
+          {Object.keys(colorMap).map((color) => (
+            <Select.Option key={color} value={color}>
+              {color}
+            </Select.Option>
+          ))}
+        </Select>
+      </div>
+    </div>
+  )}
+</Modal>
+
     </div>
   );
 };
