@@ -9,13 +9,13 @@ namespace HealthBuddy.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RatingController : ControllerBase
+    public class ReviewController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IReviewRepository _reviewRepository;
 
-        public RatingController(IUserRepository userRepository, IMapper mapper, IReviewRepository reviewRepository)
+        public ReviewController(IUserRepository userRepository, IMapper mapper, IReviewRepository reviewRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
@@ -106,6 +106,29 @@ namespace HealthBuddy.Server.Controllers
                 message = "Đánh giá đã được xoá."
             });
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetReviewById(int id)
+        {
+            var review = await _reviewRepository.GetReviewByIdAsync(id);
+
+            if (review == null)
+            {
+                return NotFound(new
+                {
+                    status = "error",
+                    message = "Không tìm thấy đánh giá."
+                });
+            }
+
+            return Ok(new
+            {
+                status = "success",
+                message = "Lấy đánh giá thành công.",
+                data = review
+            });
+        }
+
 
     }
 }

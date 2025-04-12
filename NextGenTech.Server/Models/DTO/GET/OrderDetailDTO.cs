@@ -2,12 +2,12 @@ namespace NextGenTech.Server.Models.DTO.GET
 {
     public class OrderDetailDTO
     {
-        public int OrderDetailId;
-        public int OrderId;
-        public int ProductId;
+        public int OrderDetailId { get; set; }
+        public int? OrderId { get; set; }
+        public int? ProductId { get; set; }
 
-        public int Quantity;
-        public int Price;
+        public int Quantity { get; set; }
+        public Decimal? Price { get; set; }
 
     }
 }
