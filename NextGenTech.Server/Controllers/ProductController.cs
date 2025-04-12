@@ -69,6 +69,10 @@ namespace HealthBuddy.Server.Controllers
             try
             {
                 var product = await _productRepository.AdminGetProductByIdAsync(id);
+                if (product == null)
+                {
+                    return NotFound("Product not found");
+                }
                 return Ok(_mapper.Map<AdminDetailProductDTO>(product));
             }
             catch (Exception ex)

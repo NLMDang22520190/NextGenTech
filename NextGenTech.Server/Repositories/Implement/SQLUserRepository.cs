@@ -100,7 +100,10 @@ namespace NextGenTech.Server.Repositories.Implement
 
         }
 
-        
+        public async Task<List<User>> AdminGetAllUsersAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
 
     }
     

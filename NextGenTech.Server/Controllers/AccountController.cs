@@ -26,6 +26,14 @@ namespace HealthBuddy.Server.Controllers
         private readonly IMapper _mapper = mapper;
         private readonly EmailService _emailService = new EmailService();
 
+        [HttpGet("AdminGetAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await userRepository.AdminGetAllUsersAsync();
+            var userDTOs = _mapper.Map<List<AdminUserDTO>>(users);
+            return Ok(userDTOs);
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {

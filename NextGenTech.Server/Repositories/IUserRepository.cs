@@ -16,5 +16,6 @@ namespace NextGenTech.Server.Repositories
         Task<bool> UpdatePassword(User user, string newPassword);
         Task<bool> UpdateUserInfo(int userId, UpdateUserInfoRequestDTO request);
 
+        Task<List<User>> AdminGetAllUsersAsync();
     }
 }

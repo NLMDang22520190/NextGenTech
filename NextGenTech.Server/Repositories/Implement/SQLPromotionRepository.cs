@@ -14,5 +14,17 @@ namespace NextGenTech.Server.Repositories.Implement
         {
             return await dbContext.Promotions.Where(p => p.StartDate <= DateTime.Now && p.EndDate >= DateTime.Now).ToListAsync();
         }
+
+        public async Task<List<Promotion>> AdminGetAllPromotionsAsync()
+        {
+            return await dbContext.Promotions.ToListAsync();
+        }
+
+        public async Task<Promotion> AdminGetPromotionByIdAsync(int id)
+        {
+            return await dbContext.Promotions
+                .Include(p => p.Products)
+                .FirstOrDefaultAsync(p => p.PromotionId == id);
+        }
     }
 }

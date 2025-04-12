@@ -33,5 +33,37 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
+        [HttpGet("AdminGetAllPromotions")]
+        public async Task<ActionResult> AdminGetAllPromotions()
+        {
+            try
+            {
+                var promotions = await _promotionRepository.AdminGetAllPromotionsAsync();
+                return Ok(_mapper.Map<List<AdminPromotionDTO>>(promotions));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet("AdminGetPromotionById/{id}")]
+        public async Task<ActionResult> AdminGetPromotionById(int id)
+        {
+            try
+            {
+                var promotion = await _promotionRepository.AdminGetPromotionByIdAsync(id);
+                if (promotion == null)
+                {
+                    return NotFound("Promotion not found");
+                }
+                return Ok(_mapper.Map<AdminPromotionDTO>(promotion));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
     }
 }

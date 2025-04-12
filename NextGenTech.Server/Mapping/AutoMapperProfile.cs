@@ -21,6 +21,7 @@ namespace HealthBuddy.Server.Mapping
             CreateMap<ProductImage, ProductImageDTO>().ReverseMap();
             CreateMap<ProductColor, ProductColorDTO>().ReverseMap();
             CreateMap<Promotion, CustomerProductPromotionDTO>().ReverseMap();
+            CreateMap<Promotion, AdminPromotionDTO>().ReverseMap();
             CreateMap<Brand, BrandDTO>().ReverseMap();
             CreateMap<Brand, AdminBrandDTO>().ReverseMap();
             CreateMap<Category, CategoryDTO>().ReverseMap();
@@ -31,6 +32,7 @@ namespace HealthBuddy.Server.Mapping
             CreateMap<ProductColor, CartItemDTO>().ReverseMap();
             CreateMap<AddItemToCartRequestDTO, CartDetail>().ReverseMap();
             CreateMap<CartDetail, UpdateCartItemRequestDTO>().ReverseMap();
+            CreateMap<User, AdminUserDTO>().ReverseMap();
         }
     }
 }
