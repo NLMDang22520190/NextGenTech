@@ -22,9 +22,7 @@ namespace NextGenTech.Server.Repositories.Implement
 
         public async Task<Promotion> AdminGetPromotionByIdAsync(int id)
         {
-            return await dbContext.Promotions
-                .Include(p => p.Products)
-                .FirstOrDefaultAsync(p => p.PromotionId == id);
+            return await dbContext.Promotions.FirstOrDefaultAsync(p => p.PromotionId == id);
         }
     }
 }

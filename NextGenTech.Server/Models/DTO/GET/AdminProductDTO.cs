@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.IdentityModel.Tokens;
 using NextGenTech.Server.Models.Domain;
 
 namespace NextGenTech.Server.Models.DTO.GET
@@ -22,9 +23,13 @@ namespace NextGenTech.Server.Models.DTO.GET
 
         public virtual CategoryDTO? Category { get; set; }
 
-        public ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
+        public ICollection<ProductImageDTO> ProductImages { get; set; } = new List<ProductImageDTO>();
 
         // Lấy phần trăm giảm giá cao nhất nếu có
-        public string ImageUrl => ProductImages.Count > 0 ? ProductImages.Where(i => i.IsPrimary == true).FirstOrDefault().ImageUrl : string.Empty;
+        public string ImageUrl => ProductImages.Count > 0 
+                ? ProductImages.Where(i => i.IsPrimary == true).FirstOrDefault()?.ImageUrl 
+                ?? ProductImages.FirstOrDefault()?.ImageUrl 
+                ?? string.Empty
+            : string.Empty;
     }
 }

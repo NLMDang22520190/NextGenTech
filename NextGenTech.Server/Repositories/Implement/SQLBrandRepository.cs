@@ -16,5 +16,17 @@ namespace NextGenTech.Server.Repositories.Implement
                 .Include(b => b.Products)
                 .ToListAsync();
         }
+
+        public async Task<Brand> AddBrandAsync(Brand brand)
+        {
+            dbContext.Brands.Add(brand);
+            await dbContext.SaveChangesAsync();
+            return brand; // Return the generated BrandId
+        }
+
+        public async Task<Brand> DeleteBrandAsync(int brandId)
+        {
+            return await DeleteAsync(p => p.BrandId == brandId);
+        }
     }
 }

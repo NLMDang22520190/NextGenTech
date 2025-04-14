@@ -38,7 +38,11 @@ namespace HealthBuddy.Server.Controllers
         {
             try
             {
-                var promotions = await _promotionRepository.AdminGetAllPromotionsAsync();
+                var promotions = await _promotionRepository.GetAllAsync();
+                if (promotions == null || promotions.Count == 0)
+                {
+                    return NotFound("No promotions found");
+                }
                 return Ok(_mapper.Map<List<AdminPromotionDTO>>(promotions));
             }
             catch (Exception ex)

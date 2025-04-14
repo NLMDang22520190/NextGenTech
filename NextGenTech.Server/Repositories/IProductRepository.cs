@@ -11,5 +11,17 @@ namespace NextGenTech.Server.Repositories
         Task<List<Product>> AdminGetAllProductAsync();
 
         Task<Product> AdminGetProductByIdAsync(int id);
+
+        Task<Product> AddProductAsync(Product product);
+
+        Task AddProductImagesAsync(List<ProductImage> productImages);
+
+        Task AddProductColorsAsync(List<ProductColor> productColors);
+
+        Task<List<ProductImage>> GetProductImagesByProductIdAsync(int productId);
+
+        Task<List<ProductColor>> GetProductColorsByProductIdAsync(int productId);
+
+        Task<Product> DeleteProductAsync(int productId);
     }
 }
