@@ -34,13 +34,30 @@ namespace NextGenTech.Server.Repositories.Implement
 
         public async Task LinkProductsToPromotionAsync(Promotion promotion, ICollection<string> productIds)
         {
-            var products = await dbContext.Products
+            var newProducts = await dbContext.Products
                 .Where(p => productIds.Contains(p.ProductId.ToString()))
                 .ToListAsync();
+            var existingProducts = await dbContext.Promotions
+                .Include(p => p.Products)
+                .Where(p => p.PromotionId == promotion.PromotionId)
+                .SelectMany(p => p.Products)
+                .ToListAsync();
 
-            foreach (var product in products)
+            if (existingProducts == null || existingProducts.Count == 0)
             {
-                promotion.Products.Add(product);
+                foreach (var product in newProducts)
+                {
+                    promotion.Products.Add(product);
+                }
+            }
+            else
+            {
+                dbContext.Products.RemoveRange(existingProducts.Where(p => !newProducts.Contains(p)).ToList());
+                foreach (var product in newProducts)
+                {
+                    if (!existingProducts.Contains(product))
+                        promotion.Products.Add(product);
+                }
             }
             
             await dbContext.SaveChangesAsync();
@@ -49,6 +66,25 @@ namespace NextGenTech.Server.Repositories.Implement
         public async Task<Promotion> DeletePromotionAsync(int id)
         {
             return await DeleteAsync(p => p.PromotionId == id);
+        }
+
+        public async Task<Promotion?> UpdatePromotionAsync(int promotionId, Promotion updatedPromotion)
+        {
+            var existingPromotion = await dbContext.Promotions.FirstOrDefaultAsync(p => p.PromotionId == promotionId);
+            if (existingPromotion == null) 
+            {
+                return null;
+            }
+
+            existingPromotion.Name = updatedPromotion.Name;
+            existingPromotion.Description = updatedPromotion.Description;
+            existingPromotion.PromotionCode = updatedPromotion.PromotionCode;
+            existingPromotion.DiscountPercentage = updatedPromotion.DiscountPercentage;
+            existingPromotion.StartDate = updatedPromotion.StartDate;
+            existingPromotion.EndDate = updatedPromotion.EndDate;
+
+            await dbContext.SaveChangesAsync();
+            return existingPromotion;
         }
     }
 }

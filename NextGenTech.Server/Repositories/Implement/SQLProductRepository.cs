@@ -53,26 +53,85 @@ namespace NextGenTech.Server.Repositories.Implement
             return product; // Return the generated ProductId
         }
 
-        public async Task AddProductImagesAsync(List<ProductImage> productImages)
+        public async Task<Product?> UpdateProductAsync(int productId, Product updatedProduct)
         {
-            dbContext.ProductImages.AddRange(productImages);
+            var existingProduct = await dbContext.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductColors)
+                .FirstOrDefaultAsync(p => p.ProductId == productId);
+
+            if (existingProduct == null)
+            {
+                return null;
+            }
+
+            // Update product details
+            existingProduct.Name = updatedProduct.Name;
+            existingProduct.Description = updatedProduct.Description;
+            existingProduct.LongDescription = updatedProduct.LongDescription;
+            existingProduct.Price = updatedProduct.Price;
+            existingProduct.StockQuantity = updatedProduct.StockQuantity;
+            existingProduct.BrandId = updatedProduct.BrandId;
+            existingProduct.CategoryId = updatedProduct.CategoryId;
+
+            // Update ProductImages
+            var newImageUrls = updatedProduct.ProductImages.Select(img => img.ImageUrl).ToList();
+            var existingImageUrls = existingProduct.ProductImages.Select(img => img.ImageUrl).ToList();
+
+            // Remove images not in the new list
+            var imagesToRemove = existingProduct.ProductImages
+                .Where(img => !newImageUrls.Contains(img.ImageUrl))
+                .ToList();
+            dbContext.ProductImages.RemoveRange(imagesToRemove);
+
+            // Add new images
+            var imagesToAdd = newImageUrls
+                .Where(url => !existingImageUrls.Contains(url))
+                .Select(url => new ProductImage { ProductId = productId, ImageUrl = url })
+                .ToList();
+            foreach (var image in imagesToAdd)
+            {
+                existingProduct.ProductImages.Add(image);
+            }
+
+            // Update ProductColors
+            var newColors = updatedProduct.ProductColors.Select(c => c.ColorCode).ToList();
+
+            // Remove colors not in the new list
+            var colorsToRemove = existingProduct.ProductColors
+                .Where(c => !newColors.Contains(c.ColorCode))
+                .ToList();
+            dbContext.ProductColors.RemoveRange(colorsToRemove);
+
+            // Add or update colors
+            foreach (var updatedColor in updatedProduct.ProductColors)
+            {
+                var existingColor = existingProduct.ProductColors
+                    .FirstOrDefault(c => c.ColorCode == updatedColor.ColorCode);
+
+                if (existingColor != null)
+                {
+                    // Update StockQuantity if it has changed
+                    if (existingColor.StockQuantity != updatedColor.StockQuantity)
+                    {
+                        existingColor.StockQuantity = updatedColor.StockQuantity;
+                    }
+                }
+                else
+                {
+                    // Add new color
+                    existingProduct.ProductColors.Add(new ProductColor
+                    {
+                        ProductId = productId,
+                        Color = updatedColor.Color,
+                        ColorCode = updatedColor.ColorCode,
+                        StockQuantity = updatedColor.StockQuantity
+                    });
+                }
+            }
+
             await dbContext.SaveChangesAsync();
-        }
-
-        public async Task AddProductColorsAsync(List<ProductColor> productColors)
-        {
-            dbContext.ProductColors.AddRange(productColors);
-            await dbContext.SaveChangesAsync();
-        }
-
-        public async Task<List<ProductImage>> GetProductImagesByProductIdAsync(int productId)
-        {
-            return await dbContext.ProductImages.Where(pi => pi.ProductId == productId).ToListAsync();
-        }
-
-        public async Task<List<ProductColor>> GetProductColorsByProductIdAsync(int productId)
-        {
-            return await dbContext.ProductColors.Where(pc => pc.ProductId == productId).ToListAsync();
+            return existingProduct;
         }
 
         public async Task<Product> DeleteProductAsync(int productId)

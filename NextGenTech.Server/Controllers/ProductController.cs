@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NextGenTech.Server.Models.DTO.GET;
 using NextGenTech.Server.Models.DTO.ADD;
 using NextGenTech.Server.Models.Domain;
+using NextGenTech.Server.Models.DTO.UPDATE;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -13,6 +14,8 @@ namespace HealthBuddy.Server.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
+        private readonly IProductImageRepository _productImageRepository;
+        private readonly IProductColorRepository _productColorRepository;
 
 
         private readonly IMapper _mapper;
@@ -92,7 +95,7 @@ namespace HealthBuddy.Server.Controllers
         {
             try
             {
-                var productImages = await _productRepository.GetProductImagesByProductIdAsync(productId);
+                var productImages = await _productImageRepository.GetProductImagesByProductIdAsync(productId);
                 if (productImages == null || productImages.Count == 0)
                 {
                     return NotFound("No images found for this product.");
@@ -110,7 +113,7 @@ namespace HealthBuddy.Server.Controllers
         {
             try
             {
-                var productColors = await _productRepository.GetProductColorsByProductIdAsync(productId);
+                var productColors = await _productColorRepository.GetProductColorsByProductIdAsync(productId);
                 if (productColors == null || productColors.Count == 0)
                 {
                     return NotFound("No colors found for this product.");
@@ -136,7 +139,7 @@ namespace HealthBuddy.Server.Controllers
                     ProductId = productId,
                     ImageUrl = url
                 }).ToList();
-                await _productRepository.AddProductImagesAsync(productImages);
+                await _productImageRepository.AddProductImagesAsync(productImages);
 
                 var productColors = adminAddProductDTO.Colors.Select(color => new ProductColor
                 {
@@ -145,9 +148,33 @@ namespace HealthBuddy.Server.Controllers
                     ColorCode = color.ColorCode,
                     StockQuantity = color.StockQuantity
                 }).ToList();
-                await _productRepository.AddProductColorsAsync(productColors);
+                await _productColorRepository.AddProductColorsAsync(productColors);
 
                 return Ok(AdminGetProductById(productId));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPut("UpdateProduct/{id}")]
+        public async Task<ActionResult> UpdateProduct(int id, [FromBody] AdminUpdateProductDTO adminUpdateProductDTO)
+        {
+            try
+            {
+                if (adminUpdateProductDTO == null)
+                {
+                    return BadRequest("Invalid product data.");
+                }
+                var updatedProduct = _mapper.Map<Product>(adminUpdateProductDTO);
+                var product = await _productRepository.UpdateProductAsync(id, updatedProduct);
+                if (product == null)
+                {
+                    return NotFound("Product not found.");
+                }
+
+                return Ok(await AdminGetProductById(id));
             }
             catch (Exception ex)
             {

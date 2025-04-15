@@ -23,26 +23,41 @@ namespace HealthBuddy.Server.Mapping
                 .ForMember(dest => dest.ProductImages, opt => opt.Ignore()) // Ignore ProductImages
                 .ForMember(dest => dest.ProductColors, opt => opt.Ignore()) // Ignore ProductColors
                 .ReverseMap();
+            CreateMap<AdminUpdateProductDTO, Product>()
+                .ForMember(dest => dest.StockQuantity, opt => opt.MapFrom(src => src.Colors.Sum(c => c.StockQuantity))) // Map total stock quantity
+                .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ImageUrls.Select(url => new ProductImage { ImageUrl = url })))
+                .ForMember(dest => dest.ProductColors, opt => opt.MapFrom(src => src.Colors.Select(color => new ProductColor
+                {
+                    Color = color.Color,
+                    ColorCode = color.ColorCode,
+                    StockQuantity = color.StockQuantity
+                })))
+                .ReverseMap();
 
             CreateMap<ProductImage, ProductImageDTO>().ReverseMap();
             CreateMap<ProductColor, ProductColorDTO>().ReverseMap();
             
             CreateMap<Promotion, CustomerProductPromotionDTO>().ReverseMap();
+            CreateMap<Promotion, CustomerPromotionDTO>().ReverseMap();
             CreateMap<Promotion, AdminPromotionDTO>()
                 .ForMember(dest => dest.ProductIDs, opt => opt.MapFrom(src => src.Products.Select(p => p.ProductId.ToString())))
                 .ReverseMap();
             CreateMap<Promotion, AdminAddPromotionDTO>()
                 .ForMember(dest => dest.ProductIDs, opt => opt.MapFrom(src => src.Products.Select(p => p.ProductId.ToString())))
                 .ReverseMap();
-            CreateMap<Promotion, CustomerPromotionDTO>().ReverseMap();
+            CreateMap<Promotion, AdminUpdatePromotionDTO>()
+                .ForMember(dest => dest.ProductIDs, opt => opt.MapFrom(src => src.Products.Select(p => p.ProductId.ToString())))
+                .ReverseMap();
             
             CreateMap<Brand, BrandDTO>().ReverseMap();
             CreateMap<Brand, AdminBrandDTO>().ReverseMap();
             CreateMap<Brand, AdminAddBrandDTO>().ReverseMap();
+            CreateMap<Brand, AdminUpdateBrandDTO>().ReverseMap();
             
             CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<Category, AdminCategoryDTO>().ReverseMap();
             CreateMap<Category, AdminAddCategoryDTO>().ReverseMap();
+            CreateMap<Category, AdminUpdateCategoryDTO>().ReverseMap();
                                   
             CreateMap<Order, OrderDTO>().ReverseMap();
             CreateMap<CartDetail, CartItemDetailDTO>().ReverseMap();
@@ -55,6 +70,7 @@ namespace HealthBuddy.Server.Mapping
                 .ForMember(dest => dest.Password, opt => opt.Ignore())
                 .ReverseMap()
                 .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => BCrypt.Net.BCrypt.HashPassword(src.Password)));
+            CreateMap<User, AdminUpdateUserDTO>().ReverseMap();
         }
     }
 }

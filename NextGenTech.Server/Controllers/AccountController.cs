@@ -288,6 +288,43 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
+        [HttpPut("UpdateUser/{userId}")]
+        public async Task<IActionResult> UpdateUser(int userId, [FromBody] AdminUpdateUserDTO request)
+        {
+            if (request == null)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Dữ liệu gửi lên không hợp lệ."
+                });
+            }
+
+            try
+            {
+                var user = _mapper.Map<User>(request);
+                var result = await userRepository.UpdateUserAsync(userId, user);
+                if (result == null)
+                {
+                    return NotFound(new
+                    {
+                        status = "error",
+                        message = "Không tìm thấy người dùng."
+                    });
+                }
+                return Ok(_mapper.Map<AdminUserDTO>(await userRepository.GetByIdAsync(p => p.UserId == userId)));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = "Lỗi khi cập nhật người dùng.",
+                    details = ex.Message
+                });
+            }
+        }
+
         [HttpDelete("DeleteUser/{userId}")]
         public async Task<IActionResult> DeleteUser(int userId)
         {

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NextGenTech.Server.Models.DTO.GET;
 using NextGenTech.Server.Models.DTO.ADD;
 using NextGenTech.Server.Models.Domain;
+using NextGenTech.Server.Models.DTO.UPDATE;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -63,6 +64,29 @@ namespace HealthBuddy.Server.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+        
+        [HttpPut("UpdateBrand/{brandId}")]
+        public async Task<ActionResult> UpdateBrand(int brandId, [FromBody] AdminUpdateBrandDTO adminUpdateBrandDTO)
+        {
+            try
+            {
+                if (adminUpdateBrandDTO == null)
+                {
+                    return BadRequest("Invalid brand data");
+                }
+                var updatedBrand = _mapper.Map<Brand>(adminUpdateBrandDTO);
+                var brand = await _brandRepository.UpdateBrandAsync(brandId, updatedBrand);
+                if (brand == null)
+                {
+                    return NotFound("Brand not found");
+                }
+                return Ok(await _brandRepository.GetByIdAsync(p => p.BrandId == brandId));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
 
         [HttpDelete("DeleteBrand/{brandId}")]
         public async Task<ActionResult> DeleteBrand(int brandId)
@@ -81,5 +105,6 @@ namespace HealthBuddy.Server.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
+
     }
 }

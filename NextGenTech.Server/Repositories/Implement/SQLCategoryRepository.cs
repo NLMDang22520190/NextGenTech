@@ -28,5 +28,19 @@ namespace NextGenTech.Server.Repositories.Implement
         {
             return await DeleteAsync(p => p.CategoryId == categoryId);
         }
+
+        public async Task<Category?> UpdateCategoryAsync(int categoryId, Category updatedCategory)
+        {
+            var existingCategory = await dbContext.Categories.FirstOrDefaultAsync(p => p.CategoryId == categoryId);
+            if (existingCategory == null)
+            {
+                return null;
+            }
+            existingCategory.CategoryName = updatedCategory.CategoryName;
+            existingCategory.Description = updatedCategory.Description;
+            
+            await dbContext.SaveChangesAsync();
+            return existingCategory;
+        }
     }
 }

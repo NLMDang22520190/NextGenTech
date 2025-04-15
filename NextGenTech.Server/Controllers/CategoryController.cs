@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NextGenTech.Server.Models.DTO.GET;
 using NextGenTech.Server.Models.DTO.ADD;
 using NextGenTech.Server.Models.Domain;
+using NextGenTech.Server.Models.DTO.UPDATE;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -61,6 +62,29 @@ namespace HealthBuddy.Server.Controllers
                 var category = _mapper.Map<Category>(adminAddCategoryDTO);
                 var addedCategory = await _categoryRepository.AddCategoryAsync(category);
                 return Ok(_mapper.Map<AdminCategoryDTO>(addedCategory));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPut("UpdateCategory/{categoryId}")]
+        public async Task<ActionResult> UpdateCategory(int categoryId, [FromBody] AdminUpdateCategoryDTO adminUpdateCategoryDTO)
+        {
+            try
+            {
+                if (adminUpdateCategoryDTO == null)
+                {
+                    return BadRequest("Invalid category data.");
+                }
+                var updatedCategory = _mapper.Map<Category>(adminUpdateCategoryDTO);
+                var result = await _categoryRepository.UpdateCategoryAsync(categoryId, updatedCategory);
+                if (result == null)
+                {
+                    return NotFound("Category not found.");
+                }
+                return Ok(await _categoryRepository.GetByIdAsync(p => p.CategoryId == categoryId));
             }
             catch (Exception ex)
             {

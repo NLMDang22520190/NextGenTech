@@ -10,5 +10,6 @@ namespace NextGenTech.Server.Repositories
         Task<Promotion> AddPromotionAsync(Promotion promotion);
         Task LinkProductsToPromotionAsync(Promotion promotion, ICollection<string> productIds);
         Task<Promotion> DeletePromotionAsync(int id);
+        Task<Promotion?> UpdatePromotionAsync(int promotionId, Promotion updatedPromotion);
     }
 }

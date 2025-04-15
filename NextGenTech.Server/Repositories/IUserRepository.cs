@@ -20,5 +20,6 @@ namespace NextGenTech.Server.Repositories
         Task<List<User>> AdminGetAllUsersAsync();
         Task<User> AddUserAsync(User user);
         Task<User> DeleteUserAsync(int userId);
+        Task<User?> UpdateUserAsync(int userId, User updatedUser);
     }
 }

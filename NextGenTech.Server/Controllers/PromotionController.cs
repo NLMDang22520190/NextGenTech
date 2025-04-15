@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using NextGenTech.Server.Models.DTO.GET;
 using NextGenTech.Server.Models.DTO.ADD;
 using NextGenTech.Server.Models.Domain;
+using NextGenTech.Server.Models.DTO.UPDATE;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -84,6 +85,30 @@ namespace HealthBuddy.Server.Controllers
                 var addedPromotion = await _promotionRepository.AddPromotionAsync(promotion);
                 await _promotionRepository.LinkProductsToPromotionAsync(addedPromotion, adminAddPromotionDTO.ProductIDs);
                 return Ok(_mapper.Map<AdminPromotionDTO>(addedPromotion));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPut("UpdatePromotion/{id}")]
+        public async Task<ActionResult> UpdatePromotion(int id, [FromBody] AdminUpdatePromotionDTO adminUpdatePromotionDTO)
+        {
+            try
+            {
+                if (adminUpdatePromotionDTO == null)
+                {
+                    return BadRequest("Invalid promotion data.");
+                }
+                var updatedPromotion = _mapper.Map<Promotion>(adminUpdatePromotionDTO);
+                var promotion = await _promotionRepository.UpdatePromotionAsync(id, updatedPromotion);
+                if (promotion == null)
+                {
+                    return NotFound("Promotion not found");
+                }
+                await _promotionRepository.LinkProductsToPromotionAsync(promotion, adminUpdatePromotionDTO.ProductIDs);
+                return Ok(_mapper.Map<AdminPromotionDTO>(await _promotionRepository.AdminGetPromotionByIdAsync(id)));
             }
             catch (Exception ex)
             {

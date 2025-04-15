@@ -28,5 +28,19 @@ namespace NextGenTech.Server.Repositories.Implement
         {
             return await DeleteAsync(p => p.BrandId == brandId);
         }
+
+        public async Task<Brand?> UpdateBrandAsync(int brandId, Brand updatedBrand)
+        {
+            var existingBrand = await dbContext.Brands.FirstOrDefaultAsync(p => p.BrandId == brandId);
+            if (existingBrand == null)
+            {
+                return null;
+            }
+            existingBrand.BrandName = updatedBrand.BrandName;
+            existingBrand.BrandImageUrl = updatedBrand.BrandImageUrl;
+            
+            await dbContext.SaveChangesAsync();
+            return existingBrand;
+        }
     }
 }

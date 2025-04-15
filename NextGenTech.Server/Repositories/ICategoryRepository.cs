@@ -7,5 +7,6 @@ namespace NextGenTech.Server.Repositories
         Task<List<Category>> AdminGetAllCategoryAsync();
         Task<Category> AddCategoryAsync(Category category);
         Task<Category> DeleteCategoryAsync(int categoryId);
+        Task<Category?> UpdateCategoryAsync(int categoryId, Category updatedCategory);
     }
 }

@@ -10,6 +10,15 @@ namespace NextGenTech.Server.Repositories.Implement
         {
         }
 
+        public async Task AddProductImagesAsync(List<ProductImage> productImages)
+        {
+            dbContext.ProductImages.AddRange(productImages);
+            await dbContext.SaveChangesAsync();
+        }
 
+        public async Task<List<ProductImage>> GetProductImagesByProductIdAsync(int productId)
+        {
+            return await dbContext.ProductImages.Where(pi => pi.ProductId == productId).ToListAsync();
+        }
     }
 }
