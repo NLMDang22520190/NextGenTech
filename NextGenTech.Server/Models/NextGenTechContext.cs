@@ -171,13 +171,15 @@ public partial class NextGenTechContext : DbContext
 
             entity.HasMany(d => d.Promotions).WithMany(p => p.Products)
                 .UsingEntity<Dictionary<string, object>>(
-                    "ProductPromotion",
+                    "ProductPromotions",
                     r => r.HasOne<Promotion>().WithMany()
                         .HasForeignKey("PromotionId")
-                        .HasConstraintName("FK__ProductPr__Promo__656C112C"),
+                        .HasConstraintName("FK__ProductPr__Promo__656C112C")
+                        .OnDelete(DeleteBehavior.Cascade),
                     l => l.HasOne<Product>().WithMany()
                         .HasForeignKey("ProductId")
-                        .HasConstraintName("FK__ProductPr__Produ__6477ECF3"),
+                        .HasConstraintName("FK__ProductPr__Produ__6477ECF3")
+                        .OnDelete(DeleteBehavior.Cascade),
                     j =>
                     {
                         j.HasKey("ProductId", "PromotionId").HasName("PK__ProductP__5120841FA0F30458");

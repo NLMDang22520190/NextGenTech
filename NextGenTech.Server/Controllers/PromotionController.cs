@@ -3,6 +3,8 @@ using NextGenTech.Server.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NextGenTech.Server.Models.DTO.GET;
+using NextGenTech.Server.Models.DTO.ADD;
+using NextGenTech.Server.Models.Domain;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -38,7 +40,7 @@ namespace HealthBuddy.Server.Controllers
         {
             try
             {
-                var promotions = await _promotionRepository.GetAllAsync();
+                var promotions = await _promotionRepository.AdminGetAllPromotionsAsync();
                 if (promotions == null || promotions.Count == 0)
                 {
                     return NotFound("No promotions found");
@@ -69,5 +71,42 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
+        [HttpPost("AddPromotion")]
+        public async Task<ActionResult> AddPromotion([FromBody] AdminAddPromotionDTO adminAddPromotionDTO)
+        {
+            try
+            {
+                if (adminAddPromotionDTO == null)
+                {
+                    return BadRequest("Invalid promotion data.");
+                }
+                var promotion = _mapper.Map<Promotion>(adminAddPromotionDTO);
+                var addedPromotion = await _promotionRepository.AddPromotionAsync(promotion);
+                await _promotionRepository.LinkProductsToPromotionAsync(addedPromotion, adminAddPromotionDTO.ProductIDs);
+                return Ok(_mapper.Map<AdminPromotionDTO>(addedPromotion));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpDelete("DeletePromotion/{id}")]
+        public async Task<ActionResult> DeletePromotion(int id)
+        {
+            try
+            {
+                var promotion = await _promotionRepository.DeletePromotionAsync(id);
+                if (promotion == null)
+                {
+                    return NotFound("Promotion not found");
+                }
+                return Ok(_mapper.Map<AdminPromotionDTO>(promotion));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 }

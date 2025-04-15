@@ -18,7 +18,6 @@ namespace HealthBuddy.Server.Mapping
             CreateMap<Product, CustomerDetailProductDTO>().ReverseMap();
             CreateMap<Product, AdminProductDTO>().ReverseMap();
             CreateMap<Product, AdminDetailProductDTO>().ReverseMap();
-            
             CreateMap<AdminAddProductDTO, Product>()
                 .ForMember(dest => dest.StockQuantity, opt => opt.MapFrom(src => src.Colors.Sum(c => c.StockQuantity))) // Map total stock quantity
                 .ForMember(dest => dest.ProductImages, opt => opt.Ignore()) // Ignore ProductImages
@@ -27,20 +26,35 @@ namespace HealthBuddy.Server.Mapping
 
             CreateMap<ProductImage, ProductImageDTO>().ReverseMap();
             CreateMap<ProductColor, ProductColorDTO>().ReverseMap();
+            
             CreateMap<Promotion, CustomerProductPromotionDTO>().ReverseMap();
-            CreateMap<Promotion, AdminPromotionDTO>().ReverseMap();
+            CreateMap<Promotion, AdminPromotionDTO>()
+                .ForMember(dest => dest.ProductIDs, opt => opt.MapFrom(src => src.Products.Select(p => p.ProductId.ToString())))
+                .ReverseMap();
+            CreateMap<Promotion, AdminAddPromotionDTO>()
+                .ForMember(dest => dest.ProductIDs, opt => opt.MapFrom(src => src.Products.Select(p => p.ProductId.ToString())))
+                .ReverseMap();
+            CreateMap<Promotion, CustomerPromotionDTO>().ReverseMap();
+            
             CreateMap<Brand, BrandDTO>().ReverseMap();
             CreateMap<Brand, AdminBrandDTO>().ReverseMap();
             CreateMap<Brand, AdminAddBrandDTO>().ReverseMap();
+            
             CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<Category, AdminCategoryDTO>().ReverseMap();
-            CreateMap<Promotion, CustomerPromotionDTO>().ReverseMap();
+            CreateMap<Category, AdminAddCategoryDTO>().ReverseMap();
+                                  
             CreateMap<Order, OrderDTO>().ReverseMap();
             CreateMap<CartDetail, CartItemDetailDTO>().ReverseMap();
             CreateMap<ProductColor, CartItemDTO>().ReverseMap();
             CreateMap<AddItemToCartRequestDTO, CartDetail>().ReverseMap();
             CreateMap<CartDetail, UpdateCartItemRequestDTO>().ReverseMap();
+            
             CreateMap<User, AdminUserDTO>().ReverseMap();
+            CreateMap<User, AdminAddUserDTO>()
+                .ForMember(dest => dest.Password, opt => opt.Ignore())
+                .ReverseMap()
+                .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => BCrypt.Net.BCrypt.HashPassword(src.Password)));
         }
     }
 }

@@ -17,5 +17,16 @@ namespace NextGenTech.Server.Repositories.Implement
                 .ToListAsync();
         }
 
+        public async Task<Category> AddCategoryAsync(Category category)
+        {
+            await dbContext.Categories.AddAsync(category);
+            await dbContext.SaveChangesAsync();
+            return category;
+        }
+
+        public async Task<Category> DeleteCategoryAsync(int categoryId)
+        {
+            return await DeleteAsync(p => p.CategoryId == categoryId);
+        }
     }
 }

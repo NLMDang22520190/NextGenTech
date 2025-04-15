@@ -1,9 +1,7 @@
-namespace NextGenTech.Server.Models.DTO.GET
+namespace NextGenTech.Server.Models.DTO.ADD
 {
-    public class AdminPromotionDTO
+    public class AdminAddPromotionDTO
     {
-        public int PromotionId { get; set; }
-
         public string Name { get; set; } = null!;
 
         public string? Description { get; set; }

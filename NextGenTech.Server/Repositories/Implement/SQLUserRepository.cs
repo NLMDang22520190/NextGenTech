@@ -105,6 +105,17 @@ namespace NextGenTech.Server.Repositories.Implement
             return await _context.Users.ToListAsync();
         }
 
+        public async Task<User> AddUserAsync(User user)
+        {
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<User> DeleteUserAsync(int userId)
+        {
+            return await DeleteAsync(p => p.UserId == userId);
+        }
     }
     
 }
