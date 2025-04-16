@@ -30,6 +30,7 @@ namespace HealthBuddy.Server.Mapping
             CreateMap<CartDetail, UpdateCartItemRequestDTO>().ReverseMap();
             CreateMap<Order, OrderWithOrderDetailDTO>().ReverseMap();
             CreateMap<Promotion, PromotionDTO>().ReverseMap();
+            CreateMap<Product, AdminProductDTO>().ReverseMap();
         }
     }
 }
