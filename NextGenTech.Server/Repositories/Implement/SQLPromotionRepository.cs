@@ -86,5 +86,15 @@ namespace NextGenTech.Server.Repositories.Implement
             await dbContext.SaveChangesAsync();
             return existingPromotion;
         }
+        public async Task<string> GetVoucherCodeByPromotionId(int PromotionId)
+        {
+            var promotion = await dbContext.Promotions.FirstOrDefaultAsync(x => x.PromotionId == PromotionId);
+            if (promotion == null)
+                return null;
+
+            var promotionCode = promotion.PromotionCode;
+
+            return promotionCode;
+        }
     }
 }

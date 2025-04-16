@@ -1,4 +1,6 @@
 using NextGenTech.Server.Models.Domain;
+using NextGenTech.Server.Models.DTO.UPDATE;
+using NextGenTech.Server.Models.DTO.ADD;
 
 namespace NextGenTech.Server.Repositories
 {

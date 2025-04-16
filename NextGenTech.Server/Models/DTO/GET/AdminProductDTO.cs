@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using Microsoft.IdentityModel.Tokens;
-using NextGenTech.Server.Models.Domain;
-
 namespace NextGenTech.Server.Models.DTO.GET
 {
     public class AdminProductDTO

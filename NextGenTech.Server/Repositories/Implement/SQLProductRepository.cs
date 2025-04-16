@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using NextGenTech.Server.Models;
+using NextGenTech.Server.Models.DTO.ADD;
+using NextGenTech.Server.Models.DTO.UPDATE;
 using NextGenTech.Server.Models.Domain;
 
 namespace NextGenTech.Server.Repositories.Implement

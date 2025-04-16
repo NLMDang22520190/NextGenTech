@@ -60,6 +60,7 @@ namespace HealthBuddy.Server.Mapping
             CreateMap<Category, AdminUpdateCategoryDTO>().ReverseMap();
                                   
             CreateMap<Order, OrderDTO>().ReverseMap();
+            CreateMap<OrderDetail, OrderDetailDTO>().ReverseMap();
             CreateMap<CartDetail, CartItemDetailDTO>().ReverseMap();
             CreateMap<ProductColor, CartItemDTO>().ReverseMap();
             CreateMap<AddItemToCartRequestDTO, CartDetail>().ReverseMap();
@@ -71,6 +72,8 @@ namespace HealthBuddy.Server.Mapping
                 .ReverseMap()
                 .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => BCrypt.Net.BCrypt.HashPassword(src.Password)));
             CreateMap<User, AdminUpdateUserDTO>().ReverseMap();
+            CreateMap<Order, OrderWithOrderDetailDTO>().ReverseMap();
+            CreateMap<Promotion, PromotionDTO>().ReverseMap();
         }
     }
 }

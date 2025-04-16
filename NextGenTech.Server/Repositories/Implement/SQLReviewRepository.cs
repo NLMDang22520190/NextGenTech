@@ -53,6 +53,14 @@ namespace NextGenTech.Server.Repositories.Implement
             dbContext.Reviews.Remove(review);
             return await dbContext.SaveChangesAsync() > 0;
         }
+        
+        public async Task<Review?> GetReviewByIdAsync(int id)
+        {
+            return await dbContext.Reviews
+                .Include(r => r.User)
+                .Include(r => r.Product)
+                .FirstOrDefaultAsync(r => r.ReviewId == id);
+        }
 
 
 

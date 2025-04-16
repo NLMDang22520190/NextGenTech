@@ -5,11 +5,16 @@ import { format, parse, isValid } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "../../../components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger} from "../../../components/ui/popover";
 import  { Calendar } from "../../../components/ui/calendar";
+import {Modal, Table} from "antd";
+import { Select as AntdSelect } from "antd";
 
 const OrderList = () => {
   const [selectedDate, setSelectedDate] = useState(undefined);
   const [selectedType, setSelectedType] = useState(undefined);
   const [selectedStatus, setSelectedStatus] = useState(undefined);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+
 
   // Sample data for our orders
   const orderData = [
@@ -18,7 +23,6 @@ const OrderList = () => {
       name: "Christine Brooks",
       address: "089 Kutch Green Apt. 448",
       date: "04 Sep 2019",
-      type: "Electric",
       status: "Completed",
     },
     {
@@ -34,7 +38,6 @@ const OrderList = () => {
       name: "Darrell Caldwell",
       address: "8587 Frida Ports",
       date: "23 Nov 2019",
-      type: "Medicine",
       status: "Rejected",
     },
     {
@@ -42,7 +45,6 @@ const OrderList = () => {
       name: "Gilbert Johnston",
       address: "768 Destiny Lake Suite 600",
       date: "05 Feb 2019",
-      type: "Mobile",
       status: "Completed",
     },
     {
@@ -50,7 +52,6 @@ const OrderList = () => {
       name: "Alan Cain",
       address: "042 Mylene Throughway",
       date: "29 Jul 2019",
-      type: "Watch",
       status: "Processing",
     },
     {
@@ -58,7 +59,6 @@ const OrderList = () => {
       name: "Alfred Murray",
       address: "543 Weimann Mountain",
       date: "15 Aug 2019",
-      type: "Medicine",
       status: "Completed",
     },
     {
@@ -66,7 +66,6 @@ const OrderList = () => {
       name: "Maggie Sullivan",
       address: "New Scottieberg",
       date: "21 Dec 2019",
-      type: "Watch",
       status: "Processing",
     },
     {
@@ -74,7 +73,6 @@ const OrderList = () => {
       name: "Rosie Todd",
       address: "New Jon",
       date: "30 Apr 2019",
-      type: "Medicine",
       status: "On Hold",
     },
     {
@@ -82,7 +80,6 @@ const OrderList = () => {
       name: "Dollie Hines",
       address: "124 Lyla Forge Suite 975",
       date: "09 Jan 2019",
-      type: "Book",
       status: "In Transit",
     },
   ];
@@ -99,6 +96,18 @@ const OrderList = () => {
     setSelectedType(undefined);
     setSelectedStatus(undefined);
   };
+
+  const openModal = (order) => {
+    setSelectedOrder(order);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedOrder(null);
+    setModalOpen(false);
+  };
+  
+  
 
   // Get status color based on status value
   const getStatusColor = (status) => {
@@ -210,24 +219,6 @@ const OrderList = () => {
           </Popover>
         </div>
         
-        {/* Order Type Filter */}
-        <div className="flex items-center border-r border-gray-200">
-          <Select value={selectedType} onValueChange={setSelectedType}>
-            <SelectTrigger className="border-0 focus:ring-0 focus:ring-offset-0 px-4 py-3 h-auto min-w-[160px]">
-              <span className="flex items-center text-sm font-medium text-gray-700">
-                <Package size={16} className="mr-2 text-gray-500" />
-                <SelectValue placeholder="Order Type" />
-              </span>
-            </SelectTrigger>
-            <SelectContent className="z-50 bg-white">
-              {orderTypes.map(type => (
-                <SelectItem key={type} value={type} className="cursor-pointer">
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
         
         {/* Order Status Filter */}
         <div className="flex items-center border-r border-gray-200">
@@ -284,10 +275,10 @@ const OrderList = () => {
                   DATE
                 </th>
                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  TYPE
+                  STATUS
                 </th>
                 <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  STATUS
+                  Action
                 </th>
               </tr>
             </thead>
@@ -314,14 +305,19 @@ const OrderList = () => {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                     {order.date}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {order.type}
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                       {order.status}
                     </span>
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                  <button
+                    onClick={() => setSelectedOrder(order)}
+                    className="text-gray-500 hover:text-gray-800 transition"
+                  >
+                    ...
+                  </button>
+                </td>
                 </motion.tr>
               ))}
             </tbody>
@@ -348,7 +344,89 @@ const OrderList = () => {
           </button>
         </div>
       </motion.div>
+      <Modal
+      title="Order Detail"
+      footer={null}
+      open={!!selectedOrder}
+      onOk={() => setSelectedOrder(null)}
+      onCancel={() => setSelectedOrder(null)}
+    >
+      {selectedOrder && (
+        <div className="flex flex-col gap-y-2">
+          <p>
+            <strong>Order ID:</strong> {selectedOrder.id}
+          </p>
+          <p>
+            <strong>Date:</strong> {selectedOrder.date}
+          </p>
+          <p className="flex items-center gap-x-2">
+            <strong>Order Status:</strong>
+            <AntdSelect
+              defaultValue={selectedOrder.status}
+              style={{ width: 150 }}
+              onChange={(value) =>
+                setSelectedOrder({ ...selectedOrder, status: value })
+              }
+            >
+              <AntdSelect.Option value="Chờ xác nhận">On Hold</AntdSelect.Option>
+              <AntdSelect.Option value="Đang xử lý">Processing</AntdSelect.Option>
+              <AntdSelect.Option value="Hoàn tất">Complete</AntdSelect.Option>
+              <AntdSelect.Option value="Đã Huỷ">Rejected</AntdSelect.Option>
+            </AntdSelect>
+          </p>
+          <p>
+            <strong>Order Items:</strong>
+          </p>
+          <Table
+            pagination={false}
+            size="small"
+            columns={[
+              {
+                title: "Item",
+                dataIndex: "name",
+                key: "name",
+              },
+              {
+                title: "Qty",
+                dataIndex: "quantity",
+                key: "quantity",
+              },
+              {
+                title: "Price",
+                dataIndex: "price",
+                key: "price",
+                render: (value) =>
+                  value.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  }),
+              },
+            ]}
+            dataSource={selectedOrder.orderDetails || []}
+            rowKey="id"
+          />
+
+          <p className="flex gap-2">
+            <strong>Applied Voucher:</strong>
+            {selectedOrder.voucherApplied
+              ? selectedOrder.voucherApplied.voucherCode
+              : "No voucher applied"}
+          </p>
+          <p>
+            <strong>Total Amount:</strong>{" "}
+            {selectedOrder.totalPrice?.toLocaleString("vi-VN", {
+              style: "currency",
+              currency: "VND",
+            })}
+          </p>
+        </div>
+      )}
+    </Modal>
+
+
     </div>
+
+    
   );
 };
 
