@@ -21,15 +21,6 @@ namespace NextGenTech.Server.Repositories.Implement
             .ToListAsync();
         }
 
-        public async Task<List<Product>> AdminGetAllProductAsync()
-        {
-            return await dbContext.Products
-            .Include(p => p.Category)
-            .Include(p=>p.ProductImages)
-            .Include(p => p.ProductColors)
-            .ToListAsync();
-        }
-
         public async Task<Product> CustomerGetProductByIdAsync(int id)
         {
             return await dbContext.Products
@@ -40,83 +31,114 @@ namespace NextGenTech.Server.Repositories.Implement
             .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
-
-        public async Task<Product> AddProductAsync(AddProductRequestDTO request)
+        public async Task<List<Product>> AdminGetAllProductAsync()
         {
-            var product = new Product
-            {
-                Name = request.Name,
-                Price = request.Price,
-                StockQuantity = request.StockQuantity,
-                CategoryId = request.Category?.CategoryId,
-                CreatedAt = DateTime.Now
-            };
-
-            // Thêm image
-            foreach (var image in request.ProductImages)
-            {
-                product.ProductImages.Add(new ProductImage
-                {
-                    ImageUrl = image.ImageUrl,
-                    IsPrimary = image.IsPrimary
-                });
-            }
-
-            // Thêm color
-            product.ProductColors.Clear();
-            foreach (var colorDto in request.ProductColors)
-            {
-                product.ProductColors.Add(new ProductColor
-                {
-                    Color = colorDto.Color,
-                    ColorCode = colorDto.ColorCode
-                });
-            }
-
-            await dbContext.Products.AddAsync(product);
-            await dbContext.SaveChangesAsync();
-
-            return product;
+            return await dbContext.Products
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .Include(p => p.ProductImages)
+            .ToListAsync();
         }
-
-
-
-        public async Task<Product?> UpdateProductAsync(int productId, UpdateProductRequestDTO request)
+        public async Task<Product> AdminGetProductByIdAsync(int id)
         {
-            var product = await dbContext.Products
+            return await dbContext.Products
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
             .Include(p => p.ProductImages)
             .Include(p => p.ProductColors)
-            .FirstOrDefaultAsync(p => p.ProductId == productId);
+            .FirstOrDefaultAsync(p => p.ProductId == id);
+        }
+        public async Task<Product> AddProductAsync(Product product)
+        {
+            dbContext.Products.Add(product);
+            await dbContext.SaveChangesAsync();
+            return product; // Return the generated ProductId
+        }
 
-            if (product == null)
+        public async Task<Product?> UpdateProductAsync(int productId, Product updatedProduct)
+        {
+            var existingProduct = await dbContext.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductColors)
+                .FirstOrDefaultAsync(p => p.ProductId == productId);
+
+            if (existingProduct == null)
             {
                 return null;
             }
 
-            product.Name = request.Name;
-            product.Price = request.Price;
-            product.ProductImages.Clear();
-            foreach (var image in request.ProductImages)
+            // Update product details
+            existingProduct.Name = updatedProduct.Name;
+            existingProduct.Description = updatedProduct.Description;
+            existingProduct.LongDescription = updatedProduct.LongDescription;
+            existingProduct.Price = updatedProduct.Price;
+            existingProduct.StockQuantity = updatedProduct.StockQuantity;
+            existingProduct.BrandId = updatedProduct.BrandId;
+            existingProduct.CategoryId = updatedProduct.CategoryId;
+
+            // Update ProductImages
+            var newImageUrls = updatedProduct.ProductImages.Select(img => img.ImageUrl).ToList();
+            var existingImageUrls = existingProduct.ProductImages.Select(img => img.ImageUrl).ToList();
+
+            // Remove images not in the new list
+            var imagesToRemove = existingProduct.ProductImages
+                .Where(img => !newImageUrls.Contains(img.ImageUrl))
+                .ToList();
+            dbContext.ProductImages.RemoveRange(imagesToRemove);
+
+            // Add new images
+            var imagesToAdd = newImageUrls
+                .Where(url => !existingImageUrls.Contains(url))
+                .Select(url => new ProductImage { ProductId = productId, ImageUrl = url })
+                .ToList();
+            foreach (var image in imagesToAdd)
             {
-                product.ProductImages.Add(new ProductImage
-                {
-                    ImageUrl = image.ImageUrl,
-                    IsPrimary = image.IsPrimary
-                });
+                existingProduct.ProductImages.Add(image);
             }
 
-            product.ProductColors.Clear();
-            foreach (var colorDto in request.ProductColors)
+            // Update ProductColors
+            var newColors = updatedProduct.ProductColors.Select(c => c.ColorCode).ToList();
+
+            // Remove colors not in the new list
+            var colorsToRemove = existingProduct.ProductColors
+                .Where(c => !newColors.Contains(c.ColorCode))
+                .ToList();
+            dbContext.ProductColors.RemoveRange(colorsToRemove);
+
+            // Add or update colors
+            foreach (var updatedColor in updatedProduct.ProductColors)
             {
-                product.ProductColors.Add(new ProductColor
+                var existingColor = existingProduct.ProductColors
+                    .FirstOrDefault(c => c.ColorCode == updatedColor.ColorCode);
+
+                if (existingColor != null)
                 {
-                    Color = colorDto.Color,
-                    ColorCode = colorDto.ColorCode
-                });
+                    // Update StockQuantity if it has changed
+                    if (existingColor.StockQuantity != updatedColor.StockQuantity)
+                    {
+                        existingColor.StockQuantity = updatedColor.StockQuantity;
+                    }
+                }
+                else
+                {
+                    // Add new color
+                    existingProduct.ProductColors.Add(new ProductColor
+                    {
+                        ProductId = productId,
+                        Color = updatedColor.Color,
+                        ColorCode = updatedColor.ColorCode,
+                        StockQuantity = updatedColor.StockQuantity
+                    });
+                }
             }
 
             await dbContext.SaveChangesAsync();
-            return product;
+            return existingProduct;
+        }
+
+        public async Task<Product> DeleteProductAsync(int productId)
+        {
+            return await DeleteAsync(p => p.ProductId == productId);
         }
     }
 }

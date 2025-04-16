@@ -8,12 +8,16 @@ namespace NextGenTech.Server.Repositories
     {
         Task<List<Product>> CustomerGetAllProductAsync();
 
-        Task<List<Product>> AdminGetAllProductAsync();
-
         Task<Product> CustomerGetProductByIdAsync(int id);
 
-        Task<Product> AddProductAsync(AddProductRequestDTO request);
+        Task<List<Product>> AdminGetAllProductAsync();
 
-        Task<Product?> UpdateProductAsync(int productId, UpdateProductRequestDTO request);
+        Task<Product> AdminGetProductByIdAsync(int id);
+
+        Task<Product> AddProductAsync(Product product);
+
+        Task<Product> DeleteProductAsync(int productId);
+
+        Task<Product?> UpdateProductAsync(int productId, Product updatedProduct);
     }
 }

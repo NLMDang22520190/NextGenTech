@@ -3,7 +3,11 @@ import {
   LayoutDashboard, ShoppingBag, Heart, MessageSquare, 
   ListOrdered, PackageOpen, Tag, Calendar, CheckSquare, 
   Users, FileText, Layout, UsersRound, Table, Settings, LogOut,
-  ChevronLeft, ChevronRight 
+  ChevronLeft, ChevronRight, 
+  Slack,
+  Boxes,
+  Users2,
+  TicketPercent
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import GradientText from "../../ReactBitsComponent/GradientText";
@@ -38,10 +42,10 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
     { icon: ShoppingBag, label: "Products", path: "/products" },
     { icon: ListOrdered, label: "Order Lists", path: "/orders" },
     { icon: PackageOpen, label: "Product Stock", path: "/stock" },
-    { icon: LayoutDashboard, label: "Brands", path: "/brands" },
-    { icon: ShoppingBag, label: "Categories", path: "/categories" },
-    { icon: ListOrdered, label: "Customers", path: "/customers" },
-    { icon: PackageOpen, label: "Vouchers", path: "/vouchers" },
+    { icon: Slack, label: "Brands", path: "/brands" },
+    { icon: Boxes, label: "Categories", path: "/categories" },
+    { icon: Users2, label: "Customers", path: "/customers" },
+    { icon: TicketPercent, label: "Promotions", path: "/promotions" },
     { icon: Settings, label: "Settings", path: "/settings" },
     { icon: LogOut, label: "Logout", path: "/logout" },
   ];
@@ -89,39 +93,18 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
           transition={{ staggerChildren: 0.05, delayChildren: 0.1 }}
         >
           <div className="flex flex-col justify-around h-9/10">            
-              {sidebarItems.map((item) => (
-                <div>
-                  <SidebarItem 
-                    key={item.path}
-                    icon={item.icon}
-                    label={item.label}
-                    path={item.path}
-                    isActive={location.pathname === item.path}
-                    isCollapsed={isCollapsed}
-                  />
-                </div>
-              ))}
-            
-            {/* Section Title */}
-            {/* {!isCollapsed && (
-              <div className="py-0.5 px-3">
-                <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">PAGES</p>
+            {sidebarItems.map((item) => (
+              <div>
+                <SidebarItem 
+                  key={item.path}
+                  icon={item.icon}
+                  label={item.label}
+                  path={item.path}
+                  isActive={location.pathname === item.path}
+                  isCollapsed={isCollapsed}
+                />
               </div>
-            )} */}
-
-            {/* Bottom Items */}
-              {/* {pageItems.map((item) => (
-                <div>
-                  <SidebarItem 
-                    key={item.path}
-                    icon={item.icon}
-                    label={item.label}
-                    path={item.path}
-                    isActive={location.pathname === item.path}
-                    isCollapsed={isCollapsed}
-                  />
-                </div>
-              ))} */}
+            ))}
           </div>
         </motion.div>
       </nav>

@@ -13,6 +13,7 @@ using System.Drawing;
 using System.Reflection.Metadata.Ecma335;
 using NextGenTech.Server.Services;
 using System.Runtime.CompilerServices;
+using NextGenTech.Server.Models.DTO.ADD;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -25,6 +26,14 @@ namespace HealthBuddy.Server.Controllers
         private readonly IMemoryCache _cache = cache;
         private readonly IMapper _mapper = mapper;
         private readonly EmailService _emailService = new EmailService();
+
+        [HttpGet("AdminGetAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await userRepository.AdminGetAllUsersAsync();
+            var userDTOs = _mapper.Map<List<AdminUserDTO>>(users);
+            return Ok(userDTOs);
+        }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
@@ -250,5 +259,101 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
+        [HttpPost("AddUser")]
+        public async Task<IActionResult> AddUser([FromBody] AdminAddUserDTO request)
+        {
+            if (request == null)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Dữ liệu gửi lên không hợp lệ."
+                });
+            }
+
+            try
+            {
+                var user = _mapper.Map<User>(request);
+                var result = await userRepository.AddUserAsync(user);
+                return Ok(_mapper.Map<AdminUserDTO>(result));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = "Lỗi khi thêm người dùng.",
+                    details = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("UpdateUser/{userId}")]
+        public async Task<IActionResult> UpdateUser(int userId, [FromBody] AdminUpdateUserDTO request)
+        {
+            if (request == null)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Dữ liệu gửi lên không hợp lệ."
+                });
+            }
+
+            try
+            {
+                var user = _mapper.Map<User>(request);
+                var result = await userRepository.UpdateUserAsync(userId, user);
+                if (result == null)
+                {
+                    return NotFound(new
+                    {
+                        status = "error",
+                        message = "Không tìm thấy người dùng."
+                    });
+                }
+                return Ok(_mapper.Map<AdminUserDTO>(await userRepository.GetByIdAsync(p => p.UserId == userId)));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = "Lỗi khi cập nhật người dùng.",
+                    details = ex.Message
+                });
+            }
+        }
+
+        [HttpDelete("DeleteUser/{userId}")]
+        public async Task<IActionResult> DeleteUser(int userId)
+        {
+            try
+            {
+                var result = await userRepository.DeleteUserAsync(userId);
+                if (result == null)
+                {
+                    return NotFound(new
+                    {
+                        status = "error",
+                        message = "Không tìm thấy người dùng."
+                    });
+                }
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Xóa người dùng thành công."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = "Lỗi khi xóa người dùng.",
+                    details = ex.Message
+                });
+            }
+        }
     }
 }

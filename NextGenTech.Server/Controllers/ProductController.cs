@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NextGenTech.Server.Models.DTO.GET;
 using NextGenTech.Server.Models.DTO.ADD;
-using NextGenTech.Server.Models.DTO.UPDATE;
 using NextGenTech.Server.Models.Domain;
+using NextGenTech.Server.Models.DTO.UPDATE;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -14,6 +14,8 @@ namespace HealthBuddy.Server.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
+        private readonly IProductImageRepository _productImageRepository;
+        private readonly IProductColorRepository _productColorRepository;
 
 
         private readonly IMapper _mapper;
@@ -38,20 +40,6 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
-        [HttpGet("AdminGetAllProduct")]
-        public async Task<ActionResult> AdminGetAllProduct()
-        {
-            try
-            {
-                var products = await _productRepository.AdminGetAllProductAsync();
-                return Ok(_mapper.Map<List<AdminProductDTO>>(products));
-            }
-            catch(Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
-
         [HttpGet("CustomerGetProductById/{id}")]
         public async Task<ActionResult> CustomerGetProductById(int id)
         {
@@ -66,62 +54,152 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
-        [HttpPost("AddProduct")]
-        public async Task<IActionResult> AddProduct([FromBody] AddProductRequestDTO request)
+        [HttpGet("AdminGetAllProduct")]
+        public async Task<ActionResult> AdminGetAllProduct()
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new
-                {
-                    status = "error",
-                    message = "Dữ liệu không hợp lệ"
-                });
-            }
-
             try
             {
-                var product = await _productRepository.AddProductAsync(request);
-                var result = _mapper.Map<AdminProductDTO>(product);
-
-                return Ok(new
+                var products = await _productRepository.AdminGetAllProductAsync();
+                if (products == null || products.Count == 0)
                 {
-                    status = "success",
-                    message = "Thêm sản phẩm thành công",
-                    data = result
-                });
+                    return NotFound("No products found");
+                }
+                return Ok(_mapper.Map<List<AdminProductDTO>>(products));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet("AdminGetProductById/{id}")]
+        public async Task<ActionResult> AdminGetProductById(int id)
+        {
+            try
+            {
+                var product = await _productRepository.AdminGetProductByIdAsync(id);
+                if (product == null)
                 {
-                    status = "error",
-                    message = "Đã xảy ra lỗi khi thêm sản phẩm",
-                    detail = ex.Message
-                });
+                    return NotFound("Product not found");
+                }
+                return Ok(_mapper.Map<AdminDetailProductDTO>(product));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet("GetProductImagesByProductId/{productId}")]
+        public async Task<ActionResult> GetProductImagesByProductId(int productId)
+        {
+            try
+            {
+                var productImages = await _productImageRepository.GetProductImagesByProductIdAsync(productId);
+                if (productImages == null || productImages.Count == 0)
+                {
+                    return NotFound("No images found for this product.");
+                }
+                return Ok(productImages);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpGet("GetProductColorsByProductId/{productId}")]
+        public async Task<ActionResult> GetProductColorsByProductId(int productId)
+        {
+            try
+            {
+                var productColors = await _productColorRepository.GetProductColorsByProductIdAsync(productId);
+                if (productColors == null || productColors.Count == 0)
+                {
+                    return NotFound("No colors found for this product.");
+                }
+                return Ok(productColors);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        [HttpPost("AddProduct")]
+        public async Task<ActionResult> AddProduct([FromBody] AdminAddProductDTO adminAddProductDTO)
+        {
+            try
+            {
+                var product = _mapper.Map<Product>(adminAddProductDTO);
+                int productId = (await _productRepository.AddProductAsync(product)).ProductId;
+
+                var productImages = adminAddProductDTO.ImageUrls.Select(url => new ProductImage
+                {
+                    ProductId = productId,
+                    ImageUrl = url
+                }).ToList();
+                await _productImageRepository.AddProductImagesAsync(productImages);
+
+                var productColors = adminAddProductDTO.Colors.Select(color => new ProductColor
+                {
+                    ProductId = productId,
+                    Color = color.Color,
+                    ColorCode = color.ColorCode,
+                    StockQuantity = color.StockQuantity
+                }).ToList();
+                await _productColorRepository.AddProductColorsAsync(productColors);
+
+                return Ok(AdminGetProductById(productId));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
 
         [HttpPut("UpdateProduct/{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductRequestDTO request)
+        public async Task<ActionResult> UpdateProduct(int id, [FromBody] AdminUpdateProductDTO adminUpdateProductDTO)
         {
-            var updated = await _productRepository.UpdateProductAsync(id, request);
-
-            if (updated == null)
-                return NotFound(new { status = "error", message = "Không tìm thấy sản phẩm để cập nhật." });
-
-            // Dùng AutoMapper để map entity → DTO
-            var resultDto = _mapper.Map<AdminProductDTO>(updated);
-
-            return Ok(new
+            try
             {
-                status = "success",
-                message = "Cập nhật sản phẩm thành công",
-                data = resultDto
-            });
+                if (adminUpdateProductDTO == null)
+                {
+                    return BadRequest("Invalid product data.");
+                }
+                var updatedProduct = _mapper.Map<Product>(adminUpdateProductDTO);
+                var product = await _productRepository.UpdateProductAsync(id, updatedProduct);
+                if (product == null)
+                {
+                    return NotFound("Product not found.");
+                }
+
+                return Ok(await AdminGetProductById(id));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
         }
 
+        [HttpDelete("DeleteProduct/{id}")]
+        public async Task<ActionResult> DeleteProduct(int id)
+        {
+            try
+            {
+                var deletedProduct = await _productRepository.DeleteProductAsync(id);
+                if (deletedProduct == null)
+                {
+                    return NotFound("Product not found.");
+                }
 
-
+                return Ok("Product deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 
 }

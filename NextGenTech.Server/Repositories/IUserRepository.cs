@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using NextGenTech.Server.Models.RequestModels;
 using NextGenTech.Server.Models.DTOs;
 using NextGenTech.Server.Models.DTO.UPDATE;
+using NextGenTech.Server.Models.DTO.ADD;
 
 namespace NextGenTech.Server.Repositories
 {
@@ -16,5 +17,9 @@ namespace NextGenTech.Server.Repositories
         Task<bool> UpdatePassword(User user, string newPassword);
         Task<bool> UpdateUserInfo(int userId, UpdateUserInfoRequestDTO request);
 
+        Task<List<User>> AdminGetAllUsersAsync();
+        Task<User> AddUserAsync(User user);
+        Task<User> DeleteUserAsync(int userId);
+        Task<User?> UpdateUserAsync(int userId, User updatedUser);
     }
 }

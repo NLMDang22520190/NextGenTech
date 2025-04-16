@@ -100,8 +100,41 @@ namespace NextGenTech.Server.Repositories.Implement
 
         }
 
-        
+        public async Task<List<User>> AdminGetAllUsersAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
 
+        public async Task<User> AddUserAsync(User user)
+        {
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+            return user;
+        }
+
+        public async Task<User> DeleteUserAsync(int userId)
+        {
+            return await DeleteAsync(p => p.UserId == userId);
+        }
+
+        public async Task<User?> UpdateUserAsync(int userId, User updatedUser)
+        {
+            var existingUser = await _context.Users.FirstOrDefaultAsync(p => p.UserId == userId);
+            if (existingUser == null)
+            {
+                return null;
+            }
+            existingUser.FullName = updatedUser.FullName;
+            existingUser.Phone = updatedUser.Phone;
+            existingUser.City = updatedUser.City;
+            existingUser.District = updatedUser.District;
+            existingUser.Ward = updatedUser.Ward;
+            existingUser.AvatarImageUrl = updatedUser.AvatarImageUrl;
+            existingUser.Role = updatedUser.Role;
+            
+            await _context.SaveChangesAsync();
+            return existingUser;
+        }
     }
     
 }

@@ -2,6 +2,8 @@ import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 
+import FuzzyText from "../../../components/ReactBitsComponent/FuzzyText";
+
 const NotFound = () => {
   const location = useLocation();
 
@@ -20,7 +22,7 @@ const NotFound = () => {
         transition={{ duration: 0.5 }}
         className="text-center"
       >
-        <h1 className="text-9xl font-bold text-primary-600">404</h1>
+        <FuzzyText baseIntensity={0.05} color="#50bbf5">404</FuzzyText>
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: "100px" }}

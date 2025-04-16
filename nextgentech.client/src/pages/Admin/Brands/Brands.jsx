@@ -28,7 +28,7 @@ export default function Brands() {
       <h1 className="text-2xl font-semibold text-gray-800">Brands</h1>
 
       <motion.div
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+        className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, staggerChildren: 0.1 }}

@@ -1,12 +1,16 @@
+using NextGenTech.Server.Models.Domain;
+
 namespace NextGenTech.Server.Models.DTO.GET
 {
-    public class AdminProductDTO
+    public class AdminDetailProductDTO
     {
         public int ProductId { get; set; }
 
         public string Name { get; set; } = null!;
 
         public string? Description { get; set; }
+
+        public string LongDescription { get; set; } = null!;
 
         public decimal Price { get; set; }
 
@@ -19,12 +23,8 @@ namespace NextGenTech.Server.Models.DTO.GET
         public virtual CategoryDTO? Category { get; set; }
 
         public ICollection<ProductImageDTO> ProductImages { get; set; } = new List<ProductImageDTO>();
+        public ICollection<ProductColorDTO> ProductColors { get; set; } = new List<ProductColorDTO>();
 
-        // Lấy phần trăm giảm giá cao nhất nếu có
-        public string ImageUrl => ProductImages.Count > 0 
-                ? ProductImages.Where(i => i.IsPrimary == true).FirstOrDefault()?.ImageUrl 
-                ?? ProductImages.FirstOrDefault()?.ImageUrl 
-                ?? string.Empty
-            : string.Empty;
+        // public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
 }
