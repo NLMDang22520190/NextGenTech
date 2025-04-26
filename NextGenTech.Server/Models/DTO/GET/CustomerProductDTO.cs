@@ -20,14 +20,18 @@ namespace NextGenTech.Server.Models.DTO.GET
 
         public virtual CategoryDTO? Category { get; set; }
 
-        public ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
+        public ICollection<ProductImageDTO> ProductImages { get; set; } = new List<ProductImageDTO>();
 
         // public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
         public ICollection<CustomerProductPromotionDTO> Promotions { get; set; } = new List<CustomerProductPromotionDTO>();
 
         // Lấy phần trăm giảm giá cao nhất nếu có
-        public string ImageUrl => ProductImages.Count > 0 ? ProductImages.Where(i => i.IsPrimary == true).FirstOrDefault().ImageUrl : string.Empty;
+        public string ImageUrl => ProductImages.Count > 0
+            ? ProductImages.FirstOrDefault(i => i.IsPrimary == true)?.ImageUrl
+                ?? ProductImages.FirstOrDefault()?.ImageUrl
+                ?? string.Empty
+            : string.Empty;
         public decimal? DiscountPercentage => Promotions
             .Where(p => p.StartDate <= DateTime.UtcNow && p.EndDate >= DateTime.UtcNow)
             .Select(p => p.DiscountPercentage)

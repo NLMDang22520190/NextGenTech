@@ -30,8 +30,7 @@ namespace NextGenTech.Server.Repositories.Implement
             var cart = await dbContext.Carts
                 .FirstOrDefaultAsync(x => x.UserId == Convert.ToInt32(userId));
 
-            if (cart == null)
-                throw new ArgumentException("Cart not found for this user.");
+
 
             return cart;
         }

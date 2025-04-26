@@ -18,6 +18,7 @@ namespace NextGenTech.Server.Repositories.Implement
             .Include(p => p.Brand)
             .Include(p => p.Category)
             .Include(p => p.Promotions)
+            .Include(p => p.ProductImages)
             .ToListAsync();
         }
 
@@ -139,6 +140,40 @@ namespace NextGenTech.Server.Repositories.Implement
         public async Task<Product> DeleteProductAsync(int productId)
         {
             return await DeleteAsync(p => p.ProductId == productId);
+        }
+
+        public async Task<List<Product>> GetFeatureProductsAsync()
+        {
+            var now = DateTime.UtcNow;
+
+            // First try to get products with active promotions
+            var productsWithPromotions = await dbContext.Products
+                .Include(p => p.Brand)
+                .Include(p => p.Category)
+                .Include(p => p.ProductImages)
+                .Include(p => p.Promotions.Where(promo =>
+                    promo.StartDate <= now && promo.EndDate >= now))
+                .Where(p => p.Promotions.Any(promo =>
+                    promo.StartDate <= now && promo.EndDate >= now))
+                .OrderByDescending(p => p.Promotions
+                    .Where(promo => promo.StartDate <= now && promo.EndDate >= now)
+                    .Max(promo => promo.DiscountPercentage))
+                .Take(5)
+                .ToListAsync();
+
+            // If no products with promotions found, return any 5 products
+            if (!productsWithPromotions.Any())
+            {
+                return await dbContext.Products
+                    .Include(p => p.Brand)
+                    .Include(p => p.Category)
+                    .Include(p => p.Promotions)
+                    .Include(p => p.ProductImages)
+                    .Take(5)
+                    .ToListAsync();
+            }
+
+            return productsWithPromotions;
         }
     }
 }

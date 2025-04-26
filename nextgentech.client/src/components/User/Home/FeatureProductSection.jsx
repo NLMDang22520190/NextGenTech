@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ShoppingCart } from "lucide-react";
+import { message } from "antd";
 
 import InfiniteScroll from "../../ReactBitsComponent/InfiniteScroll";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 const ProductCard = ({ product }) => {
   return (
@@ -35,57 +37,47 @@ const ProductCard = ({ product }) => {
   );
 };
 
-const products = [
-  {
-    id: 1,
-    name: "Ultra WirelessPods",
-    category: "Audio",
-    price: 199.99,
-    salePrice: 149.99,
-    rating: 4.8,
-    image:
-      "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    description: "Premium sound quality with active noise cancellation",
-  },
-  {
-    id: 2,
-    name: "SmartWatch X",
-    category: "Wearables",
-    price: 249.99,
-    salePrice: 199.99,
-    rating: 4.7,
-    image:
-      "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?q=80&w=1972&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    description: "Track fitness, sleep, and receive notifications",
-  },
-  {
-    id: 3,
-    name: "ThinBook Pro",
-    category: "Computing",
-    price: 1299.99,
-    salePrice: 999.99,
-    rating: 4.9,
-    image:
-      "https://images.unsplash.com/photo-1531297484001-80022131f5a1?q=80&w=2020&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    description: "Ultra-thin, powerful laptop for professionals",
-  },
-  {
-    id: 4,
-    name: "PhotoMaster Camera",
-    category: "Photography",
-    price: 799.99,
-    salePrice: 599.99,
-    rating: 4.6,
-    image:
-      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1938&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    description: "Professional-grade camera with 4K video capability",
-  },
-];
-
 const FeatureProductSection = () => {
-  const items = products.map((product) => ({
-    content: <ProductCard key={product.id} product={product} />,
-  }));
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await api.get("/api/Product/CustomerGetAllProduct");
+        const data = response.data;
+        // Map and transform the product data
+        const mappedData = data
+          .slice(0, 8) // Take first 8 products as featured
+          .map((product) => ({
+            id: product.productId,
+            name: product.name,
+            price: product.price,
+            salePrice: product.salePrice,
+            rating: parseFloat((Math.random() * 3 + 2).toFixed(1)),
+            image: `https://picsum.photos/300/300?random=${product.productId}`,
+            category: product.category.categoryName,
+            description: product.description || "No description available",
+          }));
+        setProducts(mappedData);
+      } catch (error) {
+        console.error(error);
+        message.error("Error fetching featured products");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedProducts();
+  }, []);
+
+  const items = loading
+    ? Array(4).fill({
+        content: <div className="animate-pulse bg-gray-200 h-32 rounded-lg" />,
+      })
+    : products.map((product) => ({
+        content: <ProductCard key={product.id} product={product} />,
+      }));
 
   return (
     <div className="pt-10  bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-4xl p-6 ">
