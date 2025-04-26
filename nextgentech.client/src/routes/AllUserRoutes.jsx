@@ -11,6 +11,7 @@ import CheckoutSuccess from "../pages/User/Checkout/CheckoutSuccess";
 import NotFound from "../pages/NotFound/NotFound";
 import Login from "../pages/Auth/Login";
 import SignUp from "../pages/Auth/SignUp";
+import VerifyCode from "../pages/Auth/VerifyCode/VerifyCode";
 import Setting from "../pages/User/Setting/Setting"
 import OrderHistory from "../pages/User/Order/OrderHistory"
 import OrderDetail from "../pages/User/Order/OrderDetail"
@@ -34,6 +35,7 @@ const AllUserRoutes = () => {
       <Route path="/order/:orderId" element={<OrderDetail />} />
       <Route path="/auth/login" element={<Login />} />
       <Route path="/auth/signup" element={<SignUp />} />
+      <Route path="/auth/verify-code" element={<VerifyCode />} />
       <Route path="/auth/forgot-password" element={<ForgorPassword />} />
       <Route path="/setting" element={<Setting />}/>
     </Routes>

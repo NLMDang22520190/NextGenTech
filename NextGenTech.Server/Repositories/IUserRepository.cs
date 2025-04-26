@@ -16,6 +16,7 @@ namespace NextGenTech.Server.Repositories
         Task<User?> GetUserByIdAsync(int userId);
         Task<bool> UpdatePassword(User user, string newPassword);
         Task<bool> UpdateUserInfo(int userId, UpdateUserInfoRequestDTO request);
+        Task<ICollection<string>> GetUserRole(int userId);
 
         Task<List<User>> AdminGetAllUsersAsync();
         Task<User> AddUserAsync(User user);

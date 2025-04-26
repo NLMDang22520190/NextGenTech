@@ -23,7 +23,7 @@ public partial class User
 
     public string? AvatarImageUrl { get; set; }
 
-    public string Role { get; set; } = "customer"!;
+    public string Role { get; set; } = "user"!;
 
     public DateTime? CreatedAt { get; set; }
 

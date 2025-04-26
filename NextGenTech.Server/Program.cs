@@ -43,6 +43,8 @@ builder.Services.AddScoped<IProductImageRepository, SQLProductImageRepository>()
 builder.Services.AddScoped<IReviewRepository, SQLReviewRepository>();
 builder.Services.AddScoped<IPromotionRepository, SQLPromotionRepository>();
 builder.Services.AddScoped<IUserRepository, SQLUserRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
 
 
 builder.Services.AddScoped(typeof(INextGenTechRepository<>), typeof(NextGenTechRepository<>));

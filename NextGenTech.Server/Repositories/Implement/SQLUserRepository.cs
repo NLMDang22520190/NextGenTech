@@ -135,6 +135,15 @@ namespace NextGenTech.Server.Repositories.Implement
             await _context.SaveChangesAsync();
             return existingUser;
         }
+
+        public async Task<ICollection<string>> GetUserRole(int userId)
+        {
+            var result = await _context.Users
+                .Where(ur => ur.UserId == userId)
+                .Select(ur => ur.Role)
+                .ToListAsync();
+            return result;
+        }
     }
     
 }

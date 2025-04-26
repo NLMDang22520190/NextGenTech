@@ -14,17 +14,19 @@ using System.Reflection.Metadata.Ecma335;
 using NextGenTech.Server.Services;
 using System.Runtime.CompilerServices;
 using NextGenTech.Server.Models.DTO.ADD;
+using NextGenTech.Server.Models.DTO;
 
 namespace HealthBuddy.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AccountController(IUserRepository userRepository,IOrderRepository orderRepository, IMemoryCache cache, IMapper mapper) : ControllerBase
+    public class AccountController(IUserRepository userRepository,IOrderRepository orderRepository, IMemoryCache cache, IMapper mapper, ITokenService tokenService) : ControllerBase
     {
         private readonly IUserRepository userRepository = userRepository;
         private readonly IOrderRepository orderRepository = orderRepository;
         private readonly IMemoryCache _cache = cache;
         private readonly IMapper _mapper = mapper;
+        private readonly ITokenService tokenService = tokenService;
         private readonly EmailService _emailService = new EmailService();
 
         [HttpGet("AdminGetAllUsers")]
@@ -53,9 +55,22 @@ namespace HealthBuddy.Server.Controllers
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             var user = await userRepository.AuthenticateAsync(request.Email, request.Password);
-            if (user == null)
-                return Unauthorized("Invalid email or password");
-            return Ok(user);
+            if (user != null)
+            {
+                var role = await userRepository.GetUserRole(user.UserId);
+                if (role != null)
+                {
+                    // create token
+                    var jwttoken = tokenService.CreateJWTToken(user, role.ToList());
+                    var loginResponse = new LoginRespondDto
+                    {
+                        UserId = user.UserId,
+                        JwtToken = jwttoken,
+                    };
+                    return Ok(loginResponse);
+                }
+            }
+            return BadRequest("Username or password incorrect");
         }
 
         [HttpPost("ChangePassword")]
