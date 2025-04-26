@@ -26,6 +26,27 @@
             }
         },
         {
+            "name": "NextGenTech.Server",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/NextGenTech.Server/bin/Debug/net8.0/NextGenTech.Server.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/NextGenTech.Server",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+              "action": "openExternally",
+              "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+              "ASPNETCORE_ENVIRONMENT": "Development",
+               "ASPNETCORE_URLS": "http://localhost:5240"
+            },
+            "sourceFileMap": {
+              "/Views": "${workspaceFolder}/NextGenTech.Server/Views"
+            }
+          },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"

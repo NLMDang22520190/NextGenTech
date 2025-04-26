@@ -126,6 +126,20 @@ namespace HealthBuddy.Server.Controllers
             }
         }
 
+        [HttpGet("GetFeatureProducts")]
+        public async Task<ActionResult> GetFeatureProducts()
+        {
+            try
+            {
+                var products = await _productRepository.GetFeatureProductsAsync();
+                return Ok(_mapper.Map<List<CustomerProductDTO>>(products));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
         [HttpPost("AddProduct")]
         public async Task<ActionResult> AddProduct([FromBody] AdminAddProductDTO adminAddProductDTO)
         {

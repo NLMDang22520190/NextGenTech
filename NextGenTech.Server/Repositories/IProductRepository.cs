@@ -19,5 +19,7 @@ namespace NextGenTech.Server.Repositories
         Task<Product> DeleteProductAsync(int productId);
 
         Task<Product?> UpdateProductAsync(int productId, Product updatedProduct);
+
+        Task<List<Product>> GetFeatureProductsAsync();
     }
 }

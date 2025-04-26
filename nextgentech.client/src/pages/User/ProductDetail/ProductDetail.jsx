@@ -125,8 +125,9 @@ const ProductDetail = () => {
   const [product, setProduct] = useState({});
   const [reviews, setReviews] = useState(mockReviews);
   const [quantity, setQuantity] = useState(1);
-  const [selectedColor, setSelectedColor] = useState({});
+  const [selectedColor, setSelectedColor] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [availableStock, setAvailableStock] = useState(0);
 
   //#region fetch data
   const fetchProduct = async () => {
@@ -163,8 +164,14 @@ const ProductDetail = () => {
         })),
         createdAt: data.createdAt,
       };
+      // Calculate total stock from all colors
+      const totalStock = mappedData.productColors.reduce(
+        (sum, color) => sum + color.stock,
+        0
+      );
+      mappedData.stockQuantity = totalStock;
       setProduct(mappedData);
-      console.log(product);
+      setAvailableStock(totalStock);
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -183,8 +190,18 @@ const ProductDetail = () => {
   };
 
   // Handle quantity change
+  // Handle color selection
+  const handleColorSelect = (color) => {
+    setSelectedColor(color);
+    setAvailableStock(color.stock);
+    // Reset quantity if it exceeds new stock
+    if (quantity > color.stock) {
+      setQuantity(1);
+    }
+  };
+
   const handleQuantityChange = (newQuantity) => {
-    if (newQuantity > 0 && newQuantity <= product.stockQuantity) {
+    if (newQuantity > 0 && newQuantity <= availableStock) {
       setQuantity(newQuantity);
     }
   };
@@ -269,12 +286,12 @@ const ProductDetail = () => {
               <span className="text-2xl font-bold">
                 ${product.price.toFixed(2)}
               </span>
-              {product.oldPrice && (
+              {product.oldPrice && product.oldPrice > product.price && (
                 <span className="text-muted-foreground line-through">
                   ${product.oldPrice.toFixed(2)}
                 </span>
               )}
-              {product.oldPrice && (
+              {product.oldPrice && product.oldPrice > product.price && (
                 <div className="ml-2 px-2 py-1 text-sm font-medium bg-red-300 rounded">
                   Save ${(product.oldPrice - product.price).toFixed(2)}
                 </div>
@@ -295,7 +312,7 @@ const ProductDetail = () => {
                 {product.productColors.map((color) => (
                   <button
                     key={color.id}
-                    onClick={() => setSelectedColor(color)}
+                    onClick={() => handleColorSelect(color)}
                     className={`w-10 h-10 rounded-full border-2 cursor-pointer ${
                       selectedColor?.id === color.id
                         ? "border-primary"
@@ -330,14 +347,16 @@ const ProductDetail = () => {
                 <span className="px-4 py-1 font-medium">{quantity}</span>
                 <button
                   onClick={() => handleQuantityChange(quantity + 1)}
-                  disabled={quantity >= product.stockQuantity}
+                  disabled={quantity >= availableStock}
                   className="px-3 py-1 text-lg disabled:opacity-50 cursor-pointer hover:bg-muted transition-colors"
                 >
                   +
                 </button>
               </div>
               <span className="ml-4 text-sm text-muted-foreground">
-                {product.stockQuantity} available
+                {selectedColor
+                  ? `${availableStock} available`
+                  : `Total stock: ${product.stockQuantity}`}
               </span>
             </div>
 

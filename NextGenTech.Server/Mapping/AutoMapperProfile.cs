@@ -36,7 +36,7 @@ namespace HealthBuddy.Server.Mapping
 
             CreateMap<ProductImage, ProductImageDTO>().ReverseMap();
             CreateMap<ProductColor, ProductColorDTO>().ReverseMap();
-            
+
             CreateMap<Promotion, CustomerProductPromotionDTO>().ReverseMap();
             CreateMap<Promotion, CustomerPromotionDTO>().ReverseMap();
             CreateMap<Promotion, AdminPromotionDTO>()
@@ -48,24 +48,24 @@ namespace HealthBuddy.Server.Mapping
             CreateMap<Promotion, AdminUpdatePromotionDTO>()
                 .ForMember(dest => dest.ProductIDs, opt => opt.MapFrom(src => src.Products.Select(p => p.ProductId.ToString())))
                 .ReverseMap();
-            
+
             CreateMap<Brand, BrandDTO>().ReverseMap();
             CreateMap<Brand, AdminBrandDTO>().ReverseMap();
             CreateMap<Brand, AdminAddBrandDTO>().ReverseMap();
             CreateMap<Brand, AdminUpdateBrandDTO>().ReverseMap();
-            
+
             CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<Category, AdminCategoryDTO>().ReverseMap();
             CreateMap<Category, AdminAddCategoryDTO>().ReverseMap();
             CreateMap<Category, AdminUpdateCategoryDTO>().ReverseMap();
-                                  
+
             CreateMap<Order, OrderDTO>().ReverseMap();
             CreateMap<OrderDetail, OrderDetailDTO>().ReverseMap();
             CreateMap<CartDetail, CartItemDetailDTO>().ReverseMap();
             CreateMap<ProductColor, CartItemDTO>().ReverseMap();
             CreateMap<AddItemToCartRequestDTO, CartDetail>().ReverseMap();
             CreateMap<CartDetail, UpdateCartItemRequestDTO>().ReverseMap();
-            
+
             CreateMap<User, AdminUserDTO>().ReverseMap();
             CreateMap<User, AdminAddUserDTO>()
                 .ForMember(dest => dest.Password, opt => opt.Ignore())
@@ -74,6 +74,7 @@ namespace HealthBuddy.Server.Mapping
             CreateMap<User, AdminUpdateUserDTO>().ReverseMap();
             CreateMap<Order, OrderWithOrderDetailDTO>().ReverseMap();
             CreateMap<Promotion, PromotionDTO>().ReverseMap();
+            CreateMap<ProductImage, ProductImageDTO>().ReverseMap();
         }
     }
 }
