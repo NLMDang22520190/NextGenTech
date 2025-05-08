@@ -1,35 +1,92 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, ArrowLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { ClockIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
-
-const orderData = [
-  { id: '96459', status: 'IN PROGRESS', date: 'Dec 30, 2019 07:52', total: '$80 (5 Products)' },
-  { id: '71667', status: 'COMPLETED', date: 'Dec 7, 2019 23:26', total: '$70 (4 Products)' },
-  { id: '95214', status: 'CANCELED', date: 'Dec 7, 2019 23:26', total: '$2,300 (2 Products)' },
-  { id: '71667', status: 'COMPLETED', date: 'Feb 2, 2019 19:28', total: '$250 (1 Products)' },
-  { id: '51746', status: 'COMPLETED', date: 'Dec 30, 2019 07:52', total: '$360 (2 Products)' },
-  { id: '51746', status: 'CANCELED', date: 'Dec 4, 2019 21:42', total: '$220 (7 Products)' },
-  { id: '67143', status: 'COMPLETED', date: 'Feb 2, 2019 19:28', total: '$80 (1 Products)' },
-  { id: '62143', status: 'COMPLETED', date: 'Mar 20, 2019 23:14', total: '$160 (1 Products)' },
-  { id: '71743', status: 'COMPLETED', date: 'Dec 4, 2019 21:42', total: '$1,500 (3 Products)' },
-  { id: '67343', status: 'COMPLETED', date: 'Dec 30, 2019 07:52', total: '$1,200 (2 Products)' },
-  { id: '67393', status: 'CANCELED', date: 'Dec 30, 2019 05:18', total: '$1,500 (1 Products)' },
-  { id: '67343', status: 'COMPLETED', date: 'Dec 30, 2019 07:52', total: '$80 (1 Products)' },
-];
+import axios from '../../../features/AxiosInstance/AxiosInstance';
 
 const OrderHistory = () => {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const navigate = useNavigate();
 
+  // Get user ID from Redux store
+  const userID = useSelector((state) => state.auth.user);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [userID]);
+
+  // Sửa hàm fetchOrders để khớp với cấu trúc dữ liệu API trả về
+const fetchOrders = async () => {
+  setLoading(true);
+  try {
+    if (!userID) {
+      // Redirect to login if no user ID is found
+      navigate('/login', { state: { from: '/order-history' } });
+      return;
+    }
+
+    const response = await axios.get(`/api/Order/user/${userID}`);
+    
+    if (response.status === 200) {
+      const mappedOrders = response.data.map(order => ({
+        id: order.orderId,
+        status: order.status, 
+        date: new Date(order.orderDate), 
+        total: formatPrice(order.totalAmount), 
+        rawTotal: order.totalAmount 
+      }));
+      
+      // Sort orders by date (newest first)
+      mappedOrders.sort((a, b) => b.date - a.date);
+      
+      setOrders(mappedOrders);
+    }
+    setLoading(false);
+  } catch (err) {
+    console.error("Failed to fetch orders:", err);
+    if (err.response && err.response.status === 404) {
+      // No orders found
+      setOrders([]);
+    } else {
+      setError("Không thể tải danh sách đơn hàng. Vui lòng thử lại sau.");
+    }
+    setLoading(false);
+  }
+};
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('vi-VN', { 
+      style: 'currency', 
+      currency: 'VND',
+      maximumFractionDigits: 0
+    }).format(price);
+  };
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   const getStatusColor = (status) => {
-    switch (status) {
+    switch (status.toUpperCase()) {
       case "COMPLETED":
+      case "HOÀN TẤT":
         return "text-green-500";
       case "IN PROGRESS":
+      case "ĐANG XỬ LÝ":
+      case "CHỜ XÁC NHẬN":
         return "text-orange-500";
       case "CANCELED":
+      case "ĐÃ HUỶ":
         return "text-red-500";
       default:
         return "text-gray-500";
@@ -37,98 +94,202 @@ const OrderHistory = () => {
   };
 
   const getStatusIcon = (status) => {
-    switch (status) {
+    switch (status.toUpperCase()) {
       case 'COMPLETED':
+      case 'HOÀN TẤT':
         return <CheckCircleIcon className="h-5 w-5 text-green-500"/>;
-      case 'IN PROGRESS': 
+      case 'IN PROGRESS':
+      case 'ĐANG XỬ LÝ':
+      case 'CHỜ XÁC NHẬN':
         return <ClockIcon className="h-5 w-5 text-orange-500"/>;
       case 'CANCELED':
+      case 'ĐÃ HUỶ':
         return <XCircleIcon className="h-5 w-5 text-red-500"/>;
       default:
         return null;
-        
     }
-  }
+  };
 
   const handleViewDetails = (orderId) => {
     navigate(`/order/${orderId}`);
   };
 
+  // Calculate paginated orders
+  const paginatedOrders = orders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  // Calculate total pages
+  const totalPages = Math.ceil(orders.length / itemsPerPage);
+
+  // Generate pagination numbers
+  const getPaginationNumbers = () => {
+    const pages = [];
+    const maxDisplayedPages = 6;
+    
+    if (totalPages <= maxDisplayedPages) {
+      // Display all pages if total pages <= max display count
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Display a subset of pages with current page in the middle
+      let startPage = Math.max(1, currentPage - Math.floor(maxDisplayedPages / 2));
+      let endPage = Math.min(totalPages, startPage + maxDisplayedPages - 1);
+      
+      // Adjust if we're near the end
+      if (endPage - startPage < maxDisplayedPages - 1) {
+        startPage = Math.max(1, endPage - maxDisplayedPages + 1);
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  };
+
+  if (loading && orders.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <h1 className="text-xl font-bold mb-4 text-primary-700">LỊCH SỬ ĐƠN HÀNG</h1>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <h1 className="text-xl font-bold mb-4 text-primary-700">LỊCH SỬ ĐƠN HÀNG</h1>
+        <div className="bg-red-50 rounded-lg p-4 text-red-700">
+          <p>{error}</p>
+          <button 
+            className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            onClick={fetchOrders}
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <h1 className="text-xl font-bold mb-4 text-primary-700">ORDER HISTORY</h1>
+      <h1 className="text-xl font-bold mb-4 text-primary-700">LỊCH SỬ ĐƠN HÀNG</h1>
       
-      <div className="bg-gray-50 rounded-lg overflow-hidden shadow-sm mb-6">
-        <div className="grid grid-cols-12 bg-gray-100 py-3 px-4 border-b border-gray-200">
-          <div className="col-span-2 font-medium text-gray-700">ORDER ID</div>
-          <div className="col-span-2 font-medium text-gray-700">STATUS</div>
-          <div className="col-span-3 font-medium text-gray-700">DATE</div>
-          <div className="col-span-3 font-medium text-gray-700">TOTAL</div>
-          <div className="col-span-2 font-medium text-gray-700">ACTION</div>
+      {orders.length === 0 ? (
+        <div className="bg-gray-50 rounded-lg p-8 text-center">
+          <p className="text-gray-600">Bạn chưa có đơn hàng nào.</p>
         </div>
+      ) : (
+        <div className="bg-gray-50 rounded-lg overflow-hidden shadow-sm mb-6">
+          <div className="grid grid-cols-12 bg-gray-100 py-3 px-4 border-b border-gray-200">
+            <div className="col-span-2 font-medium text-gray-700">MÃ ĐƠN HÀNG</div>
+            <div className="col-span-2 font-medium text-gray-700">TRẠNG THÁI</div>
+            <div className="col-span-3 font-medium text-gray-700">NGÀY ĐẶT</div>
+            <div className="col-span-3 font-medium text-gray-700">TỔNG TIỀN</div>
+            <div className="col-span-2 font-medium text-gray-700">THAO TÁC</div>
+          </div>
 
-        {orderData.map((order, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-            className="grid grid-cols-12 py-3 px-4 border-b border-gray-100 hover:bg-gray-50"
-          >
-            <div className="col-span-2 font-medium">#{order.id}</div>
-            <div className={`col-span-2 font-medium flex justify-center md:justify-start items-center space-x-1 ${getStatusColor(order.status)}`}>
-              <span className="hidden md:inline">{order.status}</span>
-              {getStatusIcon(order.status)}
-            </div>
-            <div className="col-span-3 text-gray-600">{order.date}</div>
-            <div className="col-span-3 text-gray-600">{order.total}</div>
-            <div className="col-span-2">
+          {paginatedOrders.map((order, index) => (
+            <motion.div
+              key={order.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="grid grid-cols-12 py-3 px-4 border-b border-gray-100 hover:bg-gray-50"
+            >
+              <div className="col-span-2 font-medium">#{order.id}</div>
+              <div className={`col-span-2 font-medium flex items-center space-x-2 ${getStatusColor(order.status)}`}>
+                {getStatusIcon(order.status)}
+                <span className="hidden md:inline capitalize">{order.status}</span>
+              </div>
+              <div className="col-span-3 text-gray-600">{formatDate(order.date)}</div>
+              <div className="col-span-3 text-gray-600">{order.total}</div>
+              <div className="col-span-2">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="text-blue-500 flex items-center hover:text-blue-700 transition-colors cursor-pointer"
+                  onClick={() => handleViewDetails(order.id)}
+                >
+                  Xem chi tiết <ChevronRight size={16} className="ml-1" />
+                </motion.button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center my-8">
+          <div className="relative inline-block text-left">
+            <select
+              className="bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              value={itemsPerPage}
+              onChange={(e) => {
+                setItemsPerPage(Number(e.target.value));
+                setCurrentPage(1);
+              }}
+            >
+              <option value={5}>5 mục/trang</option>
+              <option value={10}>10 mục/trang</option>
+              <option value={20}>20 mục/trang</option>
+              <option value={50}>50 mục/trang</option>
+            </select>
+          </div>
+          
+          <div className="flex justify-center items-center space-x-2">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ArrowLeft size={18} />
+            </motion.button>
+
+            {getPaginationNumbers().map((page) => (
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="text-blue-500 flex items-center hover:text-blue-700 transition-colors cursor-pointer"
-                onClick={() => handleViewDetails(order.id)}
+                key={page}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer ${
+                  currentPage === page 
+                    ? 'bg-primary-500 text-white' 
+                    : 'border border-gray-300 text-gray-600 hover:bg-gray-100'
+                } transition-colors`}
+                onClick={() => setCurrentPage(page)}
               >
-                View Details <ChevronRight size={16} className="ml-1 " />
+                {page.toString().padStart(2, "0")}
               </motion.button>
-            </div>
-          </motion.div>
-        ))}
-      </div>
+            ))}
 
-      <div className="flex justify-center items-center space-x-2 my-8">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors"
-        >
-          <ArrowLeft size={18} />
-        </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              <ArrowRight size={18} />
+            </motion.button>
+          </div>
+        </div>
+      )}
 
-        {[1, 2, 3, 4, 5, 6].map((page) => (
-          <motion.button
-            key={page}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer ${
-              currentPage === page 
-                ? 'bg-primary-500 text-white' 
-                : 'border border-gray-300 text-gray-600 hover:bg-gray-100'
-            } transition-colors`}
-            onClick={() => setCurrentPage(page)}
-          >
-            {page.toString().padStart(2, "0")}
-          </motion.button>
-        ))}
-
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="w-10 h-10 rounded-full flex items-center justify-center border border-gray-300 text-gray-600 hover:bg-gray-100 transition-colors"
-        >
-          <ArrowRight size={18} />
-        </motion.button>
-      </div>
+      {loading && orders.length > 0 && (
+        <div className="fixed bottom-4 right-4 bg-white p-2 rounded-full shadow-lg">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-500"></div>
+        </div>
+      )}
     </div>
   );
 };

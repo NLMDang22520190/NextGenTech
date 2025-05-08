@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 import { useToast } from '../../../hooks/use-toast';
 
-const RatingModal = ({ isOpen, onClose, orderId }) => {
+const RatingModal = ({ isOpen, onClose, orderId, productId, onSubmit }) => {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const { toast } = useToast();
+
+  // Log props on component mount to verify they're being received correctly
+  useEffect(() => {
+    if (isOpen) {
+      console.log("RatingModal opened with props:", { orderId, productId });
+    }
+  }, [isOpen, orderId, productId]);
 
   const handleSubmit = () => {
     if (rating === 0) {
@@ -19,7 +26,29 @@ const RatingModal = ({ isOpen, onClose, orderId }) => {
       return;
     }
 
-    console.log({ orderId, rating, feedback });
+    if (!productId) {
+      toast({
+        title: "Error",
+        description: "Product ID is missing. Please try again.",
+        variant: "destructive",
+      });
+      console.error("Missing productId in RatingModal.handleSubmit");
+      return;
+    }
+
+    console.log("Submitting review with data:", { 
+      productId, 
+      rating, 
+      feedback,
+      isProductIdDefined: productId !== undefined
+    });
+    
+    // Pass productId as the first parameter
+    onSubmit(productId, rating, feedback);
+
+    // Reset form
+    setRating(0);
+    setFeedback('');
     
     toast({
       title: "Review Submitted",
@@ -48,7 +77,7 @@ const RatingModal = ({ isOpen, onClose, orderId }) => {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-5 border-b border-gray-200">
-          <h2 className="text-lg font-medium text-gray-800">BILLING ADDRESS</h2>
+          <h2 className="text-lg font-medium text-gray-800">Rate Product #{productId}</h2>
         </div>
         
         <div className="p-5 space-y-6">
@@ -75,7 +104,7 @@ const RatingModal = ({ isOpen, onClose, orderId }) => {
                 </button>
               ))}
               <span className="ml-2 text-sm text-gray-600">
-                {rating > 0 ? `${rating}-Star Rating` : "5-Star Rating"}
+                {rating > 0 ? `${rating}-Star Rating` : "Select Rating"}
               </span>
             </div>
           </div>

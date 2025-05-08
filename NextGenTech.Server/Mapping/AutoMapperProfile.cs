@@ -72,6 +72,7 @@ namespace HealthBuddy.Server.Mapping
                 .ReverseMap()
                 .ForMember(dest => dest.PasswordHash, opt => opt.MapFrom(src => BCrypt.Net.BCrypt.HashPassword(src.Password)));
             CreateMap<User, AdminUpdateUserDTO>().ReverseMap();
+            CreateMap<User, UserInfoDTO>().ReverseMap();
             CreateMap<Order, OrderWithOrderDetailDTO>().ReverseMap();
             CreateMap<Promotion, PromotionDTO>().ReverseMap();
             CreateMap<ProductImage, ProductImageDTO>().ReverseMap();

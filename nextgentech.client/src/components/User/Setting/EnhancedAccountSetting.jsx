@@ -1,64 +1,214 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, Check, X, Edit2 } from 'lucide-react';
+import { Eye, EyeOff, Edit2, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from "sonner";
 import EditModal from './EditModal';
-import {cities, districts, wards} from "../Setting/location";
+import { useNavigate } from 'react-router-dom';
 import SelectField from "../Select/Select";
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from "../../../features/AxiosInstance/Auth/Auth";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: (custom) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: custom * 0.1,
-        duration: 0.5,
-        ease: [0.25, 0.1, 0.25, 1.0]
-      }
-    })
-  };
+  hidden: { opacity: 0, y: 20 },
+  visible: (custom) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      delay: custom * 0.1,
+      duration: 0.5,
+      ease: [0.25, 0.1, 0.25, 1.0]
+    }
+  })
+};
 
 const EnhancedAccountSettings = () => {
+  // API key for GHN (Giao Hang Nhanh)
+  const apiKey = "a84f0896-7c1a-11ef-8e53-0a00184fe694";
+  
+  // Redux hooks
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const userId = useSelector((state) => state.auth.user);
+
+  // UI States
   const [showPassword, setShowPassword] = useState({
     current: false,
     new: false,
     confirm: false
   });
-
-  const [profileData, setProfileData] = useState({
-    username: "Kevin.smith",
-    fullName: "Kevin Gilbert",
-    email: "Kevin.gilbert@example.com",
-    phoneNumber: "+1 000-555-0139",
-    city: "Hà Nội",
-    district: "Ba Đình",
-    ward: "Phường 1",
-    state: "Dhaka",
-    zipCode: "1207"
-  });
-
-  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  
-  
+
+  // Profile Data
+  const [profileData, setProfileData] = useState({
+    fullName: "",
+    email: "",
+    phoneNumber: "",
+    city: "",
+    district: "",
+    ward: "",
+  });
   const [tempProfileData, setTempProfileData] = useState({...profileData});
 
+  // Password Form State
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
 
+  // Location States
+  const [cities, setCities] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [wards, setWards] = useState([]);
+
+  // Load User Data
   useEffect(() => {
-    setTempProfileData({...profileData});
-  }, [profileData]);
-  
+    const fetchUserData = async () => {
+      setLoading(true);
+      try {
+        if (!userId) {
+          throw new Error('User ID not found. Please login again.');
+        }
+        
+        const response = await api.get(`api/account/GetUserById/${userId}`);
+        
+        if (!response || response.status !== 200) {
+          throw new Error(`Failed to fetch user data: ${response.status}`);
+        }
+        
+        const userData = response.data;
+        
+        // Map the API response to component state
+        const formattedData = {
+          fullName: userData.fullName || "",
+          email: userData.email || "",
+          phoneNumber: userData.phone || "",
+          city: userData.city || "",
+          district: userData.district || "",
+          ward: userData.ward || "",
+        };
+        
+        setProfileData(formattedData);
+        setTempProfileData(formattedData);
+        
+        setLoading(false);
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setError(err.message);
+        setLoading(false);
+        toast.error(err.message || "Failed to load user profile");
+      }
+    };
 
+    if (userId) {
+      fetchUserData();
+    } else {
+      setError("User not logged in");
+      setLoading(false);
+    }
+  }, [userId]);
 
+  // Sync tempProfileData with profileData when modal opens
   useEffect(() => {
     if (isProfileModalOpen) {
       setTempProfileData({...profileData});
     }
   }, [isProfileModalOpen, profileData]);
-  
 
+  // Fetch cities
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const response = await fetch(
+          "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/province",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Token: apiKey,
+            },
+          }
+        );
+        const data = await response.json();
 
+        if (data && data.data) {
+          setCities(data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+        toast.error("Failed to load cities");
+      }
+    };
+
+    fetchCities();
+  }, []);
+
+  // Fetch districts when city changes
+  useEffect(() => {
+    const fetchDistricts = async () => {
+      if (!tempProfileData.city) return;
+      
+      try {
+        const response = await fetch(
+          "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/district",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Token: apiKey,
+            },
+            body: JSON.stringify({ province_id: parseInt(tempProfileData.city) }),
+          }
+        );
+        const data = await response.json();
+
+        if (data && data.data) {
+          setDistricts(data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching districts:", error);
+        toast.error("Failed to load districts");
+      }
+    };
+
+    fetchDistricts();
+  }, [tempProfileData.city]);
+
+  // Fetch wards when district changes
+  useEffect(() => {
+    const fetchWards = async () => {
+      if (!tempProfileData.district) return;
+      
+      try {
+        const response = await fetch(
+          "https://dev-online-gateway.ghn.vn/shiip/public-api/master-data/ward",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Token: apiKey,
+            },
+            body: JSON.stringify({ district_id: parseInt(tempProfileData.district) }),
+          }
+        );
+        const data = await response.json();
+
+        if (data && data.data) {
+          setWards(data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching wards:", error);
+        toast.error("Failed to load wards");
+      }
+    };
+
+    fetchWards();
+  }, [tempProfileData.district]);
+
+  // Toggle password visibility
   const togglePasswordVisibility = (field) => {
     setShowPassword({
       ...showPassword,
@@ -66,6 +216,7 @@ const EnhancedAccountSettings = () => {
     });
   };
 
+  // Animation variants
   const inputVariants = {
     focus: { scale: 1.01, boxShadow: "0 0 0 2px rgba(249, 115, 22, 0.2)" },
     blur: { scale: 1, boxShadow: "none" }
@@ -77,23 +228,166 @@ const EnhancedAccountSettings = () => {
     tap: { scale: 0.98, transition: { duration: 0.2 } }
   };
 
+  // Open profile modal
   const openProfileModal = () => {
     setTempProfileData({...profileData});
     setIsProfileModalOpen(true);
   };
 
-  const saveProfileChanges = () => {
-    setProfileData({...tempProfileData});
-    setIsProfileModalOpen(false);
-    toast.success("Profile updated successfully!");
+  // Save profile changes
+  const saveProfileChanges = async () => {
+    try {
+      if (!userId) {
+        toast.error("User không được xác định. Vui lòng đăng nhập lại.");
+        return;
+      }
+      
+      const payload = {
+        fullName: tempProfileData.fullName || "",
+        phone: tempProfileData.phoneNumber || "",
+        district: tempProfileData.district || "",
+        city: tempProfileData.city || "",
+        ward: tempProfileData.ward || "",
+        photoUrl: "string" // This might need a real value in the future
+      };
+      
+      const response = await api.put(`api/Account/Update-info/${userId}`, payload);
+      
+      if (response && response.status === 200) {
+        setProfileData({...tempProfileData});
+        setIsProfileModalOpen(false);
+        toast.success("Hồ sơ đã được cập nhật thành công!");
+      } else {
+        toast.error("Không thể cập nhật hồ sơ. Vui lòng thử lại.");
+      }
+    } catch (err) {
+      console.error("Error in saveProfileChanges:", err);
+      
+      // Show detailed error messages
+      if (err.response) {
+        toast.error(`Lỗi: ${err.response.data?.message || "Đã xảy ra lỗi."}`);
+      } else if (err.request) {
+        toast.error("Không nhận được phản hồi từ server.");
+      } else {
+        toast.error(`Lỗi: ${err.message}`);
+      }
+    }
   };
 
+  // Handle password form changes
+  const handlePasswordFormChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordForm({
+      ...passwordForm,
+      [name]: value
+    });
+  };
 
   // Handle password change
-const handlePasswordChange = (e) => {
+  const handlePasswordChange = async (e) => {
     e.preventDefault();
-    // Add password validation logic here
-    toast.success("Password changed successfully!");
+    const { currentPassword, newPassword, confirmPassword } = passwordForm;
+    
+    // Validate passwords
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("Vui lòng điền đầy đủ tất cả các trường mật khẩu");
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      toast.error("Mật khẩu mới không khớp");
+      return;
+    }
+    
+    try {
+      const email = profileData.email;
+
+      if (!email) {
+        toast.error("Email không được xác định. Vui lòng thử lại.");
+        return;
+      }
+
+      const response = await api.post("/api/Account/ChangePassword", {
+        email: email,
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      });
+
+      if (response.status === 200) {
+        toast.success("Đổi mật khẩu thành công!");
+        // Reset the form
+        setPasswordForm({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+      } else {
+        toast.error("Không thể đổi mật khẩu");
+      }
+    } catch (err) {
+      console.error("Lỗi khi đổi mật khẩu:", err);
+
+      if (err.response) {
+        toast.error(`Lỗi: ${err.response.data?.message || "Không thể đổi mật khẩu"}`);
+      } else if (err.request) {
+        toast.error("Không nhận được phản hồi từ máy chủ");
+      } else {
+        toast.error(`Lỗi: ${err.message}`);
+      }
+    }
+  };
+
+  // Handle logout
+  const handleLogout = () => {
+    dispatch(logout());
+    // dispatch(clearCart()); // Uncomment if needed
+    navigate("/login");
+  };
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="bg-red-100 text-red-700 p-4 rounded-md">
+          <p className="font-medium">Error loading profile</p>
+          <p>{error}</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="mt-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Format location for display
+  const getLocationName = (id, locationType) => {
+    if (!id) return "";
+    
+    switch (locationType) {
+      case "city":
+        const city = cities.find(c => c.ProvinceID === parseInt(id));
+        return city ? city.ProvinceName : id;
+      case "district":
+        const district = districts.find(d => d.DistrictID === parseInt(id));
+        return district ? district.DistrictName : id;
+      case "ward":
+        const ward = wards.find(w => w.WardCode === id.toString());
+        return ward ? ward.WardName : id;
+      default:
+        return id;
+    }
   };
 
   return (
@@ -102,179 +396,184 @@ const handlePasswordChange = (e) => {
       animate="visible" 
       className="max-w-7xl mx-auto px-4 sm:px-6 py-12"
     >   
-    <h1 className="text-xl font-bold mb-4 text-primary-600">USER PROFILE</h1>
+      <h1 className="text-xl font-bold mb-4 text-primary-600">USER PROFILE</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">  
         <motion.div 
           variants={fadeIn} 
           custom={1} 
           className="space-y-8"
         >
-  <div className="flex flex-col bg-white rounded-xl shadow-lg p-8 md:p-12 items-start gap-6 relative">
+          <div className="flex flex-col bg-white rounded-xl shadow-lg p-8 md:p-12 items-start gap-6 relative">
+            {/* Profile Image */}
+            <div className="flex flex-col items-center">
+              <motion.div 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="w-24 h-24 rounded-full overflow-hidden bg-sky-500 flex-shrink-0"
+                whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
+              >
+                <img 
+                  src="/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png" 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              </motion.div>
+            </div>
 
-  {/* Wrapper chứa Account Setting + Hình ảnh */}
-  <div className="flex flex-col items-center">
+            {/* Account Info */}
+            <div className="grid grid-cols-2 gap-x-16 gap-y-4 w-full">
+              {[
+                { label: "Full Name", value: profileData.fullName },
+                { label: "Email", value: profileData.email },
+                { label: "Phone Number", value: profileData.phoneNumber },
+                { label: "City", value: getLocationName(profileData.city, "city") },
+                { label: "District", value: getLocationName(profileData.district, "district") },
+                { label: "Ward", value: getLocationName(profileData.ward, "ward") }
+              ].map((item, index) => (
+                <motion.div 
+                  key={item.label}
+                  variants={fadeIn}
+                  custom={index * 0.2 + 2}
+                  className="overflow-hidden"
+                >
+                  <p className="text-sm text-gray-500">{item.label}</p>
+                  <p className="font-medium">{item.value}</p>
+                </motion.div>
+              ))}  
+            </div>
 
+            {/* Buttons */}
+            <div className="flex gap-4 mt-6 justify-center w-full">
+              <motion.button 
+                onClick={openProfileModal}
+                variants={buttonVariants}
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
+                className="px-4 py-2 text-sm font-medium cursor-pointer text-white bg-gradient-to-br from-primary to-secondary rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-colors flex items-center gap-2"
+              >
+                <Edit2 size={16} /> EDIT PROFILE
+              </motion.button>
 
-    {/* Ảnh đại diện */}
-    <motion.div 
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="w-24 h-24 rounded-full overflow-hidden bg-sky-500 flex-shrink-0"
-      whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
-    >
-      <img 
-        src="/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png" 
-        alt="Profile" 
-        className="w-full h-full object-cover"
-      />
-    </motion.div>
-  </div>
-
-  {/* Thông tin tài khoản */}
-  <div className="grid grid-cols-2 gap-x-16 gap-y-4 w-full">
-  {[
-    { label: "Username", value: profileData.username },
-    { label: "Full Name", value: profileData.fullName },
-    { label: "Email", value: profileData.email },
-    { label: "Phone Number", value: profileData.phoneNumber },
-    { label: "City", value: profileData.city},
-    { label: "District", value: profileData.district},
-    { label: "Ward", value: profileData.ward}
-  ].map((item, index) => (
-    <motion.div 
-      key={item.label}
-      variants={fadeIn}
-      custom={index * 0.2 + 2}
-      className="overflow-hidden"
-    >
-      <p className="text-sm text-gray-500">{item.label}</p>
-      <p className="font-medium">{item.value}</p>
-    </motion.div>
-  ))}  
-  </div>
-
-  {/* Nút bấm ở dưới cùng */}
-  <div className="flex gap-4 mt-6 justify-center w-full">
-    <motion.button 
-      onClick={openProfileModal}
-      variants={buttonVariants}
-      initial="initial"
-      whileHover="hover"
-      whileTap="tap"
-      className="px-4 py-2 text-sm font-medium cursor-pointer text-white bg-gradient-to-br from-primary to-secondary rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-colors flex items-center gap-2"
-    >
-      <Edit2 size={16} /> EDIT PROFILE
-    </motion.button>
-
-    <motion.button 
-      // onClick={handleLogout} // Hàm logout
-      variants={buttonVariants}
-      initial="initial"
-      whileHover="hover"
-      whileTap="tap"
-      className="px-4 py-2 text-sm font-medium cursor-pointer text-white bg-gradient-to-br from-primary to-secondary rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-colors flex items-center gap-2"
-    >
-      <X size={16} /> LOG OUT
-    </motion.button>
-  </div>
-</div>
-  </motion.div>
-  <div className="bg-white rounded-xl shadow-lg p-8 md:p-12 w-150 mx-auto -mt-0">
-  {/* Tiêu đề */}
-      <motion.div 
-        variants={fadeIn} 
-        custom={5} 
-        className="mt-16 max-w-xl mx-auto" // Căn giữa
-      >
-        <h2 className="text-lg font-medium mb-6 text-primary-600">CHANGE PASSWORD</h2>
+              <motion.button 
+                onClick={handleLogout}
+                variants={buttonVariants}
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
+                className="px-4 py-2 text-sm font-medium cursor-pointer text-white bg-gradient-to-br from-primary to-secondary rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-colors flex items-center gap-2"
+              >
+                <X size={16} /> LOG OUT
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
         
-        <form onSubmit={handlePasswordChange} className="space-y-4">
-          <motion.div variants={fadeIn} custom={5.1} className="relative">
-            <label className="text-sm text-gray-500 block mb-1">Current Password</label>
-            <div className="relative">
-              <motion.input 
-                variants={inputVariants}
-                whileFocus="focus"
-                animate="blur"
-                type={showPassword.current ? "text" : "password"} 
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-primary-500 transition-all duration-200"
-                placeholder="••••••••••"
-              />
-              <motion.button 
-                type="button"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => togglePasswordVisibility('current')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-              >
-                {showPassword.current ? <EyeOff size={18} /> : <Eye size={18} />}
-              </motion.button>
-            </div>
-          </motion.div>
-          
-          <motion.div variants={fadeIn} custom={5.2} className="relative">
-            <label className="text-sm text-gray-500 block mb-1">New Password</label>
-            <div className="relative">
-              <motion.input 
-                variants={inputVariants}
-                whileFocus="focus"
-                animate="blur"
-                type={showPassword.new ? "text" : "password"} 
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-primary-500 transition-all duration-200"
-                placeholder="8+ characters"
-              />
-              <motion.button 
-                type="button"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => togglePasswordVisibility('new')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-              >
-                {showPassword.new ? <EyeOff size={18} /> : <Eye size={18} />}
-              </motion.button>
-            </div>
-          </motion.div>
-          
-          <motion.div variants={fadeIn} custom={5.3} className="relative">
-            <label className="text-sm text-gray-500 block mb-1">Confirm Password</label>
-            <div className="relative">
-              <motion.input 
-                variants={inputVariants}
-                whileFocus="focus"
-                animate="blur"
-                type={showPassword.confirm ? "text" : "password"} 
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-primary-500 transition-all duration-200"
-                placeholder="8+ characters"
-              />
-              <motion.button 
-                type="button"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => togglePasswordVisibility('confirm')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-              >
-                {showPassword.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
-              </motion.button>
-            </div>
-          </motion.div>
-          
-          <motion.button 
-            type="submit"
-            variants={buttonVariants}
-            initial="initial"
-            whileHover="hover"
-            whileTap="tap"
-            className="px-4 py-2 text-sm cursor-pointer font-medium text-white bg-gradient-to-br from-primary to-secondary rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-colors"
+        {/* Password Change Section */}
+        <div className="bg-white rounded-xl shadow-lg p-8 md:p-12 w-150 mx-auto -mt-0">
+          <motion.div 
+            variants={fadeIn} 
+            custom={5} 
+            className="mt-16 max-w-xl mx-auto"
           >
-            CHANGE PASSWORD
-          </motion.button>
-        </form>
-      </motion.div>
+            <h2 className="text-lg font-medium mb-6 text-primary-600">CHANGE PASSWORD</h2>
+            
+            <form onSubmit={handlePasswordChange} className="space-y-4">
+              <motion.div variants={fadeIn} custom={5.1} className="relative">
+                <label className="text-sm text-gray-500 block mb-1">Current Password</label>
+                <div className="relative">
+                  <motion.input 
+                    variants={inputVariants}
+                    whileFocus="focus"
+                    animate="blur"
+                    type={showPassword.current ? "text" : "password"} 
+                    name="currentPassword"
+                    value={passwordForm.currentPassword}
+                    onChange={handlePasswordFormChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-primary-500 transition-all duration-200"
+                    placeholder="••••••••••"
+                  />
+                  <motion.button 
+                    type="button"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => togglePasswordVisibility('current')}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                  >
+                    {showPassword.current ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </motion.button>
+                </div>
+              </motion.div>
+              
+              <motion.div variants={fadeIn} custom={5.2} className="relative">
+                <label className="text-sm text-gray-500 block mb-1">New Password</label>
+                <div className="relative">
+                  <motion.input 
+                    variants={inputVariants}
+                    whileFocus="focus"
+                    animate="blur"
+                    type={showPassword.new ? "text" : "password"} 
+                    name="newPassword"
+                    value={passwordForm.newPassword}
+                    onChange={handlePasswordFormChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-primary-500 transition-all duration-200"
+                    placeholder="8+ characters"
+                  />
+                  <motion.button 
+                    type="button"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => togglePasswordVisibility('new')}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                  >
+                    {showPassword.new ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </motion.button>
+                </div>
+              </motion.div>
+              
+              <motion.div variants={fadeIn} custom={5.3} className="relative">
+                <label className="text-sm text-gray-500 block mb-1">Confirm Password</label>
+                <div className="relative">
+                  <motion.input 
+                    variants={inputVariants}
+                    whileFocus="focus"
+                    animate="blur"
+                    type={showPassword.confirm ? "text" : "password"} 
+                    name="confirmPassword"
+                    value={passwordForm.confirmPassword}
+                    onChange={handlePasswordFormChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-primary-500 transition-all duration-200"
+                    placeholder="8+ characters"
+                  />
+                  <motion.button 
+                    type="button"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => togglePasswordVisibility('confirm')}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                  >
+                    {showPassword.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </motion.button>
+                </div>
+              </motion.div>
+              
+              <motion.button 
+                type="submit"
+                variants={buttonVariants}
+                initial="initial"
+                whileHover="hover"
+                whileTap="tap"
+                className="px-4 py-2 text-sm cursor-pointer font-medium text-white bg-gradient-to-br from-primary to-secondary rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-colors"
+              >
+                CHANGE PASSWORD
+              </motion.button>
+            </form>
+          </motion.div>
+        </div>
       </div>
-  </div>
       
-      
+      {/* Edit Profile Modal */}
       <EditModal 
         isOpen={isProfileModalOpen}
         onClose={() => setIsProfileModalOpen(false)}
@@ -282,16 +581,6 @@ const handlePasswordChange = (e) => {
         title="Edit Profile"
       >
         <div className="space-y-4">
-          <div>
-            <label className="text-sm text-gray-500 block mb-1">Username</label>
-            <input 
-              type="text" 
-              value={tempProfileData.username}
-              onChange={(e) => setTempProfileData({...tempProfileData, username: e.target.value})}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:border-orange-500"
-            />
-          </div>
-          
           <div>
             <label className="text-sm text-gray-500 block mb-1">Full Name</label>
             <input 
@@ -309,6 +598,7 @@ const handlePasswordChange = (e) => {
               value={tempProfileData.email}
               onChange={(e) => setTempProfileData({...tempProfileData, email: e.target.value})}
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:border-orange-500"
+              disabled // Email shouldn't be editable
             />
           </div>
           
@@ -324,39 +614,55 @@ const handlePasswordChange = (e) => {
           
           <div>
             <label className="text-sm text-gray-500 block mb-1">City</label>
-            <SelectField    
-              options={cities}
+            <select
               value={tempProfileData.city}
-              onChange={(e) => setTempProfileData({...tempProfileData, city: e.target.value})}
-            />
+              onChange={(e) => setTempProfileData({...tempProfileData, city: e.target.value, district: "", ward: ""})}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:border-orange-500"
+            >
+              <option value="">Select City</option>
+              {cities.map((city) => (
+                <option key={city.ProvinceID} value={city.ProvinceID}>
+                  {city.ProvinceName}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
             <label className="text-sm text-gray-500 block mb-1">District</label>
-            <SelectField
-              options={districts}
+            <select
               value={tempProfileData.district}
-              onChange={(e) => setTempProfileData({...tempProfileData, district: e.target.value})}
-            />
+              onChange={(e) => setTempProfileData({...tempProfileData, district: e.target.value, ward: ""})}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:border-orange-500"
+              disabled={!tempProfileData.city}
+            >
+              <option value="">Select District</option>
+              {districts.map((district) => (
+                <option key={district.DistrictID} value={district.DistrictID}>
+                  {district.DistrictName}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div>
             <label className="text-sm text-gray-500 block mb-1">Ward</label>
-            <SelectField
-              options={wards}
+            <select
               value={tempProfileData.ward}
               onChange={(e) => setTempProfileData({...tempProfileData, ward: e.target.value})}
-            />
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:border-orange-500"
+              disabled={!tempProfileData.district}
+            >
+              <option value="">Select Ward</option>
+              {wards.map((ward) => (
+                <option key={ward.WardCode} value={ward.WardCode}>
+                  {ward.WardName}
+                </option>
+              ))}
+            </select>
           </div>
-
-
-          
         </div>
       </EditModal>
-
-      
-
-      
     </motion.div>
   );
 };

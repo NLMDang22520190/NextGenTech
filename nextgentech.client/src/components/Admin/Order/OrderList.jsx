@@ -1,129 +1,59 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Filter, ChevronDown, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Package, Tag, X  } from "lucide-react";
+import { Filter, ChevronDown, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Tag, X } from "lucide-react";
 import { format, parse, isValid } from "date-fns";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "../../../components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger} from "../../../components/ui/popover";
-import  { Calendar } from "../../../components/ui/calendar";
-import {Modal, Table} from "antd";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "../../../components/ui/popover";
+import { Calendar } from "../../../components/ui/calendar";
+import { Modal, Table } from "antd";
 import { Select as AntdSelect } from "antd";
+import axios from "../../../features/AxiosInstance/AxiosInstance";
 
 const OrderList = () => {
   const [selectedDate, setSelectedDate] = useState(undefined);
-  const [selectedType, setSelectedType] = useState(undefined);
   const [selectedStatus, setSelectedStatus] = useState(undefined);
-  const [modalOpen, setModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  // Fetch orders data from API
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('/api/Order/get-all');
+        setOrders(response.data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+        setError("Failed to load orders. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Sample data for our orders
-  const orderData = [
-    {
-      id: "00001",
-      name: "Christine Brooks",
-      address: "089 Kutch Green Apt. 448",
-      date: "04 Sep 2019",
-      status: "Completed",
-    },
-    {
-      id: "00002",
-      name: "Rosie Pearson",
-      address: "979 Immanuel Ferry Suite 526",
-      date: "28 May 2019",
-      type: "Book",
-      status: "Processing",
-    },
-    {
-      id: "00003",
-      name: "Darrell Caldwell",
-      address: "8587 Frida Ports",
-      date: "23 Nov 2019",
-      status: "Rejected",
-    },
-    {
-      id: "00004",
-      name: "Gilbert Johnston",
-      address: "768 Destiny Lake Suite 600",
-      date: "05 Feb 2019",
-      status: "Completed",
-    },
-    {
-      id: "00005",
-      name: "Alan Cain",
-      address: "042 Mylene Throughway",
-      date: "29 Jul 2019",
-      status: "Processing",
-    },
-    {
-      id: "00006",
-      name: "Alfred Murray",
-      address: "543 Weimann Mountain",
-      date: "15 Aug 2019",
-      status: "Completed",
-    },
-    {
-      id: "00007",
-      name: "Maggie Sullivan",
-      address: "New Scottieberg",
-      date: "21 Dec 2019",
-      status: "Processing",
-    },
-    {
-      id: "00008",
-      name: "Rosie Todd",
-      address: "New Jon",
-      date: "30 Apr 2019",
-      status: "On Hold",
-    },
-    {
-      id: "00009",
-      name: "Dollie Hines",
-      address: "124 Lyla Forge Suite 975",
-      date: "09 Jan 2019",
-      status: "In Transit",
-    },
-  ];
+    fetchOrders();
+  }, []);
 
-  // Get unique order types from the data
-  const orderTypes = [...new Set(orderData.map(order => order.type))];
-  
   // Get unique order statuses from the data
-  const orderStatuses = [...new Set(orderData.map(order => order.status))];
+  const orderStatuses = useMemo(() => {
+    return [...new Set(orders.map(order => order.status))];
+  }, [orders]);
 
   // Function to reset all filters
   const resetFilters = () => {
     setSelectedDate(undefined);
-    setSelectedType(undefined);
     setSelectedStatus(undefined);
   };
 
-  const openModal = (order) => {
-    setSelectedOrder(order);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setSelectedOrder(null);
-    setModalOpen(false);
-  };
-  
-  
-
-  // Get status color based on status value
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Completed":
-        return "bg-emerald-100 text-emerald-600";
-      case "Processing":
-        return "bg-purple-100 text-purple-600";
-      case "Rejected":
-        return "bg-red-100 text-red-600";
-      case "On Hold":
-        return "bg-amber-100 text-amber-600";
-      case "In Transit":
-        return "bg-purple-100 text-purple-600";
-      default:
-        return "bg-gray-100 text-gray-600";
+  // Helper function to format date from API to display format
+  const formatDate = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      return format(date, "dd MMM yyyy");
+    } catch (error) {
+      return dateString;
     }
   };
 
@@ -132,23 +62,36 @@ const OrderList = () => {
     return selectedDate ? format(selectedDate, "dd MMM yyyy") : "Date";
   };
 
+  // Get status color based on status value
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "Hoàn tất":
+        return "bg-emerald-100 text-emerald-600";
+      case "Đang xử lý":
+        return "bg-purple-100 text-purple-600";
+      case "Hủy":
+        return "bg-red-100 text-red-600";
+      case "Chờ xác nhận":
+        return "bg-amber-100 text-amber-600";
+      case "Đang giao":
+        return "bg-blue-100 text-blue-600";
+      default:
+        return "bg-gray-100 text-gray-600";
+    }
+  };
+
   // Filter orders based on selected filters
   const filteredOrders = useMemo(() => {
-    return orderData.filter((order) => {
+    return orders.filter((order) => {
       // Filter by date if selected
       if (selectedDate) {
-        const orderDate = parse(order.date, "dd MMM yyyy", new Date());
+        const orderDate = new Date(order.orderDate);
         if (!isValid(orderDate) || 
             orderDate.getDate() !== selectedDate.getDate() || 
             orderDate.getMonth() !== selectedDate.getMonth() || 
             orderDate.getFullYear() !== selectedDate.getFullYear()) {
           return false;
         }
-      }
-
-      // Filter by type if selected
-      if (selectedType && order.type !== selectedType) {
-        return false;
       }
 
       // Filter by status if selected
@@ -158,7 +101,49 @@ const OrderList = () => {
 
       return true;
     });
-  }, [orderData, selectedDate, selectedType, selectedStatus]);
+  }, [orders, selectedDate, selectedStatus]);
+
+  // Update order status
+  // Replace the existing updateOrderStatus function with this correctly fixed version
+const updateOrderStatus = async (orderId, newStatus) => {
+  try {
+    // The API expects the new status as a direct string value, not as a JSON object
+    // Note: We're sending the status as a raw string with quotes around it
+    await axios.put(`http://localhost:5240/api/Order/update-order-state/${orderId}`, 
+      JSON.stringify(newStatus),
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    
+    // Update local state
+    setOrders(orders.map(order => 
+      order.orderId === orderId ? {...order, status: newStatus} : order
+    ));
+    
+    // Update selected order if it's the one being modified
+    if (selectedOrder && selectedOrder.orderId === orderId) {
+      setSelectedOrder({...selectedOrder, status: newStatus});
+    }
+    
+  } catch (error) {
+    console.error("Error updating order status:", error);
+    // Add better error handling
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error("Server responded with error:", error.response.data);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error("No response received from server");
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error("Error setting up request:", error.message);
+    }
+  }
+};
 
   // Animation variants
   const tableRowVariants = {
@@ -182,7 +167,7 @@ const OrderList = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1.0] }}
       >
-        Order Lists
+        Danh sách đơn hàng
       </motion.h1>
 
       {/* Filter Section */}
@@ -219,14 +204,13 @@ const OrderList = () => {
           </Popover>
         </div>
         
-        
         {/* Order Status Filter */}
         <div className="flex items-center border-r border-gray-200">
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
             <SelectTrigger className="border-0 focus:ring-0 focus:ring-offset-0 px-4 py-3 h-auto min-w-[160px]">
               <span className="flex items-center text-sm font-medium text-gray-700">
                 <Tag size={16} className="mr-2 text-gray-500" />
-                <SelectValue placeholder="Order Status" />
+                <SelectValue placeholder="Trạng thái đơn hàng" />
               </span>
             </SelectTrigger>
             <SelectContent className="z-50 bg-white">
@@ -246,187 +230,224 @@ const OrderList = () => {
             className="px-4 py-3 flex items-center text-red-500 hover:text-red-600 transition-colors duration-200 cursor-pointer" 
           >
             <X size={16} className="mr-2" />
-            <span className="text-sm font-medium">Reset Filter</span>
+            <span className="text-sm font-medium">Xóa bộ lọc</span>
           </button>
         </div>
       </motion.div>
 
-      {/* Table */}
-      <motion.div 
-        className="border border-gray-200 rounded-lg overflow-hidden"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2, ease: [0.25, 0.1, 0.25, 1.0] }}
-      >
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  ID
-                </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  NAME
-                </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  ADDRESS
-                </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  DATE
-                </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  STATUS
-                </th>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredOrders.map((order, index) => (
-                <motion.tr 
-                  key={order.id}
-                  variants={tableRowVariants}
-                  initial="hidden"
-                  animate="visible"
-                  custom={index}
-                  whileHover={{ backgroundColor: "rgba(249, 250, 251, 0.6)" }}
-                  className="transition-colors duration-200"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
-                    {order.id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                    {order.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {order.address}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {order.date}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                  <button
-                    onClick={() => setSelectedOrder(order)}
-                    className="text-gray-500 hover:text-gray-800 transition"
-                  >
-                    ...
-                  </button>
-                </td>
-                </motion.tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </motion.div>
-
-      {/* Pagination */}
-      <motion.div 
-        className="flex items-center justify-between mt-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.4 }}
-      >
-        <div className="text-sm text-gray-500">
-          Showing {filteredOrders.length > 0 ? 1 : 0}-{filteredOrders.length} of {filteredOrders.length}
-        </div>
-        <div className="flex items-center space-x-2">
-          <button className="p-2 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200">
-            <ChevronLeft size={16} className="text-gray-600" />
-          </button>
-          <button className="p-2 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200">
-            <ChevronRight size={16} className="text-gray-600" />
-          </button>
-        </div>
-      </motion.div>
-      <Modal
-      title="Order Detail"
-      footer={null}
-      open={!!selectedOrder}
-      onOk={() => setSelectedOrder(null)}
-      onCancel={() => setSelectedOrder(null)}
-    >
-      {selectedOrder && (
-        <div className="flex flex-col gap-y-2">
-          <p>
-            <strong>Order ID:</strong> {selectedOrder.id}
-          </p>
-          <p>
-            <strong>Date:</strong> {selectedOrder.date}
-          </p>
-          <p className="flex items-center gap-x-2">
-            <strong>Order Status:</strong>
-            <AntdSelect
-              defaultValue={selectedOrder.status}
-              style={{ width: 150 }}
-              onChange={(value) =>
-                setSelectedOrder({ ...selectedOrder, status: value })
-              }
-            >
-              <AntdSelect.Option value="Chờ xác nhận">On Hold</AntdSelect.Option>
-              <AntdSelect.Option value="Đang xử lý">Processing</AntdSelect.Option>
-              <AntdSelect.Option value="Hoàn tất">Complete</AntdSelect.Option>
-              <AntdSelect.Option value="Đã Huỷ">Rejected</AntdSelect.Option>
-            </AntdSelect>
-          </p>
-          <p>
-            <strong>Order Items:</strong>
-          </p>
-          <Table
-            pagination={false}
-            size="small"
-            columns={[
-              {
-                title: "Item",
-                dataIndex: "name",
-                key: "name",
-              },
-              {
-                title: "Qty",
-                dataIndex: "quantity",
-                key: "quantity",
-              },
-              {
-                title: "Price",
-                dataIndex: "price",
-                key: "price",
-                render: (value) =>
-                  value.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  }),
-              },
-            ]}
-            dataSource={selectedOrder.orderDetails || []}
-            rowKey="id"
-          />
-
-          <p className="flex gap-2">
-            <strong>Applied Voucher:</strong>
-            {selectedOrder.voucherApplied
-              ? selectedOrder.voucherApplied.voucherCode
-              : "No voucher applied"}
-          </p>
-          <p>
-            <strong>Total Amount:</strong>{" "}
-            {selectedOrder.totalPrice?.toLocaleString("vi-VN", {
-              style: "currency",
-              currency: "VND",
-            })}
-          </p>
+      {/* Error State */}
+      {error && (
+        <div className="border border-red-200 bg-red-50 text-red-600 p-4 rounded-lg mb-6">
+          {error}
         </div>
       )}
-    </Modal>
 
+      {/* Loading State */}
+      {loading ? (
+        <div className="flex justify-center items-center h-64 border border-gray-200 rounded-lg">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800"></div>
+        </div>
+      ) : (
+        <>
+          {/* Table */}
+          <motion.div 
+            className="border border-gray-200 rounded-lg overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2, ease: [0.25, 0.1, 0.25, 1.0] }}
+          >
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      ID
+                    </th>
+                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Ngày đặt
+                    </th>
+                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Địa chỉ
+                    </th>
+                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Tổng tiền
+                    </th>
+                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Phương thức
+                    </th>
+                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Trạng thái
+                    </th>
+                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      Thao tác
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                        Không tìm thấy đơn hàng nào
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredOrders.map((order, index) => (
+                      <motion.tr 
+                        key={order.orderId}
+                        variants={tableRowVariants}
+                        initial="hidden"
+                        animate="visible"
+                        custom={index}
+                        whileHover={{ backgroundColor: "rgba(249, 250, 251, 0.6)" }}
+                        className="transition-colors duration-200"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
+                          #{order.orderId}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {formatDate(order.orderDate)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {order.shippingAddress}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {order.totalAmount.toLocaleString('vi-VN')} ₫
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                          {order.paymentMethod}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => setSelectedOrder(order)}
+                            className="text-blue-500 hover:text-blue-700 transition-colors"
+                          >
+                            Chi tiết
+                          </button>
+                        </td>
+                      </motion.tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
 
+          {/* Pagination */}
+          <motion.div 
+            className="flex items-center justify-between mt-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.4 }}
+          >
+            <div className="text-sm text-gray-500">
+              Hiển thị {filteredOrders.length > 0 ? 1 : 0}-{filteredOrders.length} của {filteredOrders.length}
+            </div>
+            <div className="flex items-center space-x-2">
+              <button className="p-2 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200">
+                <ChevronLeft size={16} className="text-gray-600" />
+              </button>
+              <button className="p-2 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200">
+                <ChevronRight size={16} className="text-gray-600" />
+              </button>
+            </div>
+          </motion.div>
+        </>
+      )}
+
+      {/* Order Detail Modal */}
+      <Modal
+        title="Chi tiết đơn hàng"
+        footer={null}
+        open={!!selectedOrder}
+        onOk={() => setSelectedOrder(null)}
+        onCancel={() => setSelectedOrder(null)}
+      >
+        {selectedOrder && (
+          <div className="flex flex-col gap-y-2">
+            <div className="mb-2">
+              <strong>Mã đơn hàng:</strong> #{selectedOrder.orderId}
+            </div>
+            <div className="mb-2">
+              <strong>Ngày đặt:</strong> {formatDate(selectedOrder.orderDate)}
+            </div>
+            <div className="mb-2">
+              <strong>Địa chỉ giao hàng:</strong> {selectedOrder.shippingAddress}
+            </div>
+            <div className="flex items-center gap-x-2 mb-2">
+              <strong>Trạng thái:</strong>
+              <AntdSelect
+                defaultValue={selectedOrder.status}
+                style={{ width: 150 }}
+                onChange={(value) => updateOrderStatus(selectedOrder.orderId, value)}
+              >
+                <AntdSelect.Option value="Chờ xác nhận">Chờ xác nhận</AntdSelect.Option>
+                <AntdSelect.Option value="Đang xử lý">Đang xử lý</AntdSelect.Option>
+                <AntdSelect.Option value="Đang giao">Đang giao</AntdSelect.Option>
+                <AntdSelect.Option value="Hoàn tất">Hoàn tất</AntdSelect.Option>
+                <AntdSelect.Option value="Hủy">Hủy</AntdSelect.Option>
+              </AntdSelect>
+            </div>
+            <div className="mb-2">
+              <strong>Phương thức thanh toán:</strong> {selectedOrder.paymentMethod}
+            </div>
+            <div className="mb-2">
+              <strong>Tổng tiền:</strong> {selectedOrder.totalAmount.toLocaleString('vi-VN')} ₫
+            </div>
+            
+            {/* Add this section if you implement fetching order details */}
+            {selectedOrder.orderDetails && selectedOrder.orderDetails.length > 0 && (
+              <>
+                <div className="mb-2">
+                  <strong>Chi tiết đơn hàng:</strong>
+                </div>
+                <Table
+                  pagination={false}
+                  size="small"
+                  columns={[
+                    {
+                      title: "Sản phẩm",
+                      dataIndex: "productName",
+                      key: "productName",
+                    },
+                    {
+                      title: "Số lượng",
+                      dataIndex: "quantity",
+                      key: "quantity",
+                    },
+                    {
+                      title: "Đơn giá",
+                      dataIndex: "price",
+                      key: "price",
+                      render: (value) =>
+                        value.toLocaleString("vi-VN") + " ₫",
+                    },
+                    {
+                      title: "Thành tiền",
+                      key: "total",
+                      render: (_, record) =>
+                        (record.price * record.quantity).toLocaleString("vi-VN") + " ₫",
+                    },
+                  ]}
+                  dataSource={selectedOrder.orderDetails}
+                  rowKey="id"
+                />
+              </>
+            )}
+
+            {selectedOrder.promotion && (
+              <div className="mb-2">
+                <strong>Mã khuyến mãi áp dụng:</strong> {selectedOrder.promotion.code}
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
-
-    
   );
 };
 

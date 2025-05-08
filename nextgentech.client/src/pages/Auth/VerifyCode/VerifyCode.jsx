@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import api from "../../../features/AxiosInstance/AxiosInstance";
+// import { Button, TextInput } from "flowbite-react";
 
 const verifyCodeBgImage =
   "https://images.unsplash.com/photo-1500673922987-e212871fec22?auto=format&w=800&q=75";
@@ -25,7 +26,7 @@ const VerifyCode = () => {
 
     setIsLoading(true);
     try {
-      const response = await api.post("api/account/verify-code", {
+      const response = await api.post("api/Account/verify-code", {
         email,
         code,
       });
@@ -42,7 +43,7 @@ const VerifyCode = () => {
           const password = sessionStorage.getItem("signupPassword");
           setMessage("Đang tạo tài khoản...");
           // Gọi API đăng ký người dùng
-          const registerResponse = await api.post("api/account/SignUp", {
+          const registerResponse = await api.post("api/Account/register", {
             email,
             password,
           });

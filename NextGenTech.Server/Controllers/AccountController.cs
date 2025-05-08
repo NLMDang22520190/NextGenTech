@@ -74,19 +74,19 @@ namespace HealthBuddy.Server.Controllers
         }
 
         [HttpPost("ChangePassword")]
-
         public async Task<IActionResult> ChangePasswordAsync([FromBody] ChangePasswordRequest request)
         {
-            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.NewPassword))
+            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.CurrentPassword) || string.IsNullOrEmpty(request.NewPassword))
             {
                 return BadRequest(new
                 {
                     status = "error",
-                    message = "Email và mật khẩu mới không được để trống."
+                    message = "Email, mật khẩu hiện tại và mật khẩu mới không được để trống."
                 });
             }
 
-            try{
+            try
+            {
                 var userToChangePassword = await userRepository.GetUserByEmailAsync(request.Email);
 
                 if (userToChangePassword == null)
@@ -98,9 +98,21 @@ namespace HealthBuddy.Server.Controllers
                     });
                 }
 
-                var hashPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+                // Kiểm tra mật khẩu hiện tại
+                bool passwordValid = BCrypt.Net.BCrypt.Verify(request.CurrentPassword, userToChangePassword.PasswordHash);
+                if (!passwordValid)
+                {
+                    return BadRequest(new
+                    {
+                        status = "error",
+                        message = "Mật khẩu hiện tại không chính xác."
+                    });
+                }
 
+                // Mã hóa và cập nhật mật khẩu mới
+                var hashPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
                 await userRepository.UpdatePassword(userToChangePassword, hashPassword);
+                
                 return Ok(new
                 {
                     status = "success",
@@ -231,6 +243,22 @@ namespace HealthBuddy.Server.Controllers
                 status = "expired",
                 message = "Mã xác nhận đã hết hạn hoặc không tồn tại."
             });
+        }
+
+        [HttpGet("GetUserById/{userId}")]
+        public async Task<IActionResult> GetUserById(int userId)
+        {
+            var user = await userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new
+                {
+                    status = "error",
+                    message = "Không tìm thấy người dùng."
+                });
+            }
+            var userDTO = _mapper.Map<UserInfoDTO>(user);
+            return Ok(userDTO);
         }
 
         [HttpPut("Update-info/{userId}")]

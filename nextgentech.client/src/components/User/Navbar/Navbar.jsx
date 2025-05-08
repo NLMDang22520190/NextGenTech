@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ShoppingCart, User, Search, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useSelector } from 'react-redux';
 
 import SearchBar from "./SearchBar";
 import GradientText from "../../ReactBitsComponent/GradientText";
@@ -8,6 +9,7 @@ import GradientText from "../../ReactBitsComponent/GradientText";
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isAuthenticated = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -22,7 +24,7 @@ const Navbar = () => {
     { to: "/products", label: "Products" },
     { to: "/about", label: "About" },
     { to: "/orderHistory", label: "Order History"},
-    { to: "/setting", label:"Setting"}
+    // { to: "/setting", label:"Setting"}
   ];
 
   const NavItems = ({ onClick }) => (
@@ -44,8 +46,8 @@ const Navbar = () => {
     <div className="flex items-center space-x-6">
       <SearchBar />
       <Link
-        to="/auth/login"
-        aria-label="Account"
+        to={isAuthenticated ? "/setting" : "/auth/login"}
+        aria-label={isAuthenticated ? "Settings" : "Login"}
         className="text-foreground hover:text-primary transition-colors"
       >
         <User size={20} />

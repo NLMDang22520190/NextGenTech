@@ -91,7 +91,13 @@ const EditModal = ({ isOpen, onClose, onSave, title, children }) => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={onSave}
+                onClick={(e) => {
+                  console.log("Save Changes button clicked!");
+                  e.preventDefault(); // Ngăn chặn form submit nếu có
+                  console.log("Calling onSave function");
+                  onSave();
+                  console.log("onSave function called");
+                }}
                 className="px-4 py-2 text-sm font-medium cursor-pointer text-white bg-gradient-to-br from-primary to-secondary rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-colors"
               >
                 Save Changes
