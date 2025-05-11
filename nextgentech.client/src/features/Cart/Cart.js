@@ -1,10 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../AxiosInstance/AxiosInstance";
-import { useSelector } from "react-redux";
 
 // URL API base
 const apiBaseUrl = "/api/Cart";
-//const userId = useSelector((state) => state.auth.user);
 
 export const fetchCartIdByCustomerId = createAsyncThunk(
   "cart/fetchCartIdByCustomerId",
@@ -23,7 +21,7 @@ export const fetchCartIdByCustomerId = createAsyncThunk(
 // Async thunk để lấy dữ liệu giỏ hàng theo CustomerId
 export const fetchCartDetailsByCustomerId = createAsyncThunk(
   "cart/fetchCartDetailsByCustomerId",
-  async (customerId, { dispatch, getState, rejectWithValue }) => {
+  async (customerId, { dispatch, rejectWithValue }) => {
     try {
       // Gọi API để lấy cartId trước
       const cartIdResponse = await dispatch(
@@ -74,11 +72,9 @@ export const updateItemInCart = createAsyncThunk(
 
 export const deleteItemFromCart = createAsyncThunk(
   "cart/deleteItemFromCart",
-  async (cartDetailId, { rejectWithValue }) => {
+  async (cartDetailId, { dispatch, getState, rejectWithValue }) => {
     try {
-      const response = await api.delete(
-        `${apiBaseUrl}/DeleteItemFromCart/${cartDetailId}`
-      );
+      await api.delete(`${apiBaseUrl}/DeleteItemFromCart/${cartDetailId}`);
       const userId = getState().auth.user; // Lấy userId từ state Redux
       // Gọi lại fetchCartDetailsByCustomerId để cập nhật giỏ hàng
       await dispatch(fetchCartDetailsByCustomerId(userId));
@@ -91,7 +87,7 @@ export const deleteItemFromCart = createAsyncThunk(
 
 // Initial state
 const initialState = {
-  cartId: null, // Lưu trữ cartId
+  cartId: 23, // Lưu trữ cartId
   items: [],
   status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
@@ -141,9 +137,9 @@ const cartSlice = createSlice({
       .addCase(addItemToCart.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(addItemToCart.fulfilled, (state, action) => {
+      .addCase(addItemToCart.fulfilled, (state) => {
         state.status = "succeeded";
-        //state.items.push(action.payload); // Thêm item vào state
+        // Items will be updated by fetchCartDetailsByCustomerId
       })
       .addCase(addItemToCart.rejected, (state, action) => {
         state.status = "failed";
