@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ShoppingCart, User, Search, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useSelector } from 'react-redux';
+import { useSelector } from "react-redux";
 
 import SearchBar from "./SearchBar";
 import GradientText from "../../ReactBitsComponent/GradientText";
@@ -10,6 +10,13 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isAuthenticated = useSelector((state) => state.auth.user);
+
+  // Get cart items from Redux store
+  const cartState = useSelector((state) => state.cart);
+  const cartItems = cartState?.items || [];
+
+  // Calculate number of unique items in cart (not total quantity)
+  const cartItemCount = cartItems.length;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,7 +30,7 @@ const Navbar = () => {
   const navLinks = [
     { to: "/products", label: "Products" },
     { to: "/about", label: "About" },
-    { to: "/orderHistory", label: "Order History"},
+    { to: "/orderHistory", label: "Order History" },
     // { to: "/setting", label:"Setting"}
   ];
 
@@ -58,9 +65,11 @@ const Navbar = () => {
         className="text-foreground hover:text-primary transition-colors relative"
       >
         <ShoppingCart size={20} />
-        <span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-          3
-        </span>
+        {cartItemCount > 0 && (
+          <span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            {cartItemCount > 99 ? "99+" : cartItemCount}
+          </span>
+        )}
       </Link>
     </div>
   );

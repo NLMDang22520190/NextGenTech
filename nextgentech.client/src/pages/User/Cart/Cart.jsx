@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button, message, Skeleton, Card } from "antd";
 import {
   Trash2,
@@ -11,93 +11,165 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchCartDetailsByCustomerId,
+  deleteItemFromCart,
+  updateItemInCart,
+} from "../../../features/Cart/Cart";
 
 import CartItem from "../../../components/User/Cart/CartItem";
 import CartSummary from "../../../components/User/Cart/CartSummary";
 import EmptyCart from "../../../components/User/Cart/CartEmpty";
 
-// Mock cart data - in a real app this would come from a context, Redux, or API
-const initialCartItems = [
-  {
-    id: 1,
-    name: "NextGen Pro Wireless Headphones",
-    price: 249.99,
-    discountPrice: 199.99, // Added discount price
-    quantity: 1,
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop",
-    categoryId: 3,
-    categoryName: "Audio",
-  },
-  {
-    id: 2,
-    name: "Ultra HD Smart TV - 55 inch",
-    price: 699.99,
-    discountPrice: 599.99, // Added discount price
-    quantity: 1,
-    image:
-      "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?q=80&w=2070&auto=format&fit=crop",
-    categoryId: 2,
-    categoryName: "Television",
-  },
-  {
-    id: 3,
-    name: "Professional DSLR Camera with Lens Kit",
-    price: 1299.99,
-    quantity: 1, // No discount for this item
-    image:
-      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1964&auto=format&fit=crop",
-    categoryId: 1,
-    categoryName: "Photography",
-  },
-];
-
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState(initialCartItems);
   const [isLoading, setIsLoading] = useState(true);
+  const [updatingItems, setUpdatingItems] = useState({});
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  // Simulate loading
+  // Get cart items from Redux store
+  const cartState = useSelector((state) => state.cart);
+  const cartItems = cartState?.items || [];
+  const userId = useSelector((state) => state.auth?.user) || "23"; // Default to user ID 5 if not available
+
+  // Fetch cart details when component mounts
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 200);
+    const fetchCartData = async () => {
+      setIsLoading(true);
+      try {
+        await dispatch(fetchCartDetailsByCustomerId(userId)).unwrap();
+      } catch (error) {
+        message.error(
+          "Failed to load cart items: " + (error.message || "Unknown error")
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return () => clearTimeout(timer);
-  }, []);
+    fetchCartData();
+  }, [dispatch, userId]);
 
-  // Update quantity of an item
-  const updateQuantity = (id, newQuantity) => {
+  // State to track local quantities before API update
+  const [localQuantities, setLocalQuantities] = useState({});
+
+  // Create a debounce function
+  const debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
+
+  // Function to actually update the quantity in the API
+  const performQuantityUpdate = async (cartDetailId, newQuantity) => {
     if (newQuantity < 1) return;
 
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
+    try {
+      // Set updating state for this item
+      setUpdatingItems((prev) => ({ ...prev, [cartDetailId]: true }));
 
-    message.success("Cart updated: Product quantity has been updated");
+      const updateData = {
+        cartDetailId: cartDetailId,
+        quantity: newQuantity,
+      };
+
+      await dispatch(updateItemInCart(updateData)).unwrap();
+      message.success("Cart updated: Product quantity has been updated");
+    } catch (error) {
+      message.error(
+        "Failed to update quantity: " + (error.message || "Unknown error")
+      );
+
+      // Revert to the original quantity in case of error
+      const originalItem = cartItems.find(
+        (item) => item.cartDetailId === cartDetailId
+      );
+      if (originalItem) {
+        setLocalQuantities((prev) => ({
+          ...prev,
+          [cartDetailId]: originalItem.quantity,
+        }));
+      }
+    } finally {
+      // Clear updating state for this item
+      setUpdatingItems((prev) => {
+        const newState = { ...prev };
+        delete newState[cartDetailId];
+        return newState;
+      });
+    }
+  };
+
+  // Debounced version of the API update function (300ms delay)
+  const debouncedApiUpdate = useCallback(
+    debounce((cartDetailId, newQuantity) => {
+      performQuantityUpdate(cartDetailId, newQuantity);
+    }, 300),
+    []
+  );
+
+  // Function to handle quantity changes
+  const updateQuantity = (cartDetailId, newQuantity) => {
+    if (newQuantity < 1) return;
+
+    // Update local state immediately for responsive UI
+    setLocalQuantities((prev) => ({
+      ...prev,
+      [cartDetailId]: newQuantity,
+    }));
+
+    // Debounce the API call
+    debouncedApiUpdate(cartDetailId, newQuantity);
   };
 
   // Remove an item from cart
-  const removeItem = (id) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
-
-    message.success("Cart updated: Product has been removed");
+  const removeItem = async (cartDetailId) => {
+    try {
+      await dispatch(deleteItemFromCart(cartDetailId)).unwrap();
+      message.success("Cart updated: Product has been removed");
+    } catch (error) {
+      message.error(
+        "Failed to remove item: " + (error.message || "Unknown error")
+      );
+    }
   };
 
   // Clear entire cart
-  const clearCart = () => {
-    setCartItems([]);
-
-    message.success("Cart cleared: All items have been removed");
+  const clearCart = async () => {
+    try {
+      // We'll need to remove each item individually since there's no clear cart API
+      for (const item of cartItems) {
+        await dispatch(deleteItemFromCart(item.cartDetailId)).unwrap();
+      }
+      message.success("Cart cleared: All items have been removed");
+    } catch (error) {
+      message.error(
+        "Failed to clear cart: " + (error.message || "Unknown error")
+      );
+    }
   };
 
-  // Calculate cart total
-  const cartTotal = cartItems.reduce(
-    (total, item) => total + (item.discountPrice || item.price) * item.quantity,
-    0
-  );
+  // Calculate cart total using localQuantities when available
+  const cartTotal = cartItems.reduce((total, item) => {
+    if (!item?.productColor?.product) return total;
+    const price =
+      item.productColor.product.salePrice ||
+      item.productColor.product.price ||
+      0;
+    // Use localQuantity if available, otherwise use the item's quantity
+    const itemQuantity =
+      localQuantities[item.cartDetailId] !== undefined
+        ? localQuantities[item.cartDetailId]
+        : item.quantity || 0;
+    return total + price * itemQuantity;
+  }, 0);
 
   // Proceed to checkout
   const handleCheckout = () => {
@@ -161,14 +233,14 @@ const CartPage = () => {
         initial="hidden"
         animate="visible"
       >
-        {cartItems.length === 0
+        {!cartItems || cartItems.length === 0
           ? "Your cart is empty"
           : `You have ${cartItems.length} item${
               cartItems.length !== 1 ? "s" : ""
             } in your cart`}
       </motion.p>
 
-      {cartItems.length === 0 ? (
+      {!cartItems || cartItems.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -213,7 +285,7 @@ const CartPage = () => {
               <motion.div className="space-y-4">
                 {cartItems.map((item, index) => (
                   <motion.div
-                    key={item.id}
+                    key={item.cartDetailId}
                     variants={itemVariants}
                     initial="hidden"
                     animate="visible"
@@ -223,6 +295,8 @@ const CartPage = () => {
                       item={item}
                       updateQuantity={updateQuantity}
                       removeItem={removeItem}
+                      isUpdating={updatingItems[item.cartDetailId] || false}
+                      localQuantity={localQuantities[item.cartDetailId]}
                     />
                   </motion.div>
                 ))}
@@ -242,20 +316,16 @@ const CartPage = () => {
 
               <motion.button
                 onClick={() => {
-                  setCartItems(initialCartItems);
-                  toast({
-                    title: "Cart refreshed",
-                    description:
-                      "Your cart has been reset to the initial state",
-                    duration: 2000,
-                  });
+                  // Refresh cart data from the server
+                  dispatch(fetchCartDetailsByCustomerId(userId));
+                  message.success("Cart refreshed from server");
                 }}
                 className="border px-3 py-2 rounded-lg flex items-center gap-2 hover:bg-secondary/70 transition"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <RefreshCw className="h-4 w-4" />
-                Reset Demo
+                Refresh Cart
               </motion.button>
             </motion.div>
           </motion.div>
@@ -271,6 +341,7 @@ const CartPage = () => {
               cartItems={cartItems}
               cartTotal={cartTotal}
               onCheckout={handleCheckout}
+              localQuantities={localQuantities}
             />
           </motion.div>
         </motion.div>

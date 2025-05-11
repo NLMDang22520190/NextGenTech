@@ -4,11 +4,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { message } from "antd";
 import { ShoppingCart, ArrowLeft } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
 
 import { ProductImageCarousel } from "../../../components/User/ProductDetail/ProductImageCarousel";
 import ProductReviews from "../../../components/User/ProductDetail/ProductReviews";
 import SkeletonProductDetail from "./SkeletonProductDetail";
 import api from "../../../features/AxiosInstance/AxiosInstance";
+import { addItemToCart } from "../../../features/Cart/Cart";
 
 // Mock product data - in a real app this would come from an API
 const mockProduct = {
@@ -18,7 +20,7 @@ const mockProduct = {
     "Experience premium sound with our NextGen Pro Wireless Headphones. These over-ear headphones feature active noise cancellation, 40-hour battery life, and comfortable memory foam ear cushions. Perfect for music lovers, gamers, and professionals who need crystal clear audio.",
   longDescription: `
       <p>Experience premium sound quality with our NextGen Pro Wireless Headphones. These cutting-edge over-ear headphones combine sophisticated technology with exceptional comfort for an immersive audio experience.</p>
-      
+
       <h4>Key Features:</h4>
       <ul>
         <li>Active Noise Cancellation technology blocks out ambient noise</li>
@@ -30,7 +32,7 @@ const mockProduct = {
         <li>Touch controls for volume, track selection, and calls</li>
         <li>Foldable design for easy storage and travel</li>
       </ul>
-      
+
       <h4>Technical Specifications:</h4>
       <ul>
         <li>Driver Size: 40mm</li>
@@ -122,6 +124,10 @@ const mockReviews = [
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  //const cartId = useSelector((state) => state.cart.cartId);
+  const cartId = 5;
+
   const [product, setProduct] = useState({});
   const [reviews, setReviews] = useState(mockReviews);
   const [quantity, setQuantity] = useState(1);
@@ -185,8 +191,30 @@ const ProductDetail = () => {
   }, [id]);
   //#endregion
 
-  const handleAddToCart = () => {
-    console.log("Product added to cart");
+  const handleAddToCart = async () => {
+    if (!selectedColor) {
+      message.warning("Please select a color before adding to cart");
+      return;
+    }
+
+    if (!cartId) {
+      message.error("Cart not found. Please try again later.");
+      return;
+    }
+
+    try {
+      const itemData = {
+        cartId: cartId,
+        productColorId: selectedColor.id,
+        quantity: quantity,
+      };
+
+      await dispatch(addItemToCart(itemData)).unwrap();
+      message.success(`${product.name} added to cart successfully!`);
+    } catch (error) {
+      console.error("Failed to add item to cart:", error);
+      message.error("Failed to add item to cart. Please try again.");
+    }
   };
 
   // Handle quantity change
@@ -363,12 +391,17 @@ const ProductDetail = () => {
             {/* Action Buttons */}
             <motion.button
               onClick={handleAddToCart}
-              className="flex items-center px-4 py-2 bg-gradient-to-br from-primary to-secondary w-fit cursor-pointer text-white rounded-lg hover:from-primary-500 hover:to-primary-500 transition mt-4"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              disabled={!selectedColor}
+              className={`flex items-center px-4 py-2 w-fit cursor-pointer text-white rounded-lg transition mt-4 ${
+                selectedColor
+                  ? "bg-gradient-to-br from-primary to-secondary hover:from-primary-500 hover:to-primary-500"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
+              whileHover={selectedColor ? { scale: 1.05 } : {}}
+              whileTap={selectedColor ? { scale: 0.95 } : {}}
             >
               <ShoppingCart className="mr-2 h-5 w-5" />
-              Add to Cart
+              {selectedColor ? "Add to Cart" : "Select a Color"}
             </motion.button>
           </div>
         </div>
