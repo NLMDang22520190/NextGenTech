@@ -76,6 +76,11 @@ namespace HealthBuddy.Server.Mapping
             CreateMap<Order, OrderWithOrderDetailDTO>().ReverseMap();
             CreateMap<Promotion, PromotionDTO>().ReverseMap();
             CreateMap<ProductImage, ProductImageDTO>().ReverseMap();
+
+            // Map for creating order
+            CreateMap<CreateOrderRequestDTO, Order>()
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => "Pending"))
+                .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => DateTime.Now));
         }
     }
 }

@@ -2,6 +2,7 @@ using AutoMapper;
 using NextGenTech.Server.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NextGenTech.Server.Models.DTO.ADD;
 using NextGenTech.Server.Models.DTO.GET;
 using NextGenTech.Server.Models.Domain;
 
@@ -126,7 +127,30 @@ namespace HealthBuddy.Server.Controllers
             return NoContent();
         }
 
+        // Tạo đơn hàng mới từ giỏ hàng
+        [HttpPost("create")]
+        public async Task<ActionResult> CreateOrder([FromBody] CreateOrderRequestDTO createOrderRequest)
+        {
+            try
+            {
+                // Kiểm tra dữ liệu đầu vào
+                if (createOrderRequest.UserId <= 0)
+                {
+                    return BadRequest("UserId không hợp lệ");
+                }
 
+                // Tạo đơn hàng
+                var order = await _orderRepository.CreateOrderFromCartAsync(createOrderRequest);
+
+                // Trả về thông tin đơn hàng đã tạo
+                var orderDTO = _mapper.Map<OrderDTO>(order);
+                return CreatedAtAction(nameof(GetOrderById), new { orderId = order.OrderId }, orderDTO);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
     }
 }
