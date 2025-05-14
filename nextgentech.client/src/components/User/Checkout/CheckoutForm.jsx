@@ -36,26 +36,15 @@ export function CheckoutForm({ onSubmit, isProcessing, form }) {
         {/* Personal Information */}
         <Card title={<Title level={4}>Personal Information</Title>}>
           <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12}>
+            <Col span={24}>
               <Form.Item
-                name="firstName"
-                label="First Name"
+                name="fullName"
+                label="Full Name"
                 rules={[
-                  { required: true, message: "Please input your first name!" },
+                  { required: true, message: "Please input your full name!" },
                 ]}
               >
-                <Input placeholder="John" />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12}>
-              <Form.Item
-                name="lastName"
-                label="Last Name"
-                rules={[
-                  { required: true, message: "Please input your last name!" },
-                ]}
-              >
-                <Input placeholder="Doe" />
+                <Input placeholder="John Doe" />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12}>
@@ -98,38 +87,41 @@ export function CheckoutForm({ onSubmit, isProcessing, form }) {
                   { required: true, message: "Please input your address!" },
                 ]}
               >
-                <Input placeholder="123 Main St" />
+                <Input placeholder="123 Nguyen Hue Street" />
               </Form.Item>
             </Col>
             <Col xs={24} sm={8}>
               <Form.Item
                 name="city"
-                label="City"
-                rules={[{ required: true, message: "Please input your city!" }]}
+                label="City/Province"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input your city/province!",
+                  },
+                ]}
               >
-                <Input placeholder="New York" />
+                <Input placeholder="Ho Chi Minh City" />
               </Form.Item>
             </Col>
             <Col xs={24} sm={8}>
               <Form.Item
-                name="state"
-                label="State"
+                name="district"
+                label="District"
                 rules={[
-                  { required: true, message: "Please input your state!" },
+                  { required: true, message: "Please input your district!" },
                 ]}
               >
-                <Input placeholder="NY" />
+                <Input placeholder="District 1" />
               </Form.Item>
             </Col>
             <Col xs={24} sm={8}>
               <Form.Item
-                name="zipCode"
-                label="Zip Code"
-                rules={[
-                  { required: true, message: "Please input your zip code!" },
-                ]}
+                name="ward"
+                label="Ward"
+                rules={[{ required: true, message: "Please input your ward!" }]}
               >
-                <Input placeholder="10001" />
+                <Input placeholder="Ward 10" />
               </Form.Item>
             </Col>
           </Row>

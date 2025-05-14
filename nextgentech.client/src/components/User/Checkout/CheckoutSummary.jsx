@@ -1,7 +1,8 @@
-import React from "react";
-import { Card, Typography, Divider } from "antd";
+import React, { useState } from "react";
+import { Card, Typography, Divider, Input, Button } from "antd";
 import { motion } from "framer-motion";
 import { ArrowRight, ShieldCheck, CreditCard } from "lucide-react";
+import { TagOutlined } from "@ant-design/icons";
 
 const { Text, Title } = Typography;
 
@@ -12,6 +13,9 @@ export function CheckoutSummary({
   onSubmit,
   form,
 }) {
+  const [promoCode, setPromoCode] = useState("");
+  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
+
   const handlePlaceOrder = async () => {
     try {
       //await form.validateFields(); // Kiểm tra form trước khi submit
@@ -21,20 +25,31 @@ export function CheckoutSummary({
     }
   };
 
-  // Demo shipping cost
-  const shippingCost = cartTotal > 100 ? 0 : 9.99;
+  // Apply promo code (demo functionality)
+  const handleApplyPromo = (e) => {
+    e.preventDefault();
+    setIsApplyingPromo(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      setIsApplyingPromo(false);
+      setPromoCode("");
+      alert("For this demo, promo codes are not actually applied");
+    }, 1000);
+  };
 
   // Calculate original total (without discounts)
-  const originalTotal = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  const originalTotal = cartItems.reduce((acc, item) => {
+    if (!item?.productColor?.product) return acc;
+    const price = item.productColor.product.price || 0;
+    return acc + price * item.quantity;
+  }, 0);
 
   // Calculate savings
   const totalSavings = originalTotal - cartTotal;
 
-  // Calculate final total
-  const finalTotal = cartTotal + shippingCost;
+  // Calculate final total (no shipping)
+  const finalTotal = cartTotal;
 
   return (
     <motion.div
@@ -52,29 +67,33 @@ export function CheckoutSummary({
           <div
             style={{ display: "flex", flexDirection: "column", gap: "12px" }}
           >
-            {cartItems.map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  fontSize: "0.875rem",
-                }}
-              >
-                <Text type="secondary" ellipsis>
-                  {item.name}{" "}
-                  <Text type="secondary" style={{ fontSize: "0.75rem" }}>
-                    x{item.quantity}
+            {cartItems.map((item) => {
+              // Check if item has the required structure
+              if (!item?.productColor?.product) return null;
+
+              const product = item.productColor.product;
+              const price = product.salePrice || product.price || 0;
+              const name = product.name || "Product";
+
+              return (
+                <div
+                  key={item.cartDetailId}
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    fontSize: "0.875rem",
+                  }}
+                >
+                  <Text type="secondary" ellipsis>
+                    {name}{" "}
+                    <Text type="secondary" style={{ fontSize: "0.75rem" }}>
+                      x{item.quantity}
+                    </Text>
                   </Text>
-                </Text>
-                <Text>
-                  $
-                  {((item.discountPrice || item.price) * item.quantity).toFixed(
-                    2
-                  )}
-                </Text>
-              </div>
-            ))}
+                  <Text>${(price * item.quantity).toFixed(2)}</Text>
+                </div>
+              );
+            })}
           </div>
 
           <Divider />
@@ -90,7 +109,8 @@ export function CheckoutSummary({
             >
               <Text type="secondary">
                 Subtotal (
-                {cartItems.reduce((acc, item) => acc + item.quantity, 0)} items)
+                {cartItems.filter((item) => item?.productColor?.product).length}{" "}
+                items)
               </Text>
               <Text>${cartTotal.toFixed(2)}</Text>
             </div>
@@ -107,20 +127,31 @@ export function CheckoutSummary({
                 <Text type="success">-${totalSavings.toFixed(2)}</Text>
               </div>
             )}
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: "0.875rem",
-              }}
-            >
-              <Text type="secondary">Shipping</Text>
-              <Text type={shippingCost === 0 ? "primary" : undefined}>
-                {shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}
-              </Text>
-            </div>
           </div>
+
+          {/* Promo code */}
+          <motion.form
+            onSubmit={handleApplyPromo}
+            style={{ display: "flex", gap: "8px" }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Input
+              placeholder="Promo code"
+              value={promoCode}
+              onChange={(e) => setPromoCode(e.target.value)}
+              style={{ flex: 1 }}
+            />
+            <Button
+              type="default"
+              htmlType="submit"
+              icon={<TagOutlined />}
+              disabled={!promoCode || isApplyingPromo}
+            >
+              Apply
+            </Button>
+          </motion.form>
 
           <Divider />
 

@@ -38,26 +38,26 @@ namespace HealthBuddy.Server.Controllers
         }
 
         [HttpGet]
-		public async Task<IActionResult> GetOrders()
-		{
-			var orders = await _orderRepository.GetAllOrders();
-			return Ok(orders);
-		}	
+        public async Task<IActionResult> GetOrders()
+        {
+            var orders = await _orderRepository.GetAllOrders();
+            return Ok(orders);
+        }
 
         // Lấy tất cả các đơn hàng
-		[HttpGet("get-all")]
-		public async Task<ActionResult<List<Order>>> GetAllOrders()
-		{
-			var orders = await _orderRepository.GetAllAsync();
-			if (orders == null || orders.Count == 0)
-			{
-				return NotFound("No orders found.");
-			}
-			return Ok(orders);
-		}
+        [HttpGet("get-all")]
+        public async Task<ActionResult<List<Order>>> GetAllOrders()
+        {
+            var orders = await _orderRepository.GetAllAsync();
+            if (orders == null || orders.Count == 0)
+            {
+                return NotFound("No orders found.");
+            }
+            return Ok(orders);
+        }
 
         // Lấy chi tiết đơn hàng theo ID
-		[HttpGet("{orderId}")]
+        [HttpGet("{orderId}")]
         public async Task<IActionResult> GetOrderById(int orderId)
         {
             var order = await _orderRepository.GetOrderByIdAsync(orderId);
@@ -82,14 +82,14 @@ namespace HealthBuddy.Server.Controllers
                 {
                     OrderDetailId = od.OrderDetailId,
                     OrderId = od.OrderId,
-                    ProductId = od.ProductId,
+                    ProductColorId = od.ProductColorId,
                     Quantity = od.Quantity,
                     Price = od.Price
                 }).ToList()
             };
 
-    return Ok(dto);
-}
+            return Ok(dto);
+        }
 
 
         [HttpGet("GetOrderDetailsByUserId/{userId}")]
@@ -100,7 +100,7 @@ namespace HealthBuddy.Server.Controllers
             {
                 return NotFound($"No orders found for UserId {userId}");
             }
-			var result = _mapper.Map<List<OrderWithOrderDetailDTO>>(order);
+            var result = _mapper.Map<List<OrderWithOrderDetailDTO>>(order);
 
             foreach (var orderDetail in result)
             {
@@ -116,15 +116,15 @@ namespace HealthBuddy.Server.Controllers
         }
 
         [HttpPut("update-order-state/{orderId}")]
-		public async Task<ActionResult> UpdateOrderState(int orderId, [FromBody] string newState)
-		{
-			var result = await _orderRepository.UpdateOrderStateAsync(orderId, newState);
-			if (!result)
-			{
-				return NotFound($"Order with ID {orderId} not found.");
-			}
-			return NoContent();
-		}
+        public async Task<ActionResult> UpdateOrderState(int orderId, [FromBody] string newState)
+        {
+            var result = await _orderRepository.UpdateOrderStateAsync(orderId, newState);
+            if (!result)
+            {
+                return NotFound($"Order with ID {orderId} not found.");
+            }
+            return NoContent();
+        }
 
 
 

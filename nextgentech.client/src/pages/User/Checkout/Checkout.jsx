@@ -1,59 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ShoppingBag } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCartDetailsByCustomerId } from "../../../features/Cart/Cart";
 
 import { CheckoutForm } from "../../../components/User/Checkout/CheckoutForm";
 import { CheckoutSummary } from "../../../components/User/Checkout/CheckoutSummary";
-import { Form } from "antd";
-
-const initialCartItems = [
-  {
-    id: 1,
-    name: "NextGen Pro Wireless Headphones",
-    price: 249.99,
-    discountPrice: 199.99,
-    quantity: 1,
-    image:
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop",
-    categoryId: 3,
-    categoryName: "Audio",
-  },
-  {
-    id: 2,
-    name: "Ultra HD Smart TV - 55 inch",
-    price: 699.99,
-    discountPrice: 599.99,
-    quantity: 1,
-    image:
-      "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?q=80&w=2070&auto=format&fit=crop",
-    categoryId: 2,
-    categoryName: "Television",
-  },
-  {
-    id: 3,
-    name: "Professional DSLR Camera with Lens Kit",
-    price: 1299.99,
-    quantity: 1,
-    image:
-      "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=1964&auto=format&fit=crop",
-    categoryId: 1,
-    categoryName: "Photography",
-  },
-];
+import { Form, Skeleton, Empty, Button } from "antd";
 
 const Checkout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [cartItems] = useState(initialCartItems);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-
+  const dispatch = useDispatch();
   const [form] = Form.useForm();
 
+  // Get cart items from Redux store
+  const cartState = useSelector((state) => state.cart);
+  const cartItems = cartState?.items || [];
+  const userId = useSelector((state) => state.auth?.user);
+
+  // Fetch cart details when component mounts
+  useEffect(() => {
+    const fetchCartData = async () => {
+      setIsLoading(true);
+      try {
+        await dispatch(fetchCartDetailsByCustomerId(userId)).unwrap();
+      } catch (error) {
+        console.error("Failed to load cart items:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCartData();
+  }, [dispatch, userId]);
+
   // Calculate cart total
-  const cartTotal = cartItems.reduce(
-    (total, item) => total + (item.discountPrice || item.price) * item.quantity,
-    0
-  );
+  const cartTotal = cartItems.reduce((total, item) => {
+    if (!item?.productColor?.product) return total;
+    const price =
+      item.productColor.product.salePrice ||
+      item.productColor.product.price ||
+      0;
+    return total + price * item.quantity;
+  }, 0);
 
   // Handle form submission
   const handleSubmitOrder = () => {
@@ -75,6 +67,35 @@ const Checkout = () => {
       // Simple alert instead of toast
     }, 500);
   };
+
+  // If loading, show skeleton
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 md:px-6 py-20">
+        <Skeleton active paragraph={{ rows: 10 }} />
+      </div>
+    );
+  }
+
+  // If cart is empty, show empty state
+  if (!cartItems || cartItems.length === 0) {
+    return (
+      <div className="container mx-auto px-4 md:px-6 py-20 flex flex-col items-center justify-center">
+        <Empty
+          description="Your cart is empty"
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+        />
+        <Button
+          type="primary"
+          onClick={() => navigate("/products")}
+          className="mt-4"
+          icon={<ShoppingBag className="h-4 w-4 mr-2" />}
+        >
+          Continue Shopping
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <motion.div

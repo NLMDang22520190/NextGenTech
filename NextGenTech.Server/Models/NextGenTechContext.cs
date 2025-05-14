@@ -112,6 +112,8 @@ public partial class NextGenTechContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.FullName).HasMaxLength(255);
+            entity.Property(e => e.Phone).HasMaxLength(20);
 
             entity.HasOne(d => d.Promotion).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.PromotionId)
@@ -132,17 +134,17 @@ public partial class NextGenTechContext : DbContext
             entity.Property(e => e.DiscountPercentage).HasColumnType("decimal(5, 2)");
             entity.Property(e => e.OrderId).HasColumnName("OrderID");
             entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
-            entity.Property(e => e.ProductId).HasColumnName("ProductID");
+
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderDetails)
                 .HasForeignKey(d => d.OrderId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__OrderDeta__Order__73BA3083");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.OrderDetails)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__OrderDeta__Produ__74AE54BC");
+            entity.HasOne(d => d.ProductColor).WithMany()
+                .HasForeignKey(d => d.ProductColorId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         });
 
         modelBuilder.Entity<Product>(entity =>

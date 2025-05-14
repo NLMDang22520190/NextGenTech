@@ -1,9 +1,8 @@
-import React, { useState } from "react";
-import { Button, Card, Input, Typography } from "antd";
+import React from "react";
+import { Button, Card, Typography } from "antd";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowRightOutlined,
-  TagOutlined,
   CreditCardOutlined,
   SafetyOutlined,
 } from "@ant-design/icons";
@@ -16,9 +15,6 @@ const CartSummary = ({
   onCheckout,
   localQuantities = {},
 }) => {
-  const [promoCode, setPromoCode] = useState("");
-  const [isApplyingPromo, setIsApplyingPromo] = useState(false);
-
   // Calculate original total (without discounts)
   const originalTotal = cartItems.reduce((acc, item) => {
     if (!item?.productColor?.product) return acc;
@@ -33,19 +29,6 @@ const CartSummary = ({
 
   // Calculate savings
   const totalSavings = originalTotal - cartTotal;
-
-  // Apply promo code (demo functionality)
-  const handleApplyPromo = (e) => {
-    e.preventDefault();
-    setIsApplyingPromo(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsApplyingPromo(false);
-      setPromoCode("");
-      alert("For this demo, promo codes are not actually applied");
-    }, 1000);
-  };
 
   return (
     <motion.div
@@ -104,32 +87,6 @@ const CartSummary = ({
               </AnimatePresence>
             </div>
           </motion.div>
-
-          <div style={{ borderTop: "1px solid #f0f0f0", margin: "16px 0" }} />
-
-          {/* Promo code */}
-          <motion.form
-            onSubmit={handleApplyPromo}
-            style={{ display: "flex", gap: "8px" }}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Input
-              placeholder="Promo code"
-              value={promoCode}
-              onChange={(e) => setPromoCode(e.target.value)}
-              style={{ flex: 1 }}
-            />
-            <Button
-              type="default"
-              htmlType="submit"
-              icon={<TagOutlined />}
-              disabled={!promoCode || isApplyingPromo}
-            >
-              Apply
-            </Button>
-          </motion.form>
 
           <div style={{ borderTop: "1px solid #f0f0f0", margin: "16px 0" }} />
 

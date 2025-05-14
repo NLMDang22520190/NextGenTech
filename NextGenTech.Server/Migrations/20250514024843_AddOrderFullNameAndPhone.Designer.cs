@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NextGenTech.Server.Models;
 
@@ -11,9 +12,11 @@ using NextGenTech.Server.Models;
 namespace NextGenTech.Server.Migrations
 {
     [DbContext(typeof(NextGenTechContext))]
-    partial class NextGenTechContextModelSnapshot : ModelSnapshot
+    [Migration("20250514024843_AddOrderFullNameAndPhone")]
+    partial class AddOrderFullNameAndPhone
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,7 +46,7 @@ namespace NextGenTech.Server.Migrations
                     b.HasKey("BrandId")
                         .HasName("PK__Brands__DAD4F3BE023E6EED");
 
-                    b.ToTable("Brands", (string)null);
+                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Cart", b =>
@@ -64,7 +67,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Carts", (string)null);
+                    b.ToTable("Carts");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.CartDetail", b =>
@@ -97,7 +100,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("CartDetails", (string)null);
+                    b.ToTable("CartDetails");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Category", b =>
@@ -121,7 +124,7 @@ namespace NextGenTech.Server.Migrations
                     b.HasKey("CategoryId")
                         .HasName("PK__Categori__19093A2B2FF41DFF");
 
-                    b.ToTable("Categories", (string)null);
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Order", b =>
@@ -177,7 +180,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.OrderDetail", b =>
@@ -199,11 +202,9 @@ namespace NextGenTech.Server.Migrations
                     b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18, 2)");
 
-                    b.Property<int?>("ProductColorId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ProductColorId1")
-                        .HasColumnType("int");
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("int")
+                        .HasColumnName("ProductID");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -213,11 +214,9 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductColorId");
+                    b.HasIndex("ProductId");
 
-                    b.HasIndex("ProductColorId1");
-
-                    b.ToTable("OrderDetails", (string)null);
+                    b.ToTable("OrderDetails");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Product", b =>
@@ -268,7 +267,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.ProductColor", b =>
@@ -305,7 +304,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductColors", (string)null);
+                    b.ToTable("ProductColors");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.ProductImage", b =>
@@ -341,7 +340,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages", (string)null);
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Promotion", b =>
@@ -382,7 +381,7 @@ namespace NextGenTech.Server.Migrations
                     b.HasIndex(new[] { "PromotionCode" }, "UQ__Promotio__A617E4B6F177945F")
                         .IsUnique();
 
-                    b.ToTable("Promotions", (string)null);
+                    b.ToTable("Promotions");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Review", b =>
@@ -420,7 +419,7 @@ namespace NextGenTech.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reviews", (string)null);
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.User", b =>
@@ -481,7 +480,7 @@ namespace NextGenTech.Server.Migrations
                         .IsUnique()
                         .HasFilter("[Email] IS NOT NULL");
 
-                    b.ToTable("Users", null, t =>
+                    b.ToTable("Users", t =>
                         {
                             t.HasTrigger("trg_AfterInsertUser");
                         });
@@ -566,18 +565,15 @@ namespace NextGenTech.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK__OrderDeta__Order__73BA3083");
 
-                    b.HasOne("NextGenTech.Server.Models.Domain.ProductColor", "ProductColor")
-                        .WithMany()
-                        .HasForeignKey("ProductColorId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("NextGenTech.Server.Models.Domain.ProductColor", null)
+                    b.HasOne("NextGenTech.Server.Models.Domain.Product", "Product")
                         .WithMany("OrderDetails")
-                        .HasForeignKey("ProductColorId1");
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK__OrderDeta__Produ__74AE54BC");
 
                     b.Navigation("Order");
 
-                    b.Navigation("ProductColor");
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Product", b =>
@@ -681,6 +677,8 @@ namespace NextGenTech.Server.Migrations
                 {
                     b.Navigation("CartDetails");
 
+                    b.Navigation("OrderDetails");
+
                     b.Navigation("ProductColors");
 
                     b.Navigation("ProductImages");
@@ -691,8 +689,6 @@ namespace NextGenTech.Server.Migrations
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.ProductColor", b =>
                 {
                     b.Navigation("CartDetails");
-
-                    b.Navigation("OrderDetails");
                 });
 
             modelBuilder.Entity("NextGenTech.Server.Models.Domain.Promotion", b =>

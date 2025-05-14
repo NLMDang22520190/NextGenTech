@@ -21,6 +21,10 @@ public partial class Order
 
     public string? ShippingAddress { get; set; }
 
+    public string? FullName { get; set; }
+
+    public string? Phone { get; set; }
+
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
     public virtual Promotion? Promotion { get; set; }

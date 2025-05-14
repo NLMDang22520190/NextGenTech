@@ -9,7 +9,7 @@ public partial class OrderDetail
 
     public int? OrderId { get; set; }
 
-    public int? ProductId { get; set; }
+    public int? ProductColorId { get; set; }  // Chỉ sử dụng ProductColorId
 
     public int Quantity { get; set; }
 
@@ -19,5 +19,5 @@ public partial class OrderDetail
 
     public virtual Order Order { get; set; } = null!;
 
-    public virtual Product Product { get; set; } = null!;
+    public virtual ProductColor? ProductColor { get; set; }  // Quan hệ với ProductColor
 }

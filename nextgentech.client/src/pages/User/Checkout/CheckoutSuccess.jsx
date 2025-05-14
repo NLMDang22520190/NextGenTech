@@ -82,11 +82,6 @@ const CheckoutSuccess = () => {
                   <span className="font-medium">Credit Card</span>
                 </div>
 
-                <div className="flex justify-between pb-2 border-b">
-                  <span className="text-muted-foreground">Shipping Method</span>
-                  <span className="font-medium">Standard Shipping</span>
-                </div>
-
                 <div className="flex justify-between font-semibold text-lg pt-2">
                   <span>Total</span>
                   <span>${orderDetails.total}</span>
