@@ -141,7 +141,7 @@ public partial class NextGenTechContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__OrderDeta__Order__73BA3083");
 
-            entity.HasOne(d => d.ProductColor).WithMany()
+            entity.HasOne(d => d.ProductColor).WithMany(p => p.OrderDetails)
                 .HasForeignKey(d => d.ProductColorId)
                 .OnDelete(DeleteBehavior.Cascade);
 

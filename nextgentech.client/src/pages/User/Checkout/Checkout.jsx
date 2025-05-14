@@ -4,10 +4,11 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ShoppingBag } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCartDetailsByCustomerId } from "../../../features/Cart/Cart";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 import { CheckoutForm } from "../../../components/User/Checkout/CheckoutForm";
 import { CheckoutSummary } from "../../../components/User/Checkout/CheckoutSummary";
-import { Form, Skeleton, Empty, Button } from "antd";
+import { Form, Skeleton, Empty, Button, message } from "antd";
 
 const Checkout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -48,24 +49,49 @@ const Checkout = () => {
   }, 0);
 
   // Handle form submission
-  const handleSubmitOrder = () => {
-    setIsProcessing(true);
+  const handleSubmitOrder = async (formValues) => {
+    try {
+      setIsProcessing(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsProcessing(false);
-      // Generate a random order number for the demo
-      const orderNumber = Math.floor(100000 + Math.random() * 900000);
+      // Prepare the shipping address
+      const shippingAddress = `${formValues.address}, ${formValues.ward}, ${formValues.district}, ${formValues.city}`;
 
-      // Navigate to success page with order details
-      navigate(
-        `/checkout/success?orderNumber=${orderNumber}&total=${cartTotal.toFixed(
-          2
-        )}`
+      // Create order request payload
+      const orderData = {
+        userId: parseInt(userId),
+        paymentMethod: formValues.paymentMethod,
+        promotionId: null, // Can be updated if you implement promo code functionality
+        shippingAddress: shippingAddress,
+        fullName: formValues.fullName,
+        phone: formValues.phone,
+      };
+
+      // Call the API to create the order
+      const response = await api.post("/api/Order/create", orderData);
+
+      // Handle successful order creation
+      if (response.data) {
+        message.success("Order created successfully!");
+
+        // Navigate to success page with order details
+        navigate(
+          `/checkout/success?orderNumber=${
+            response.data.orderId
+          }&total=${cartTotal.toFixed(2)}`
+        );
+
+        // Refresh the cart (optional)
+        dispatch(fetchCartDetailsByCustomerId(userId));
+      }
+    } catch (error) {
+      console.error("Failed to create order:", error);
+      message.error(
+        error.response?.data?.message ||
+          "Failed to create order. Please try again."
       );
-
-      // Simple alert instead of toast
-    }, 500);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // If loading, show skeleton

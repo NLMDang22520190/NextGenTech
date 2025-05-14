@@ -18,8 +18,8 @@ export function CheckoutSummary({
 
   const handlePlaceOrder = async () => {
     try {
-      //await form.validateFields(); // Kiểm tra form trước khi submit
-      onSubmit(); // Nếu hợp lệ thì gọi hàm submit
+      const values = await form.validateFields(); // Kiểm tra form trước khi submit
+      onSubmit(values); // Nếu hợp lệ thì gọi hàm submit với form values
     } catch (error) {
       console.log("Form validation failed:", error);
     }

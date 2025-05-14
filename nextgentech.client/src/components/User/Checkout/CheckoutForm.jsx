@@ -18,7 +18,6 @@ export function CheckoutForm({ onSubmit, isProcessing, form }) {
       paymentMethod,
     };
     onSubmit(completeSubmission);
-    console.log(completeSubmission);
   };
 
   return (
