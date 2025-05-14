@@ -19,9 +19,6 @@ const CartSummary = ({
   const [promoCode, setPromoCode] = useState("");
   const [isApplyingPromo, setIsApplyingPromo] = useState(false);
 
-  // Demo shipping cost
-  const shippingCost = cartTotal > 100 ? 0 : 9.99;
-
   // Calculate original total (without discounts)
   const originalTotal = cartItems.reduce((acc, item) => {
     if (!item?.productColor?.product) return acc;
@@ -105,18 +102,6 @@ const CartSummary = ({
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <Text type="secondary">Shipping</Text>
-                <Text type={shippingCost === 0 ? "primary" : undefined}>
-                  {shippingCost === 0 ? "Free" : `$${shippingCost.toFixed(2)}`}
-                </Text>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <Text type="secondary">Tax</Text>
-                <Text>${(cartTotal * 0.08).toFixed(2)}</Text>
-              </div>
             </div>
           </motion.div>
 
@@ -160,9 +145,7 @@ const CartSummary = ({
             }}
           >
             <Text>Total</Text>
-            <Text style={{ fontSize: "1.25rem" }}>
-              ${(cartTotal + shippingCost + cartTotal * 0.08).toFixed(2)}
-            </Text>
+            <Text style={{ fontSize: "1.25rem" }}>${cartTotal.toFixed(2)}</Text>
           </motion.div>
 
           {/* Checkout Button */}

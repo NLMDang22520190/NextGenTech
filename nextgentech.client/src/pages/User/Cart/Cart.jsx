@@ -71,6 +71,34 @@ const CartPage = () => {
   const performQuantityUpdate = async (cartDetailId, newQuantity) => {
     if (newQuantity < 1) return;
 
+    // Find the cart item to check stock again (in case it changed)
+    const cartItem = cartItems.find(
+      (item) => item.cartDetailId === cartDetailId
+    );
+
+    // Double-check stock quantity before API call
+    if (
+      cartItem &&
+      cartItem.productColor &&
+      cartItem.productColor.stockQuantity
+    ) {
+      const stockQuantity = cartItem.productColor.stockQuantity;
+
+      if (newQuantity > stockQuantity) {
+        message.warning(
+          `Cannot add more than ${stockQuantity} items due to stock limitations.`
+        );
+        // Set quantity to maximum available stock
+        newQuantity = stockQuantity;
+
+        // Update local state to match stock limit
+        setLocalQuantities((prev) => ({
+          ...prev,
+          [cartDetailId]: stockQuantity,
+        }));
+      }
+    }
+
     try {
       // Set updating state for this item
       setUpdatingItems((prev) => ({ ...prev, [cartDetailId]: true }));
@@ -118,6 +146,28 @@ const CartPage = () => {
   // Function to handle quantity changes
   const updateQuantity = (cartDetailId, newQuantity) => {
     if (newQuantity < 1) return;
+
+    // Find the cart item
+    const cartItem = cartItems.find(
+      (item) => item.cartDetailId === cartDetailId
+    );
+
+    // Check if the new quantity exceeds the stock
+    if (
+      cartItem &&
+      cartItem.productColor &&
+      cartItem.productColor.stockQuantity
+    ) {
+      const stockQuantity = cartItem.productColor.stockQuantity;
+
+      if (newQuantity > stockQuantity) {
+        message.warning(
+          `Cannot add more than ${stockQuantity} items due to stock limitations.`
+        );
+        // Set quantity to maximum available stock
+        newQuantity = stockQuantity;
+      }
+    }
 
     // Update local state immediately for responsive UI
     setLocalQuantities((prev) => ({

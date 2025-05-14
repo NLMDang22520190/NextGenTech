@@ -30,6 +30,7 @@ const CartItem = ({
   const color = item.productColor.color || "Default";
   const colorCode = item.productColor.colorCode || "#000000";
   const cartDetailId = item.cartDetailId;
+  const stockQuantity = item.productColor.stockQuantity || 0;
 
   // Use localQuantity if available, otherwise use the item's quantity
   const quantity =
@@ -67,6 +68,18 @@ const CartItem = ({
                 </Link>
                 <p className="text-sm text-gray-500 mt-1">
                   Color: <span style={{ color: colorCode }}>{color}</span>
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Available:{" "}
+                  <span
+                    className={
+                      quantity >= stockQuantity
+                        ? "text-red-500 font-medium"
+                        : ""
+                    }
+                  >
+                    {stockQuantity}
+                  </span>
                 </p>
                 <div className="flex items-center gap-2 mt-2">
                   {discountPercentage > 0 ? (
@@ -120,14 +133,21 @@ const CartItem = ({
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 className={`p-2 ${
-                  isUpdating
+                  isUpdating || quantity >= stockQuantity
                     ? "text-gray-300 cursor-not-allowed"
                     : "hover:bg-primary-50 cursor-pointer"
                 }`}
                 onClick={() =>
-                  !isUpdating && updateQuantity(cartDetailId, quantity + 1)
+                  !isUpdating &&
+                  quantity < stockQuantity &&
+                  updateQuantity(cartDetailId, quantity + 1)
                 }
-                disabled={isUpdating}
+                disabled={isUpdating || quantity >= stockQuantity}
+                title={
+                  quantity >= stockQuantity
+                    ? "Maximum stock reached"
+                    : "Increase quantity"
+                }
               >
                 <PlusIcon className="h-4 w-4" />
               </motion.button>
