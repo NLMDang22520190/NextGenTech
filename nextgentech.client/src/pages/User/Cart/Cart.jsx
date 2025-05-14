@@ -31,7 +31,7 @@ const CartPage = () => {
   // Get cart items from Redux store
   const cartState = useSelector((state) => state.cart);
   const cartItems = cartState?.items || [];
-  const userId = useSelector((state) => state.auth?.user) || "23"; // Default to user ID 5 if not available
+  const userId = useSelector((state) => state.auth?.user); // Default to user ID 5 if not available
 
   // Fetch cart details when component mounts
   useEffect(() => {

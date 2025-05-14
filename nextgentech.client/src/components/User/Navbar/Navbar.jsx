@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ShoppingCart, User, Search, Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 import SearchBar from "./SearchBar";
 import GradientText from "../../ReactBitsComponent/GradientText";
@@ -9,7 +9,7 @@ import GradientText from "../../ReactBitsComponent/GradientText";
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isAuthenticated = useSelector((state) => state.auth.user);
+  const userId = useSelector((state) => state.auth.user);
 
   // Get cart items from Redux store
   const cartState = useSelector((state) => state.cart);
@@ -53,8 +53,8 @@ const Navbar = () => {
     <div className="flex items-center space-x-6">
       <SearchBar />
       <Link
-        to={isAuthenticated ? "/setting" : "/auth/login"}
-        aria-label={isAuthenticated ? "Settings" : "Login"}
+        to={userId ? "/setting" : "/auth/login"}
+        aria-label={userId ? "Settings" : "Login"}
         className="text-foreground hover:text-primary transition-colors"
       >
         <User size={20} />

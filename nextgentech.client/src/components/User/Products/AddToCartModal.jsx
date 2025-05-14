@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { ShoppingCart, Minus, Plus } from "lucide-react";
 import { Modal, message } from "antd";
 import { motion } from "framer-motion";
@@ -18,10 +18,12 @@ const AddToCartModal = ({
   const [selectedColor, setSelectedColor] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [availableStock, setAvailableStock] = useState(0);
+  const [isPending, startTransition] = useTransition();
 
   const dispatch = useDispatch();
-  //const cartId = useSelector((state) => state.cart.cartId);
-  const cartId = 5;
+  const cartId = useSelector((state) => state.cart.cartId);
+  const cartItems = useSelector((state) => state.cart.items);
+  //const cartId = 5;
 
   // Fetch product details when modal is opened
   useEffect(() => {
@@ -97,7 +99,7 @@ const AddToCartModal = ({
   };
 
   // Handle add to cart
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (!selectedColor) {
       message.warning("Please select a color");
       return;
@@ -108,20 +110,39 @@ const AddToCartModal = ({
       return;
     }
 
-    try {
-      const itemData = {
-        cartId: cartId,
-        productColorId: selectedColor.id,
-        quantity: quantity,
-      };
+    // Check if this product color is already in the cart
+    const existingCartItem = cartItems.find(
+      (item) => item.productColorId === selectedColor.id
+    );
 
-      await dispatch(addItemToCart(itemData)).unwrap();
-      message.success(`${productName} added to cart successfully!`);
-      onClose();
-    } catch (error) {
-      console.error("Failed to add item to cart:", error);
-      message.error("Failed to add item to cart. Please try again.");
+    // Calculate total quantity (existing + new)
+    const existingQuantity = existingCartItem ? existingCartItem.quantity : 0;
+    const totalQuantity = existingQuantity + quantity;
+
+    // Check if total quantity exceeds available stock
+    if (totalQuantity > selectedColor.stock) {
+      message.error(
+        `Cannot add ${quantity} items to cart. You already have ${existingQuantity} in your cart and the total would exceed the available stock of ${selectedColor.stock}.`
+      );
+      return;
     }
+
+    startTransition(async () => {
+      try {
+        const itemData = {
+          cartId: cartId,
+          productColorId: selectedColor.id,
+          quantity: quantity,
+        };
+
+        await dispatch(addItemToCart(itemData)).unwrap();
+        message.success(`${productName} added to cart successfully!`);
+        onClose();
+      } catch (error) {
+        console.error("Failed to add item to cart:", error);
+        message.error("Failed to add item to cart. Please try again.");
+      }
+    });
   };
 
   return (
@@ -227,12 +248,24 @@ const AddToCartModal = ({
           {selectedColor && (
             <motion.button
               onClick={handleAddToCart}
-              className="w-full flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-secondary cursor-pointer text-white py-2 rounded-lg hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-all"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              disabled={isPending}
+              className={`w-full flex items-center justify-center gap-2 bg-gradient-to-br from-primary to-secondary cursor-pointer text-white py-2 rounded-lg hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-all ${
+                isPending ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+              whileHover={{ scale: isPending ? 1 : 1.02 }}
+              whileTap={{ scale: isPending ? 1 : 0.98 }}
             >
-              <ShoppingCart className="h-5 w-5" />
-              Add to Cart
+              {isPending ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                  Adding to Cart...
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-5 w-5" />
+                  Add to Cart
+                </>
+              )}
             </motion.button>
           )}
         </div>

@@ -125,8 +125,9 @@ const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  //const cartId = useSelector((state) => state.cart.cartId);
-  const cartId = 5;
+  const cartId = useSelector((state) => state.cart.cartId);
+  const cartItems = useSelector((state) => state.cart.items);
+  //const cartId = 5;
 
   const [product, setProduct] = useState({});
   const [reviews, setReviews] = useState(mockReviews);
@@ -187,7 +188,6 @@ const ProductDetail = () => {
 
   useEffect(() => {
     fetchProduct();
-    console.log(id);
   }, [id]);
   //#endregion
 
@@ -199,6 +199,31 @@ const ProductDetail = () => {
 
     if (!cartId) {
       message.error("Cart not found. Please try again later.");
+      return;
+    }
+
+    // Use cart items from the component level
+
+    // Check if this product color is already in the cart
+    const existingCartItem = cartItems.find(
+      (item) => item.productColor.productColorId === selectedColor.id
+    );
+
+    console.log(cartItems);
+    console.log(selectedColor.id);
+
+    // Calculate total quantity (existing + new)
+    const existingQuantity = existingCartItem ? existingCartItem.quantity : 0;
+    const totalQuantity = existingQuantity + quantity;
+
+    console.log(totalQuantity);
+    console.log(selectedColor.stock);
+
+    // Check if total quantity exceeds available stock
+    if (totalQuantity > selectedColor.stock) {
+      message.error(
+        `Cannot add ${quantity} items to cart. You already have ${existingQuantity} in your cart and the total would exceed the available stock of ${selectedColor.stock}.`
+      );
       return;
     }
 

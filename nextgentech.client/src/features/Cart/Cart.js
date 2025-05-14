@@ -87,7 +87,7 @@ export const deleteItemFromCart = createAsyncThunk(
 
 // Initial state
 const initialState = {
-  cartId: 23, // Lưu trữ cartId
+  cartId: null, // Lưu trữ cartId
   items: [],
   status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
   error: null,
