@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import ProductCard from "../../../components/Admin/Products/ProductCard";
 import { Search } from "lucide-react";
 
+//productId, name, description, price, stockQuantity, createdAt, brand, category, productImage, imageUrl
 const products = Array.from({length: 14}).map((_,i) => ({
   id: i + 1,
   name:

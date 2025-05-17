@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import "@ant-design/v5-patch-for-react-19";
 
 import AllUserRoutes from "./routes/AllUserRoutes";
@@ -14,7 +14,7 @@ import {
 
 function App() {
   const dispatch = useDispatch();
-  const userRole = useSelector((state) => state.auth.userRole);
+  const userRole = useSelector((state) => state.auth.userRole) ?? "admin";
   const userId = useSelector((state) => state.auth.user);
 
   // Fetch cart ID when the page is refreshed (component mounts)
@@ -23,6 +23,10 @@ function App() {
       dispatch(fetchCartDetailsByCustomerId(userId));
     }
   }, [dispatch]);
+
+  useEffect(() => {
+    console.log("userRole: ", userRole);    
+  }, []);
 
   return (
     <div>
