@@ -85,6 +85,20 @@ const brandSlice = createSlice({
                 state.status = "failed";
                 state.error = action.payload;
             })
+            .addCase(updateBrand.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(updateBrand.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                const index = state.brandItems.findIndex(brand => brand.brandId === action.payload.brandId);
+                if (index !== -1) {
+                    state.brandItems[index] = action.payload;
+                }
+            })
+            .addCase(updateBrand.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
             .addCase(deleteBrand.pending, (state) => {
                 state.status = "loading";
             })

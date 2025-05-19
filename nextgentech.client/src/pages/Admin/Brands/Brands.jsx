@@ -16,8 +16,6 @@ export default function Brands() {
   const [currentBrand, setCurrentBrand] = useState(null);
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
-  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
-  const [brandToDelete, setBrandToDelete] = useState(null);
 
   // Function to fetch brands data
   const fetchBrands = async () => {
@@ -123,7 +121,7 @@ export default function Brands() {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold text-gray-800">Brands</h1>
 
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center">
         <div
           className={`relative ${
             searchQuery.length > 0 ? "w-64" : "w-40"
