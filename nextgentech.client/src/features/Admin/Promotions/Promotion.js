@@ -7,7 +7,19 @@ export const fetchAllPromotion = createAsyncThunk(
     "promotion/fetchAllPromotion",
     async (_, { rejectWithValue }) => {
         try {
-            const response = await api.get(`${apiBaseUrl}/AdminGetAllPromotion`);
+            const response = await api.get(`${apiBaseUrl}/AdminGetAllPromotions`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data || "Something went wrong");
+        }
+    }
+);
+
+export const fetchPromotionDetail = createAsyncThunk(
+    "promotion/fetchPromotionDetail",
+    async (promotionId, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`${apiBaseUrl}/AdminGetPromotionById/${promotionId}`);
             return response.data;
         } catch (error) {
             return rejectWithValue(error.response?.data || "Something went wrong");
@@ -71,6 +83,17 @@ const promotionSlice = createSlice({
                 state.promotionItems = action.payload;
             })
             .addCase(fetchAllPromotion.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.payload;
+            })
+            .addCase(fetchPromotionDetail.pending, (state) => {
+                state.status = "loading";
+            })
+            .addCase(fetchPromotionDetail.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.promotionDetail = action.payload;
+            })
+            .addCase(fetchPromotionDetail.rejected, (state, action) => {
                 state.status = "failed";
                 state.error = action.payload;
             })
