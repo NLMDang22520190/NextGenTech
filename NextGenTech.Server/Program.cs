@@ -28,7 +28,15 @@ builder.Services.AddCors(options =>
 
 });
 
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder.AllowAnyOrigin()
+               .AllowAnyMethod()
+               .AllowAnyHeader();
+    });
+});
 
 builder.Services.AddScoped<IBrandRepository, SQLBrandRepository>();
 builder.Services.AddScoped<ICategoryRepository, SQLCategoryRepository>();
@@ -76,6 +84,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowSpecificOrigins");
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 

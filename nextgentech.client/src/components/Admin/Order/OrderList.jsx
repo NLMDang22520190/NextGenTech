@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from 'framer-motion';
 import { Filter, ChevronDown, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Tag, X } from "lucide-react";
 import { format, parse, isValid } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../components/ui/select";
@@ -16,6 +16,9 @@ const OrderList = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Thêm state cho phân trang
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
   // Fetch orders data from API
   useEffect(() => {
@@ -102,6 +105,46 @@ const OrderList = () => {
       return true;
     });
   }, [orders, selectedDate, selectedStatus]);
+
+  // Tính toán tổng số trang
+  const totalItems = filteredOrders.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  // Lấy đơn hàng cho trang hiện tại
+  const paginatedOrders = useMemo(() => {
+    return filteredOrders.slice(
+      currentPage * itemsPerPage, 
+      (currentPage + 1) * itemsPerPage
+    );
+  }, [filteredOrders, currentPage, itemsPerPage]);
+
+  // Hàm tạo số trang để hiển thị
+  const getPaginationNumbers = () => {
+    const pages = [];
+    const maxDisplayedPages = 5;
+    
+    if (totalPages <= maxDisplayedPages) {
+      // Hiển thị tất cả các trang nếu tổng số trang <= số trang tối đa hiển thị
+      for (let i = 0; i < totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Hiển thị một tập hợp con các trang với trang hiện tại ở giữa
+      let startPage = Math.max(0, currentPage - Math.floor(maxDisplayedPages / 2));
+      let endPage = Math.min(totalPages - 1, startPage + maxDisplayedPages - 1);
+      
+      // Điều chỉnh nếu chúng ta gần cuối
+      if (endPage - startPage < maxDisplayedPages - 1) {
+        startPage = Math.max(0, endPage - maxDisplayedPages + 1);
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  };
 
   // Update order status
   // Replace the existing updateOrderStatus function with this correctly fixed version
@@ -205,7 +248,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
         </div>
         
         {/* Order Status Filter */}
-        <div className="flex items-center border-r border-gray-200">
+        <div className="flex items-center border-r border-gray-200 ">
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
             <SelectTrigger className="border-0 focus:ring-0 focus:ring-offset-0 px-4 py-3 h-auto min-w-[160px]">
               <span className="flex items-center text-sm font-medium text-gray-700">
@@ -284,14 +327,14 @@ const updateOrderStatus = async (orderId, newStatus) => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredOrders.length === 0 ? (
+                  {paginatedOrders.length === 0 ? (
                     <tr>
                       <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                         Không tìm thấy đơn hàng nào
                       </td>
                     </tr>
                   ) : (
-                    filteredOrders.map((order, index) => (
+                    paginatedOrders.map((order, index) => (
                       <motion.tr 
                         key={order.orderId}
                         variants={tableRowVariants}
@@ -324,7 +367,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <button
                             onClick={() => setSelectedOrder(order)}
-                            className="text-blue-500 hover:text-blue-700 transition-colors"
+                            className="text-blue-500 hover:text-blue-700 transition-colors cursor-pointer"
                           >
                             Chi tiết
                           </button>
@@ -332,121 +375,200 @@ const updateOrderStatus = async (orderId, newStatus) => {
                       </motion.tr>
                     ))
                   )}
+                  
+                  {/* Thêm hàng trống nếu số đơn hàng ít hơn itemsPerPage */}
+                  {paginatedOrders.length > 0 && paginatedOrders.length < itemsPerPage && (
+                    Array.from({ length: itemsPerPage - paginatedOrders.length }).map((_, i) => (
+                      <tr key={`empty-${i}`} className="h-[60px]">
+                        <td colSpan={7}></td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
           </motion.div>
 
-          {/* Pagination */}
-          <motion.div 
-            className="flex items-center justify-between mt-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.4 }}
-          >
-            <div className="text-sm text-gray-500">
-              Hiển thị {filteredOrders.length > 0 ? 1 : 0}-{filteredOrders.length} của {filteredOrders.length}
-            </div>
-            <div className="flex items-center space-x-2">
-              <button className="p-2 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200">
-                <ChevronLeft size={16} className="text-gray-600" />
-              </button>
-              <button className="p-2 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200">
-                <ChevronRight size={16} className="text-gray-600" />
-              </button>
-            </div>
-          </motion.div>
+          {/* Pagination - Thay thế phần phân trang cũ */}
+          {totalPages > 1 && (
+            <motion.div 
+              className="flex items-center justify-center mt-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.4 }}
+            >
+              <div className="flex items-center space-x-2">
+                <button 
+                  className="p-2 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
+                  disabled={currentPage === 0}
+                >
+                  <ChevronLeft size={16} className="text-gray-600" />
+                </button>
+                
+                {getPaginationNumbers().map((page) => (
+                  <motion.button
+                    key={page}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer ${
+                      currentPage === page 
+                        ? 'bg-primary-500 text-white' 
+                        : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
+                    } transition-colors duration-200`}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page + 1}
+                  </motion.button>
+                ))}
+                
+                <button 
+                  className="p-2 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))}
+                  disabled={currentPage >= totalPages - 1}
+                >
+                  <ChevronRight size={16} className="text-gray-600" />
+                </button>
+              </div>
+            </motion.div>
+          )}
         </>
       )}
 
-      {/* Order Detail Modal */}
-      <Modal
-        title="Chi tiết đơn hàng"
-        footer={null}
-        open={!!selectedOrder}
-        onOk={() => setSelectedOrder(null)}
-        onCancel={() => setSelectedOrder(null)}
-      >
+      {/* Order Detail Modal*/}
+      <AnimatePresence>
         {selectedOrder && (
-          <div className="flex flex-col gap-y-2">
-            <div className="mb-2">
-              <strong>Mã đơn hàng:</strong> #{selectedOrder.orderId}
-            </div>
-            <div className="mb-2">
-              <strong>Ngày đặt:</strong> {formatDate(selectedOrder.orderDate)}
-            </div>
-            <div className="mb-2">
-              <strong>Địa chỉ giao hàng:</strong> {selectedOrder.shippingAddress}
-            </div>
-            <div className="flex items-center gap-x-2 mb-2">
-              <strong>Trạng thái:</strong>
-              <AntdSelect
-                defaultValue={selectedOrder.status}
-                style={{ width: 150 }}
-                onChange={(value) => updateOrderStatus(selectedOrder.orderId, value)}
-              >
-                <AntdSelect.Option value="Chờ xác nhận">Chờ xác nhận</AntdSelect.Option>
-                <AntdSelect.Option value="Đang xử lý">Đang xử lý</AntdSelect.Option>
-                <AntdSelect.Option value="Đang giao">Đang giao</AntdSelect.Option>
-                <AntdSelect.Option value="Hoàn tất">Hoàn tất</AntdSelect.Option>
-                <AntdSelect.Option value="Hủy">Hủy</AntdSelect.Option>
-              </AntdSelect>
-            </div>
-            <div className="mb-2">
-              <strong>Phương thức thanh toán:</strong> {selectedOrder.paymentMethod}
-            </div>
-            <div className="mb-2">
-              <strong>Tổng tiền:</strong> {selectedOrder.totalAmount.toLocaleString('vi-VN')} ₫
-            </div>
-            
-            {/* Add this section if you implement fetching order details */}
-            {selectedOrder.orderDetails && selectedOrder.orderDetails.length > 0 && (
-              <>
-                <div className="mb-2">
-                  <strong>Chi tiết đơn hàng:</strong>
-                </div>
-                <Table
-                  pagination={false}
-                  size="small"
-                  columns={[
-                    {
-                      title: "Sản phẩm",
-                      dataIndex: "productName",
-                      key: "productName",
-                    },
-                    {
-                      title: "Số lượng",
-                      dataIndex: "quantity",
-                      key: "quantity",
-                    },
-                    {
-                      title: "Đơn giá",
-                      dataIndex: "price",
-                      key: "price",
-                      render: (value) =>
-                        value.toLocaleString("vi-VN") + " ₫",
-                    },
-                    {
-                      title: "Thành tiền",
-                      key: "total",
-                      render: (_, record) =>
-                        (record.price * record.quantity).toLocaleString("vi-VN") + " ₫",
-                    },
-                  ]}
-                  dataSource={selectedOrder.orderDetails}
-                  rowKey="id"
-                />
-              </>
-            )}
-
-            {selectedOrder.promotion && (
-              <div className="mb-2">
-                <strong>Mã khuyến mãi áp dụng:</strong> {selectedOrder.promotion.code}
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div 
+              className="bg-white rounded-lg shadow-xl w-full max-w-2xl overflow-hidden"
+              initial={{ opacity: 0, y: 50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 30, scale: 0.95 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b">
+                <h3 className="text-lg font-medium">Chi tiết đơn hàng #{selectedOrder.orderId}</h3>
+                <button 
+                  onClick={() => setSelectedOrder(null)}
+                  className="text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
+                >
+                  <X size={20} />
+                </button>
               </div>
-            )}
-          </div>
+              
+              <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center">
+                      <span className="text-gray-500 w-40">Mã đơn hàng:</span>
+                      <span className="font-medium">#{selectedOrder.orderId}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-gray-500 w-40">Ngày đặt:</span>
+                      <span>{formatDate(selectedOrder.orderDate)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-gray-500 w-40">Phương thức thanh toán:</span>
+                      <span>{selectedOrder.paymentMethod}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center">
+                      <span className="text-gray-500 w-40">Tổng tiền:</span>
+                      <span className="font-medium text-primary-600">{selectedOrder.totalAmount.toLocaleString('vi-VN')} ₫</span>
+                    </div>
+                    <div className="flex items-center">
+                      <span className="text-gray-500 w-40">Trạng thái:</span>
+                      <AntdSelect
+                        defaultValue={selectedOrder.status}
+                        style={{ width: 150 }}
+                        onChange={(value) => updateOrderStatus(selectedOrder.orderId, value)}
+                        className="border border-gray-300 rounded-md"
+                      >
+                        <AntdSelect.Option value="Chờ xác nhận">Chờ xác nhận</AntdSelect.Option>
+                        <AntdSelect.Option value="Đang xử lý">Đang xử lý</AntdSelect.Option>
+                        <AntdSelect.Option value="Đang giao">Đang giao</AntdSelect.Option>
+                        <AntdSelect.Option value="Hoàn tất">Hoàn tất</AntdSelect.Option>
+                        <AntdSelect.Option value="Hủy">Hủy</AntdSelect.Option>
+                      </AntdSelect>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mb-4">
+                  <span className="text-gray-500">Địa chỉ giao hàng:</span>
+                  <p className="mt-1 p-2 bg-gray-50 rounded-md">{selectedOrder.shippingAddress}</p>
+                </div>
+                
+                {selectedOrder.orderDetails && selectedOrder.orderDetails.length > 0 && (
+                  <div className="mt-6">
+                    <h4 className="text-md font-medium mb-3">Chi tiết sản phẩm</h4>
+                    <div className="border rounded-lg overflow-hidden">
+                      <Table
+                        pagination={false}
+                        size="small"
+                        columns={[
+                          {
+                            title: "Sản phẩm",
+                            dataIndex: "productName",
+                            key: "productName",
+                          },
+                          {
+                            title: "Số lượng",
+                            dataIndex: "quantity",
+                            key: "quantity",
+                            className: "text-center",
+                          },
+                          {
+                            title: "Đơn giá",
+                            dataIndex: "price",
+                            key: "price",
+                            render: (value) => value.toLocaleString("vi-VN") + " ₫",
+                            className: "text-right",
+                          },
+                          {
+                            title: "Thành tiền",
+                            key: "total",
+                            render: (_, record) => (record.price * record.quantity).toLocaleString("vi-VN") + " ₫",
+                            className: "text-right font-medium",
+                          },
+                        ]}
+                        dataSource={selectedOrder.orderDetails}
+                        rowKey="id"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {selectedOrder.promotion && (
+                  <div className="mt-4 p-3 bg-blue-50 rounded-md border border-blue-100">
+                    <div className="flex items-center">
+                      <span className="text-blue-600 font-medium">Mã khuyến mãi:</span>
+                      <span className="ml-2 px-2 py-1 bg-blue-100 rounded text-blue-700">{selectedOrder.promotion.code}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex justify-end gap-3 px-6 py-4 border-t bg-gray-50">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setSelectedOrder(null)}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors cursor-pointer"
+                >
+                  Đóng
+                </motion.button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
-      </Modal>
+      </AnimatePresence>
     </div>
   );
 };

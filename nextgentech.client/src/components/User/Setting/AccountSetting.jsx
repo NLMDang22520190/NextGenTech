@@ -45,8 +45,8 @@ const AccountSettings = () => {
         </div>
       </div>
       
-      <div className="mt-16 max-w-xl animate-in" style={{ animationDelay: '300ms' }}>
-        <h2 className="ext-lg font-medium mb-6">CHANGE PASSWORD</h2>
+      <div className="mt-10 max-w-xl animate-in" style={{ animationDelay: '300ms' }}>
+        <h2 className="text-lg font-medium mb-6">CHANGE PASSWORD</h2>
         <div className="space-y-4">
           {['current', 'new', 'confirm'].map((field) => (
             <div className="relative" key={field}>

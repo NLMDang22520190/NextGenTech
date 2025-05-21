@@ -1,80 +1,57 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Edit, Trash } from "lucide-react";
-import { Modal, Input, InputNumber, Select } from "antd";
-
+import { Search, Edit, Trash, ChevronLeft, ChevronRight } from "lucide-react";
+import { Modal, Input, InputNumber, Select, message } from "antd";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 const ProductStock = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedFile, setSelectedFile] = useState(null);
+  // Thêm state cho phân trang
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
 
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "Apple Watch Series 4",
-      category: "Digital Product",
-      price: "$690.00",
-      piece: 63,
-      availableColors: ["black", "gray", "pink"],
-      image: "/lovable-uploads/67e7eb43-08e4-4375-ab40-06eb193e81cd.png"
-    },
-    {
-      id: 2,
-      name: "Microsoft Headsquare",
-      category: "Digital Product",
-      price: "$190.00",
-      piece: 13,
-      availableColors: ["black", "pink", "blue", "yellow"],
-      image: "/lovable-uploads/67e7eb43-08e4-4375-ab40-06eb193e81cd.png"
-    },
-    {
-      id: 3,
-      name: "Women's Dress",
-      category: "Fashion",
-      price: "$640.00",
-      piece: 635,
-      availableColors: ["maroon", "blue", "black", "purple"],
-      image: "/lovable-uploads/67e7eb43-08e4-4375-ab40-06eb193e81cd.png"
-    },
-    {
-      id: 4,
-      name: "Samsung A50",
-      category: "Mobile",
-      price: "$400.00",
-      piece: 67,
-      availableColors: ["navy", "black", "pink"],
-      image: "/lovable-uploads/67e7eb43-08e4-4375-ab40-06eb193e81cd.png"
-    },
-    {
-      id: 5,
-      name: "Camera",
-      category: "Electronic",
-      price: "$420.00",
-      piece: 52,
-      availableColors: ["navy", "black", "pink"],
-      image: "/lovable-uploads/67e7eb43-08e4-4375-ab40-06eb193e81cd.png"
-    },
-    {
-      id: 6,
-      name: "Microsoft Headsquare",
-      category: "Digital Product",
-      price: "$190.00",
-      piece: 13,
-      availableColors: ["black", "pink", "blue", "yellow"],
-      image: "/lovable-uploads/67e7eb43-08e4-4375-ab40-06eb193e81cd.png"
-    },
-    {
-      id: 7,
-      name: "Women's Dress",
-      category: "Fashion",
-      price: "$640.00",
-      piece: 635,
-      availableColors: ["maroon", "blue", "black", "purple"],
-      image: "/lovable-uploads/67e7eb43-08e4-4375-ab40-06eb193e81cd.png"
-    }
-  ]);
+  // Fetch products from API
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        // Fetch products
+        const productsResponse = await api.get("/api/Product/AdminGetAllProduct");
+        const mappedProducts = productsResponse.data.map(product => ({
+          id: product.productId,
+          name: product.name,
+          category: product.category.categoryName,
+          categoryId: product.category.categoryId,
+          price: `$${product.price.toFixed(2)}`,
+          piece: product.stockQuantity,
+          availableColors: product.productColors?.map(c => c.color) || ["black"], // Lấy màu từ API
+          // Sử dụng imageUrl từ productImages nếu có
+          image: product.productImages && product.productImages.length > 0 
+            ? product.productImages[0].imageUrl 
+            : `https://picsum.photos/300/300?random=${product.productId}`
+        }));
+        setProducts(mappedProducts);
+        
+        // Fetch categories
+        const categoriesResponse = await api.get("/api/Category/GetAllCategory");
+        setCategories(categoriesResponse.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        message.error("Failed to load data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const openEditModal = (product) => {
     setEditingProduct({ ...product }); // clone to avoid mutating original
@@ -85,17 +62,112 @@ const ProductStock = () => {
     setEditingProduct(prev => ({ ...prev, [field]: value }));
   };
   
-  const handleSaveEdit = () => {
-    setProducts(prev =>
-      prev.map(p => (p.id === editingProduct.id ? editingProduct : p))
-    );
-    setIsEditModalOpen(false);
+  const handleSaveEdit = async () => {
+    try {
+      // Upload ảnh nếu có chọn file mới
+      let imageUrls = editingProduct.imageUrls || [];
+      
+      if (selectedFile) {
+        const uploadedImageUrl = await handleImageUpload(selectedFile);
+        if (uploadedImageUrl) {
+          imageUrls = [uploadedImageUrl];
+        }
+      }
+      
+      // Chuẩn bị dữ liệu để gửi lên API
+      const productData = {
+        name: editingProduct.name,
+        description: editingProduct.description,
+        price: parseFloat(editingProduct.rawPrice || editingProduct.price.replace('$', '')),
+        stockQuantity: editingProduct.piece,
+        categoryId: editingProduct.categoryId,
+        brandId: editingProduct.brandId || 1,
+        longDescription: editingProduct.longDescription || editingProduct.description,
+        imageUrls: imageUrls,
+        colors: editingProduct.availableColors.map(color => ({
+          color: color,
+          colorCode: colorMap[color] ? colorMap[color].replace('bg-', '#') : '#000000',
+          stockQuantity: Math.floor(editingProduct.piece / editingProduct.availableColors.length)
+        }))
+      };
+      
+      // Gọi API cập nhật sản phẩm
+      const response = await api.put(`/api/Product/UpdateProduct/${editingProduct.id}`, productData);
+      
+      if (response.status === 200) {
+        // Cập nhật state local với dữ liệu từ response
+        const updatedProduct = response.data;
+        
+        setProducts(prev =>
+          prev.map(p => (p.id === editingProduct.id ? {
+            ...p,
+            name: editingProduct.name,
+            category: categories.find(c => c.categoryId === editingProduct.categoryId)?.categoryName || p.category,
+            categoryId: editingProduct.categoryId,
+            price: `$${productData.price.toFixed(2)}`,
+            rawPrice: productData.price,
+            piece: editingProduct.piece,
+            // Sử dụng URL ảnh từ response nếu có
+            image: updatedProduct.productImages && updatedProduct.productImages.length > 0 
+              ? updatedProduct.productImages[0].imageUrl 
+              : p.image,
+            description: editingProduct.description,
+            availableColors: editingProduct.availableColors
+          } : p))
+        );
+        
+        message.success("Cập nhật sản phẩm thành công");
+        setIsEditModalOpen(false);
+        setSelectedFile(null);
+      }
+    } catch (error) {
+      console.error("Lỗi khi cập nhật sản phẩm:", error);
+      message.error("Không thể cập nhật sản phẩm: " + (error.response?.data || error.message));
+    }
   };
 
   // Filter products based on search term
   const filteredProducts = products.filter(product => 
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Tính toán tổng số trang
+  const totalItems = filteredProducts.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  // Lấy sản phẩm cho trang hiện tại
+  const currentProducts = filteredProducts.slice(
+    currentPage * itemsPerPage, 
+    (currentPage + 1) * itemsPerPage
+  );
+
+  // Hàm tạo số trang để hiển thị
+  const getPaginationNumbers = () => {
+    const pages = [];
+    const maxDisplayedPages = 5;
+    
+    if (totalPages <= maxDisplayedPages) {
+      // Hiển thị tất cả các trang nếu tổng số trang <= số trang tối đa hiển thị
+      for (let i = 0; i < totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Hiển thị một tập hợp con các trang với trang hiện tại ở giữa
+      let startPage = Math.max(0, currentPage - Math.floor(maxDisplayedPages / 2));
+      let endPage = Math.min(totalPages - 1, startPage + maxDisplayedPages - 1);
+      
+      // Điều chỉnh nếu chúng ta gần cuối
+      if (endPage - startPage < maxDisplayedPages - 1) {
+        startPage = Math.max(0, endPage - maxDisplayedPages + 1);
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  };
 
   // Color mapping for the dots
   const colorMap = {
@@ -130,6 +202,38 @@ const ProductStock = () => {
         stiffness: 120,
         damping: 15
       }
+    }
+  };
+
+  // Hàm xử lý upload ảnh
+  const handleImageUpload = async (file) => {
+    try {
+      // Tạo FormData để gửi file
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      // Gọi API upload ảnh
+      const response = await api.post('/api/Upload/UploadImage', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      
+      // Lấy đường dẫn ảnh từ response
+      const imageUrl = response.data.imageUrl;
+      
+      // Cập nhật state với đường dẫn ảnh mới
+      setImagePreview(imageUrl);
+      
+      // Cập nhật đường dẫn ảnh vào editingProduct
+      handleEditChange("imageUrls", [imageUrl]);
+      
+      message.success("Tải ảnh lên thành công");
+      return imageUrl;
+    } catch (error) {
+      console.error("Lỗi khi tải ảnh lên:", error);
+      message.error("Không thể tải ảnh lên: " + (error.response?.data || error.message));
+      return null;
     }
   };
 
@@ -194,8 +298,8 @@ const ProductStock = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => (
+            {currentProducts.length > 0 ? (
+              currentProducts.map((product) => (
                 <motion.tr 
                   key={product.id}
                   variants={itemVariants}
@@ -204,9 +308,15 @@ const ProductStock = () => {
                   <td className="px-4 py-4 whitespace-nowrap">
                     <div className="h-12 w-12 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
                       <img 
-                        src={product.image} 
+                        src={product.image.startsWith('/api') 
+                          ? `${api.defaults.baseURL}${product.image}` 
+                          : product.image} 
                         alt={product.name} 
                         className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = `https://picsum.photos/300/300?random=${product.id}`;
+                        }}
                       />
                     </div>
                   </td>
@@ -234,11 +344,11 @@ const ProductStock = () => {
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
                     <div className="flex space-x-2">
-                      <button className="p-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+                      <button className="p-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
                         onClick={() => openEditModal(product)}>
                         <Edit className="h-4 w-4" />
                       </button>
-                      <button className="p-1 rounded border border-gray-200 text-red-500 hover:bg-gray-50 transition-colors">
+                      <button className="p-1 rounded border border-gray-200 text-red-500 hover:bg-gray-50 transition-colors cursor-pointer">
                         <Trash className="h-4 w-4" />
                       </button>
                     </div>
@@ -252,90 +362,181 @@ const ProductStock = () => {
                 </td>
               </tr>
             )}
+            
+            {/* Thêm hàng trống nếu số sản phẩm ít hơn itemsPerPage */}
+            {currentProducts.length > 0 && currentProducts.length < itemsPerPage && (
+              Array.from({ length: itemsPerPage - currentProducts.length }).map((_, i) => (
+                <tr key={`empty-${i}`} className="h-[72px]">
+                  <td colSpan={7}></td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </motion.div>
+      
+      {/* Thêm phân trang */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center mt-6 border-t border-gray-200 pt-4">
+          <div className="flex items-center space-x-2">
+            <button
+              className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 border border-gray-300"
+              disabled={currentPage === 0}
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
+            >
+              <ChevronLeft size={18} className="text-gray-600" />
+            </button>
+            
+            {getPaginationNumbers().map((page) => (
+              <motion.button
+                key={page}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer ${
+                  currentPage === page 
+                    ? 'bg-primary-500 text-white' 
+                    : 'border border-gray-300 text-gray-600 hover:bg-gray-100'
+                } transition-colors`}
+                onClick={() => setCurrentPage(page)}
+              >
+                {page + 1}
+              </motion.button>
+            ))}
+            
+            <button
+              className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 border border-gray-300"
+              disabled={currentPage >= totalPages - 1}
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))}
+            >
+              <ChevronRight size={18} className="text-gray-600" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <Modal
-  title="Edit Product"
-  open={isEditModalOpen}
-  onCancel={() => setIsEditModalOpen(false)}
-  onOk={handleSaveEdit}
-  okText="Save"
-  cancelText="Cancel"
->
-  {editingProduct && (
-    <div className="flex flex-col gap-4">
-      <div>
-        <label className="block text-sm mb-1">Product Name</label>
-        <Input
-          value={editingProduct.name}
-          onChange={(e) => handleEditChange("name", e.target.value)}
-        />
-      </div>
+        title="Edit Product"
+        open={isEditModalOpen}
+        onCancel={() => {
+          setIsEditModalOpen(false);
+          setSelectedFile(null);
+          setImagePreview(null);
+        }}
+        onOk={handleSaveEdit}
+        okText="Save"
+        cancelText="Cancel"
+        width={600}
+      >
+        {editingProduct && (
+          <div className="flex flex-col gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Product Name</label>
+                <Input
+                  value={editingProduct.name}
+                  onChange={(e) => handleEditChange("name", e.target.value)}
+                  className="w-full"
+                />
+              </div>
 
-      <div>
-        <label className="block text-sm mb-1">Price</label>
-        <Input
-          value={editingProduct.price}
-          onChange={(e) => handleEditChange("price", e.target.value)}
-        />
-      </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Price ($)</label>
+                <Input
+                  value={editingProduct.price}
+                  onChange={(e) => handleEditChange("price", e.target.value)}
+                  className="w-full"
+                />
+              </div>
+            </div>
 
-      <div>
-  <label className="block text-sm mb-1">Image</label>
-  
-  {/* Preview + trigger file input */}
-  <div
-    onClick={() => document.getElementById("imageUpload").click()}
-    className="w-24 h-24 rounded border border-gray-200 cursor-pointer overflow-hidden flex items-center justify-center hover:opacity-80 transition"
-  >
-    <img
-      src={imagePreview || editingProduct.image}
-      alt="Preview"
-      className="object-cover w-full h-full"
-    />
-  </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Stock Quantity</label>
+                <InputNumber
+                  value={editingProduct.piece}
+                  onChange={(value) => handleEditChange("piece", value)}
+                  className="w-full"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium mb-1">Category</label>
+                <Select
+                  value={editingProduct.categoryId}
+                  onChange={(value) => handleEditChange("categoryId", value)}
+                  className="w-full"
+                  options={categories?.map(c => ({ value: c.categoryId, label: c.categoryName }))}
+                />
+              </div>
+            </div>
 
-  {/* File input hidden */}
-  <input
-    type="file"
-    id="imageUpload"
-    accept="image/*"
-    className="hidden"
-    onChange={(e) => {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setImagePreview(reader.result); 
-          handleEditChange("image", reader.result); 
-        };
-        reader.readAsDataURL(file);
-      }
-    }}
-  />
-</div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Description</label>
+              <Input.TextArea
+                value={editingProduct.description}
+                onChange={(e) => handleEditChange("description", e.target.value)}
+                rows={3}
+                className="w-full"
+              />
+            </div>
 
+            <div>
+              <label className="block text-sm font-medium mb-1">Product Image</label>
+              <div className="flex items-center gap-4">
+                <div
+                  onClick={() => document.getElementById("imageUpload").click()}
+                  className="w-24 h-24 rounded border border-gray-200 cursor-pointer overflow-hidden flex items-center justify-center hover:bg-gray-50 transition"
+                >
+                  {imagePreview || editingProduct.image ? (
+                    <img
+                      src={imagePreview || (editingProduct.image.startsWith('/api') 
+                        ? `${api.defaults.baseURL}${editingProduct.image}` 
+                        : editingProduct.image)}
+                      alt="Preview"
+                      className="object-cover w-full h-full"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = `https://picsum.photos/300/300?random=${editingProduct.id}`;
+                      }}
+                    />
+                  ) : (
+                    <div className="text-gray-400 text-sm text-center">
+                      Click to upload
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex flex-col text-sm">
+                  <span className="font-medium">Upload new image</span>
+                  <span className="text-gray-500 text-xs">JPG, JPEG or PNG. Max 5MB.</span>
+                </div>
+              </div>
 
-      <div>
-        <label className="block text-sm mb-1">Available Colors</label>
-        <Select
-          mode="tags"
-          style={{ width: "100%" }}
-          value={editingProduct.availableColors}
-          onChange={(value) => handleEditChange("availableColors", value)}
-        >
-          {/* Optional: preset color options */}
-          {Object.keys(colorMap).map((color) => (
-            <Select.Option key={color} value={color}>
-              {color}
-            </Select.Option>
-          ))}
-        </Select>
-      </div>
-    </div>
-  )}
-</Modal>
+              <input
+                type="file"
+                id="imageUpload"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    if (file.size > 5 * 1024 * 1024) {
+                      message.error("File size should not exceed 5MB");
+                      return;
+                    }
+                    setSelectedFile(file);
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setImagePreview(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              />
+            </div>
+          </div>
+        )}
+      </Modal>
 
     </div>
   );
