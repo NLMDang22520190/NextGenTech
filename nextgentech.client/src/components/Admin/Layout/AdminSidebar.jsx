@@ -9,33 +9,61 @@ import {
   Users2,
   TicketPercent
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import GradientText from "../../ReactBitsComponent/GradientText";
+import { useDispatch } from "react-redux";
+import { logout } from "../../../features/AxiosInstance/Auth/Auth";
+import { toast } from "sonner";
 
-const SidebarItem = ({ icon: Icon, label, path, isActive = false, isCollapsed }) => {
+const SidebarItem = ({ icon: Icon, label, path, isActive = false, isCollapsed, onClick }) => {
   return (
     <motion.div
       whileHover={{ x: 4 }}
       whileTap={{ scale: 0.98 }}
       className="animate-fade-in"
     >
-      <Link 
-        to={path} 
-        className={`flex gap-3 px-4 py-3 text-base rounded-xl items-center transition-all duration-300 ${
-          isActive 
-            ? 'bg-primary text-white font-medium' 
-            : 'text-gray-600 hover:bg-primary-50'
-        } ${isCollapsed ? 'justify-around' :'' }`}
-      >
-        <Icon size={20} />
-        {!isCollapsed && <span>{label}</span>}
-      </Link>
+      {path === "/logout" ? (
+        <button 
+          onClick={onClick}
+          className={`flex gap-3 px-4 py-3 text-base rounded-xl items-center transition-all duration-300 w-full ${
+            isActive 
+              ? 'bg-primary text-white font-medium' 
+              : 'text-gray-600 hover:bg-primary-50'
+          } ${isCollapsed ? 'justify-around' :'' }`}
+        >
+          <Icon size={20} />
+          {!isCollapsed && <span>{label}</span>}
+        </button>
+      ) : (
+        <Link 
+          to={path} 
+          className={`flex gap-3 px-4 py-3 text-base rounded-xl items-center transition-all duration-300 ${
+            isActive 
+              ? 'bg-primary text-white font-medium' 
+              : 'text-gray-600 hover:bg-primary-50'
+          } ${isCollapsed ? 'justify-around' :'' }`}
+        >
+          <Icon size={20} />
+          {!isCollapsed && <span>{label}</span>}
+        </Link>
+      )}
     </motion.div>
   );
 };
 
 const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
-  const location = useLocation(); // Lấy đường dẫn hiện tại
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Hiển thị thông báo xác nhận trước khi đăng xuất
+    if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+      dispatch(logout());
+      toast.success("Đăng xuất thành công");
+      navigate("/login");
+    }
+  };
 
   const sidebarItems = [
     { icon: LayoutDashboard, label: "Dashboard", path: "/" },
@@ -94,14 +122,14 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
         >
           <div className="flex flex-col justify-around h-9/10">            
             {sidebarItems.map((item) => (
-              <div>
+              <div key={item.path}>
                 <SidebarItem 
-                  key={item.path}
                   icon={item.icon}
                   label={item.label}
                   path={item.path}
                   isActive={location.pathname === item.path}
                   isCollapsed={isCollapsed}
+                  onClick={item.path === "/logout" ? handleLogout : undefined}
                 />
               </div>
             ))}

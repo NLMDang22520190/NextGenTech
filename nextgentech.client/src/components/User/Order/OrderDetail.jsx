@@ -17,7 +17,7 @@ const OrderDetail = () => {
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Get user ID from Redux store
     const userID = useSelector((state) => state.auth.user);
 
@@ -25,85 +25,270 @@ const OrderDetail = () => {
     // Fetch order details when component mounts
     fetchOrderDetails();
   }, [orderId]);
-  
+
+  // Hàm tạo các hoạt động đơn hàng dựa trên trạng thái
+  const generateOrderActivities = (status, orderDate) => {
+    const activities = [];
+    const orderDateObj = new Date(orderDate);
+
+    // Luôn có hoạt động đặt hàng
+    activities.push({
+      icon: FileText,
+      color: 'text-blue-500',
+      description: 'Đơn hàng của bạn đã được đặt thành công.',
+      date: orderDateObj.toLocaleDateString('vi-VN', {
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false
+      })
+    });
+
+    // Thêm các hoạt động dựa trên trạng thái
+    switch(status.toUpperCase()) {
+      case 'PENDING':
+      case 'CHỜ XÁC NHẬN':
+        // Chỉ có hoạt động đặt hàng
+        break;
+
+      case 'PROCESSING':
+      case 'ĐANG XỬ LÝ':
+        // Thêm hoạt động xác nhận đơn hàng
+        activities.push({
+          icon: FileCheck,
+          color: 'text-green-500',
+          description: 'Đơn hàng của bạn đã được xác nhận.',
+          date: new Date(orderDateObj.getTime() + 2 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+          })
+        });
+        break;
+
+      case 'SHIPPING':
+      case 'ĐANG GIAO':
+        // Thêm hoạt động xác nhận và đóng gói
+        activities.push({
+          icon: FileCheck,
+          color: 'text-green-500',
+          description: 'Đơn hàng của bạn đã được xác nhận.',
+          date: new Date(orderDateObj.getTime() + 2 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+          })
+        });
+
+        activities.push({
+          icon: Package,
+          color: 'text-orange-500',
+          description: 'Đơn hàng của bạn đã được đóng gói và giao cho đơn vị vận chuyển.',
+          date: new Date(orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+          })
+        });
+        break;
+
+      case 'COMPLETED':
+      case 'HOÀN TẤT':
+        // Thêm tất cả các hoạt động
+        activities.push({
+          icon: FileCheck,
+          color: 'text-green-500',
+          description: 'Đơn hàng của bạn đã được xác nhận.',
+          date: new Date(orderDateObj.getTime() + 2 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+          })
+        });
+
+        activities.push({
+          icon: Package,
+          color: 'text-orange-500',
+          description: 'Đơn hàng của bạn đã được đóng gói và giao cho đơn vị vận chuyển.',
+          date: new Date(orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+          })
+        });
+
+        activities.push({
+          icon: Truck,
+          color: 'text-blue-500',
+          description: 'Đơn hàng của bạn đang được giao đến địa chỉ của bạn.',
+          date: new Date(orderDateObj.getTime() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+          })
+        });
+
+        activities.push({
+          icon: CheckCircle,
+          color: 'text-green-500',
+          description: 'Đơn hàng của bạn đã được giao thành công.',
+          date: new Date(orderDateObj.getTime() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+          })
+        });
+        break;
+
+      case 'CANCELED':
+      case 'ĐÃ HUỶ':
+        // Thêm hoạt động huỷ đơn hàng
+        activities.push({
+          icon: CheckCircle2,
+          color: 'text-red-500',
+          description: 'Đơn hàng của bạn đã bị huỷ.',
+          date: new Date(orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+          })
+        });
+        break;
+
+      default:
+        // Mặc định chỉ có hoạt động đặt hàng
+        break;
+    }
+
+    return activities;
+  };
+
+  // Hàm xác định bước hiện tại của đơn hàng
+  const getOrderStep = (status) => {
+    switch(status.toUpperCase()) {
+      case 'PENDING':
+      case 'CHỜ XÁC NHẬN':
+        return 1;
+      case 'PROCESSING':
+      case 'ĐANG XỬ LÝ':
+        return 2;
+      case 'SHIPPING':
+      case 'ĐANG GIAO':
+        return 3;
+      case 'COMPLETED':
+      case 'HOÀN TẤT':
+        return 4;
+      case 'CANCELED':
+      case 'ĐÃ HUỶ':
+        return 0;
+      default:
+        return 1;
+    }
+  };
+
+  // Hàm tính ngày dự kiến giao hàng dựa trên ngày đặt hàng
+  const calculateExpectedDelivery = (orderDate) => {
+    const orderDateObj = new Date(orderDate);
+    // Dự kiến giao hàng sau 7 ngày kể từ ngày đặt hàng
+    const expectedDate = new Date(orderDateObj.getTime() + 7 * 24 * 60 * 60 * 1000);
+    return expectedDate.toLocaleDateString('vi-VN', {
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric'
+    });
+  };
+
   const fetchOrderDetails = async () => {
     setLoading(true);
     try {
+      // Lấy thông tin chi tiết đơn hàng
       console.log(`Đang gọi API: /api/OrderDetail/order/${orderId}`);
-      const response = await axios.get(`/api/OrderDetail/order/${orderId}`);
-      
-      if (response.status === 200) {
-        console.log("Chi tiết đơn hàng:", response.data);
-        setOrderDetails(response.data);
-        
+      const orderDetailsResponse = await axios.get(`/api/OrderDetail/order/${orderId}`);
+
+      // Lấy thông tin đơn hàng
+      console.log(`Đang gọi API: /api/Order/${orderId}`);
+      const orderResponse = await axios.get(`/api/Order/${orderId}`);
+
+      if (orderDetailsResponse.status === 200 && orderResponse.status === 200) {
+        console.log("Chi tiết đơn hàng:", orderDetailsResponse.data);
+        console.log("Thông tin đơn hàng:", orderResponse.data);
+
+        const orderDetails = orderDetailsResponse.data;
+        const orderInfo = orderResponse.data;
+
+        setOrderDetails(orderDetails);
+
+        // Tạo các hoạt động đơn hàng dựa trên trạng thái
+        const activities = generateOrderActivities(orderInfo.status, orderInfo.orderDate);
+
+        // Xác định bước hiện tại của đơn hàng
+        const currentStep = getOrderStep(orderInfo.status);
+
+        // Tính ngày dự kiến giao hàng
+        const expectedDelivery = calculateExpectedDelivery(orderInfo.orderDate);
 
         setOrderData({
           id: orderId,
-          productCount: response.data.length,
-          orderDate: new Date().toLocaleDateString('en-US', { 
-            day: 'numeric', 
-            month: 'short', 
-            year: 'numeric', 
-            hour: 'numeric', 
-            minute: 'numeric', 
-            hour12: true 
+          productCount: orderDetails.length,
+          orderDate: new Date(orderInfo.orderDate).toLocaleDateString('vi-VN', {
+            day: 'numeric',
+            month: 'numeric',
+            year: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
           }),
-          totalAmount: formatPrice(calculateTotal(response.data)),
-          expectedDelivery: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { 
-            day: 'numeric', 
-            month: 'short', 
-            year: 'numeric' 
-          }),
-          status: 'ĐANG XỬ LÝ',
-          currentStep: 2,
-          activities: [
-            { 
-              icon: FileCheck, 
-              color: 'text-blue-500', 
-              description: 'Đơn hàng của bạn đã được xác nhận.', 
-              date: new Date().toLocaleDateString('en-US', { 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric', 
-                hour: 'numeric', 
-                minute: 'numeric', 
-                hour12: true 
-              })
-            },
-            { 
-              icon: CheckCircle2, 
-              color: 'text-green-500', 
-              description: 'Đơn hàng của bạn đã được xác minh thành công.', 
-              date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', { 
-                day: 'numeric', 
-                month: 'short', 
-                year: 'numeric', 
-                hour: 'numeric', 
-                minute: 'numeric', 
-                hour12: true 
-              })
-            }
-          ],
-          products: response.data.map(item => ({
-            id: item.id, // This should be the ID of the OrderDetail record
-            productId: item.productId, // Make sure this is explicitly set
+          totalAmount: formatPrice(orderInfo.totalAmount || calculateTotal(orderDetails)),
+          expectedDelivery: expectedDelivery,
+          status: orderInfo.status,
+          currentStep: currentStep,
+          activities: activities,
+          products: orderDetails.map(item => ({
+            id: item.orderDetailId,
+            productId: item.productColorId,
             category: 'SẢN PHẨM',
-            name: `Sản phẩm #${item.productId}`,
+            name: `Sản phẩm #${item.productColorId}`,
             price: formatPrice(item.price),
             quantity: item.quantity,
-            subtotal: formatPrice(item.price * item.quantity * (1 - item.discountPercentage / 100))
+            subtotal: formatPrice(item.price * item.quantity * (1 - (item.discountPercentage || 0) / 100))
           })),
           addresses: {
             billing: {
-              name: 'Khách hàng',
-              address: 'Thông tin địa chỉ giao hàng'
+              name: orderInfo.fullName || 'Khách hàng',
+              address: orderInfo.shippingAddress || 'Thông tin địa chỉ giao hàng'
             },
             shipping: {
-              name: 'Khách hàng',
-              address: 'Thông tin địa chỉ giao hàng'
+              name: orderInfo.fullName || 'Khách hàng',
+              address: orderInfo.shippingAddress || 'Thông tin địa chỉ giao hàng'
             }
           },
-          notes: 'Ghi chú đơn hàng'
+          notes: orderInfo.paymentMethod || 'Thanh toán khi nhận hàng'
         });
       }
       setLoading(false);
@@ -120,29 +305,29 @@ const OrderDetail = () => {
       alert('Vui lòng đăng nhập để đánh giá sản phẩm!');
       return;
     }
-    
+
     // Log the productId to verify it's being set correctly
     console.log("Opening rating modal for product ID:", productId);
-    
+
     // Ensure productId is a number before setting it
     setSelectedProductId(Number(productId));
     setIsRatingModalOpen(true);
   };
-  
+
   // Tính tổng tiền từ chi tiết đơn hàng
   const calculateTotal = (details) => {
     if (!details || details.length === 0) return 0;
-    
+
     return details.reduce((total, item) => {
       const discountedPrice = item.price * (1 - item.discountPercentage / 100);
       return total + (discountedPrice * item.quantity);
     }, 0);
   };
-  
+
   // Định dạng giá tiền theo VND
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
       currency: 'VND',
       maximumFractionDigits: 0
     }).format(price);
@@ -163,7 +348,7 @@ const OrderDetail = () => {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="bg-red-50 rounded-lg p-4 text-red-700">
           <p>{error}</p>
-          <button 
+          <button
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             onClick={fetchOrderDetails}
           >
@@ -173,13 +358,13 @@ const OrderDetail = () => {
       </div>
     );
   }
-  
+
   if (!orderData) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="bg-yellow-50 rounded-lg p-4 text-yellow-700">
           <p>Không tìm thấy thông tin đơn hàng!</p>
-          <button 
+          <button
             className="mt-2 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700"
             onClick={() => navigate('/order-history')}
           >
@@ -194,7 +379,7 @@ const OrderDetail = () => {
   const handleRatingSubmit = async (productId, rating, comment) => {
     try {
       console.log("Submitting rating with data:", { userId: userID, productId, rating, comment });
-      
+
       // Make sure all values are in the correct format
       const reviewData = {
         userId: parseInt(userID),
@@ -202,16 +387,16 @@ const OrderDetail = () => {
         rating: parseInt(rating),
         comment: comment || ""
       };
-  
+
       // Verify data before sending
       if (!reviewData.userId || !reviewData.productId || !reviewData.rating) {
         console.error("Missing required fields:", reviewData);
         alert("Missing required fields for review");
         return;
       }
-  
+
       const response = await axios.post('/api/Review/add', reviewData);
-  
+
       if (response.status === 200) {
         setOrderData(prevData => ({
           ...prevData,
@@ -219,19 +404,19 @@ const OrderDetail = () => {
             product.id === productId ? { ...product, isRated: true } : product
           )
         }));
-        
+
         setIsRatingModalOpen(false);
         alert("Cảm ơn bạn đã đánh giá sản phẩm!");
       }
     }
     catch (error) {
       console.error("Lỗi khi gửi đánh giá:", error);
-      
+
       // Enhanced error logging for better debugging
       if (error.response) {
         console.error("Error response data:", error.response.data);
         console.error("Error response status:", error.response.status);
-        
+
         // Show more specific error message if available
         if (error.response.data && error.response.data.errors) {
           const errorMessages = Object.entries(error.response.data.errors)
@@ -241,7 +426,7 @@ const OrderDetail = () => {
           return;
         }
       }
-      
+
       alert("Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại sau.");
     }
   };
@@ -249,7 +434,7 @@ const OrderDetail = () => {
   return (
     <div className="container mx-auto px-4 py-6 max-w-7xl">
       <div className="flex justify-between items-center mb-6">
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="flex items-center text-primary-600 hover:text-primary-700 transition-colors text-xl font-bold mb-4 cursor-pointer"
         >
@@ -258,16 +443,16 @@ const OrderDetail = () => {
       </div>
 
       {isRatingModalOpen && (
-        <RatingModal 
-          isOpen={isRatingModalOpen} 
-          onClose={() => setIsRatingModalOpen(false)} 
+        <RatingModal
+          isOpen={isRatingModalOpen}
+          onClose={() => setIsRatingModalOpen(false)}
           orderId={orderId}
           productId={selectedProductId}
           onSubmit={handleRatingSubmit}
         />
       )}
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
@@ -281,53 +466,61 @@ const OrderDetail = () => {
           <p className="text-blue-500 font-bold text-2xl">{orderData.totalAmount}</p>
         </div>
       </motion.div>
-      
+
       <div className="mb-8">
-        <p className="text-gray-700 mb-4">Dự kiến giao hàng vào {orderData.expectedDelivery}</p>
-        
-        <div className="relative mb-8">
-          <div className="absolute top-4 left-0 right-0 h-1 bg-gray-200 z-0"></div>
-          
-          <div className="absolute top-4 left-0 h-1 bg-primary-500 z-0" style={{ width: `${orderData.currentStep * 33}%` }}></div>
-          
-          <div className="flex justify-between relative z-10">
-            <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-primary-500 border-4 border-white flex items-center justify-center mb-2">
-                <FileText size={16} className="text-white" />
+        {orderData.status.toUpperCase() !== 'CANCELED' && orderData.status.toUpperCase() !== 'ĐÃ HUỶ' ? (
+          <>
+            <p className="text-gray-700 mb-4">Dự kiến giao hàng vào {orderData.expectedDelivery}</p>
+
+            <div className="relative mb-8">
+              <div className="absolute top-4 left-0 right-0 h-1 bg-gray-200 z-0"></div>
+
+              <div className="absolute top-4 left-0 h-1 bg-primary-500 z-0" style={{ width: `${orderData.currentStep * 25}%` }}></div>
+
+              <div className="flex justify-between relative z-10">
+                <div className="flex flex-col items-center">
+                  <div className={`w-8 h-8 rounded-full ${orderData.currentStep >= 1 ? 'bg-primary-500' : 'bg-white'} border-4 ${orderData.currentStep >= 1 ? 'border-white' : 'border-gray-200'} flex items-center justify-center mb-2`}>
+                    <FileText size={16} className={orderData.currentStep >= 1 ? 'text-white' : 'text-gray-400'} />
+                  </div>
+                  <p className="text-sm text-gray-700">Đặt hàng</p>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <div className={`w-8 h-8 rounded-full ${orderData.currentStep >= 2 ? 'bg-primary-500' : 'bg-white'} border-4 ${orderData.currentStep >= 2 ? 'border-white' : 'border-gray-200'} flex items-center justify-center mb-2`}>
+                    <Package size={16} className={orderData.currentStep >= 2 ? 'text-white' : 'text-gray-400'} />
+                  </div>
+                  <p className="text-sm text-gray-700">Đóng gói</p>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <div className={`w-8 h-8 rounded-full ${orderData.currentStep >= 3 ? 'bg-primary-500' : 'bg-white'} border-4 ${orderData.currentStep >= 3 ? 'border-white' : 'border-gray-200'} flex items-center justify-center mb-2`}>
+                    <Truck size={16} className={orderData.currentStep >= 3 ? 'text-white' : 'text-gray-400'} />
+                  </div>
+                  <p className="text-sm text-gray-700">Đang giao</p>
+                </div>
+
+                <div className="flex flex-col items-center">
+                  <div className={`w-8 h-8 rounded-full ${orderData.currentStep >= 4 ? 'bg-primary-500' : 'bg-white'} border-4 ${orderData.currentStep >= 4 ? 'border-white' : 'border-gray-200'} flex items-center justify-center mb-2`}>
+                    <CheckCircle size={16} className={orderData.currentStep >= 4 ? 'text-white' : 'text-gray-400'} />
+                  </div>
+                  <p className="text-sm text-gray-700">Đã giao</p>
+                </div>
               </div>
-              <p className="text-sm text-gray-700">Đặt hàng</p>
             </div>
-            
-            <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-primary-500 border-4 border-white flex items-center justify-center mb-2">
-                <Package size={16} className="text-white" />
-              </div>
-              <p className="text-sm text-gray-700">Đóng gói</p>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-white border-4 border-gray-200 flex items-center justify-center mb-2">
-                <Truck size={16} className="text-gray-400" />
-              </div>
-              <p className="text-sm text-gray-700">Đang giao</p>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <div className="w-8 h-8 rounded-full bg-white border-4 border-gray-200 flex items-center justify-center mb-2">
-                <CheckCircle size={16} className="text-gray-400" />
-              </div>
-              <p className="text-sm text-gray-700">Đã giao</p>
-            </div>
+          </>
+        ) : (
+          <div className="bg-red-50 rounded-lg p-4 mb-8">
+            <p className="text-red-700 font-medium">Đơn hàng này đã bị hủy.</p>
           </div>
-        </div>
+        )}
       </div>
-      
+
       <div className="mb-8">
         <h2 className="text-lg font-semibold mb-4">Hoạt động đơn hàng</h2>
-        
+
         <div className="space-y-6">
           {orderData.activities.map((activity, index) => (
-            <motion.div 
+            <motion.div
               key={index}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -347,10 +540,10 @@ const OrderDetail = () => {
           ))}
         </div>
       </div>
-      
+
       <div className="mb-8">
         <h2 className="text-lg font-semibold mb-4">Sản phẩm ({orderData.products.length})</h2>
-        
+
         <div className="bg-gray-50 rounded-lg overflow-hidden">
           <div className="grid grid-cols-12 bg-gray-100 py-3 px-4 border-b border-gray-200">
             <div className="col-span-5 font-medium text-gray-700">SẢN PHẨM</div>
@@ -359,9 +552,9 @@ const OrderDetail = () => {
             <div className="col-span-2 font-medium text-gray-700">TỔNG</div>
             <div className="col-span-2 font-medium text-gray-700">ĐÁNH GIÁ</div>
           </div>
-          
+
           {orderData.products.map((product, index) => (
-            <motion.div 
+            <motion.div
               key={index}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -387,9 +580,9 @@ const OrderDetail = () => {
                     <span className="text-gray-700">Đã đánh giá</span>
                   </div>
                 ) : (
-                  <button 
+                  <button
                     onClick={() => openRatingModal(product.productId)}
-                    className="flex items-center px-3 py-1 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm"
+                    className="flex items-center px-3 py-1 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm cursor-pointer"
                   >
                     <Star size={14} className="mr-1" /> Đánh giá
                   </button>
@@ -399,7 +592,7 @@ const OrderDetail = () => {
           ))}
         </div>
       </div>
-      
+
       <div className="grid grid-cols-3 gap-6 mb-4">
         <div>
           <h3 className="text-gray-800 font-medium mb-3">Địa chỉ thanh toán</h3>
@@ -408,7 +601,7 @@ const OrderDetail = () => {
             <p className="text-gray-600 text-sm">{orderData.addresses.billing.address}</p>
           </div>
         </div>
-        
+
         <div>
           <h3 className="text-gray-800 font-medium mb-3">Địa chỉ giao hàng</h3>
           <div className="bg-gray-50 p-4 rounded-lg h-full">
@@ -416,7 +609,7 @@ const OrderDetail = () => {
             <p className="text-gray-600 text-sm">{orderData.addresses.shipping.address}</p>
           </div>
         </div>
-        
+
         <div>
           <h3 className="text-gray-800 font-medium mb-3">Ghi chú đơn hàng</h3>
           <div className="bg-gray-50 p-4 rounded-lg h-full">
