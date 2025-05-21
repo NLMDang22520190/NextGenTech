@@ -32,6 +32,7 @@ import {
 } from "../../../features/Admin/Promotions/Promotion";
 import { fetchAllProduct } from "../../../features/Admin/Products/Product";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 const PromotionStatusBadge = ({ status }) => {
   const getStatusStyles = () => {
@@ -55,6 +56,7 @@ const PromotionStatusBadge = ({ status }) => {
 };
 
 export default function Promotions() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { promotionItems, status, error } = useSelector(
     (state) => state.promotion
@@ -426,7 +428,7 @@ export default function Promotions() {
                       <td className="px-4 py-2 whitespace-nowrap">
                         <div className="flex justify-center space-x-2">
                           <button
-                            className="text-gray-400 hover:text-green-600"
+                            className="text-gray-400 hover:text-green-600 transition-colors"
                             onClick={() => showEditModal(promotion)}
                           >
                             <Pencil size={16} />
@@ -439,7 +441,7 @@ export default function Promotions() {
                             cancelText="No"
                             placement="left"
                           >
-                            <button className="text-gray-400 hover:text-red-600">
+                            <button className="text-gray-400 hover:text-red-600 transition-colors">
                               <Trash2 size={16} />
                             </button>
                           </Popconfirm>
@@ -447,7 +449,9 @@ export default function Promotions() {
                       </td>
                       <td className="px-4 py-2 whitespace-nowrap">
                         {promotion.isProductPromotion && (
-                          <button className="flex text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200 transition">
+                          <button 
+                            onClick={() => navigate(`/promotions/${promotion.id}`)}
+                            className="flex text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200 transition">
                             <ChevronRight size={20} />
                           </button>
                         )}

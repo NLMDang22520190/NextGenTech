@@ -65,6 +65,7 @@ export const deletePromotion = createAsyncThunk(
 
 const initialState = {
     promotionItems: [],
+    promotionDetail: [],
     status: "idle", // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: null,
 }

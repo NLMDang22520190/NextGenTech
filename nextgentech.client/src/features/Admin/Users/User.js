@@ -22,7 +22,21 @@ export const addUser = createAsyncThunk(
             const response = await api.post(`${apiBaseUrl}/AddUser`, userData);
             return response.data;
         } catch (error) {
-            return rejectWithValue(error.response?.data || "Something went wrong");
+            // For debugging only (not visible to users)
+            console.error("Error in addUser thunk:", error);
+
+            // Use a simple user-friendly message
+            let errorMessage = "Unable to add user";
+
+            // Check specifically for email duplication error
+            if (error.response &&
+                error.response.data &&
+                error.response.data.message &&
+                error.response.data.message.includes("Email đã tồn tại")) {
+                errorMessage = "Email already exists";
+            }
+
+            return rejectWithValue(errorMessage);
         }
     }
 );

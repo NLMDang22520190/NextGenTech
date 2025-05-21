@@ -42,7 +42,6 @@ export default function Products() {
   
   const filterProductsData = products.filter(row => 
     row.name.toLowerCase().includes(searchQuery.toLowerCase())
-    // && ((filter != "" && subfilter != "") ? (filter === 'Loại' ? row.categoryName === subfilter : row.supplierName === subfilter): true)
   );
 
   return (
