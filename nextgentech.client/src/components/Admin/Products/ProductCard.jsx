@@ -1,4 +1,7 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { Trash2 } from "lucide-react";
+import { Popconfirm } from "antd";
 
 const StarRating = ({ rating, reviews }) => {
   return (
@@ -18,10 +21,16 @@ const StarRating = ({ rating, reviews }) => {
   );
 };
 
-const ProductCard = ({ product, onEdit = '' }) => {
+const ProductCard = ({ product, onEdit = () => {}, onDelete = () => {} }) => {
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+  };
+
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/products/${product.id}`);
   };
 
   return (
@@ -30,25 +39,41 @@ const ProductCard = ({ product, onEdit = '' }) => {
       className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-md hover:shadow-lg hover:scale-102 transition-all duration-100 flex flex-col"
     >
       <div className="relative">
-        <div className="relative w-full aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">          
+        <div className="relative w-full aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
           <img
             src={product.image}
             alt={product.name}
             className="w-full h-full object-contain "
           />
+
+          {/* Delete button */}
+          <Popconfirm
+            title="Delete Product"
+            description="Are you sure you want to delete this product?"
+            onConfirm={() => onDelete(product.id)}
+            okText="Yes"
+            cancelText="No"
+            placement="left"
+          >
+            <button
+              className="absolute top-2 right-2 p-1.5 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors"
+            >
+              <Trash2 size={14} />
+            </button>
+          </Popconfirm>
         </div>
       </div>
-      
+
       <div className="px-4 pt-3 pb-4 flex flex-col flex-1 justify-between space-y-1">
         <div>
-          <h3 className="text-base font-semibold text-gray-800 line-clamp-2">{product.name}</h3>
+          <h3 className="text-base font-semibold text-gray-800 line-clamp-2 cursor-pointer" onClick={handleClick}>{product.name}</h3>
           <p className="text-blue-500 font-semibold">${product.price.toFixed(2)}</p>
         </div>
-        
+
         <div className="mb-2">
           <StarRating rating={product.rating} reviews={product.reviews} />
         </div>
-        
+
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}

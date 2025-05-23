@@ -4,7 +4,7 @@ import { Skeleton, Image } from "antd";
 
 export function ProductImageCarousel({ images, productName }) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [imagesLoaded, setImagesLoaded] = useState(images.map(() => false));
+  const [imagesLoaded, setImagesLoaded] = useState(images && images.length ? images.map(() => false) : []);
   const intervalRef = useRef(null);
 
   // Start the auto-transition
@@ -15,9 +15,12 @@ export function ProductImageCarousel({ images, productName }) {
 
   const startAutoTransition = () => {
     stopAutoTransition();
-    intervalRef.current = window.setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 5000); // 5 seconds
+    // Only start auto-transition if we have images
+    if (images && images.length > 1) {
+      intervalRef.current = window.setInterval(() => {
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+      }, 5000); // 5 seconds
+    }
   };
 
   const stopAutoTransition = () => {
@@ -29,14 +32,18 @@ export function ProductImageCarousel({ images, productName }) {
 
   const goToPrevious = () => {
     stopAutoTransition();
-    setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + images.length) % images.length
-    );
+    if (images && images.length > 0) {
+      setCurrentIndex(
+        (prevIndex) => (prevIndex - 1 + images.length) % images.length
+      );
+    }
   };
 
   const goToNext = () => {
     stopAutoTransition();
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    if (images && images.length > 0) {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }
   };
 
   const selectThumbnail = (index) => {
@@ -62,7 +69,7 @@ export function ProductImageCarousel({ images, productName }) {
             onChange: (current) => setCurrentIndex(current),
           }}
         >
-          {images.map((image, index) => (
+          {images && images.length > 0 ? images.map((image, index) => (
             <div
               key={index}
               className={`absolute inset-0 transition-opacity duration-500 flex justify-center ${
@@ -88,11 +95,11 @@ export function ProductImageCarousel({ images, productName }) {
                 }}
               />
             </div>
-          ))}
+          )) : null}
         </Image.PreviewGroup>
 
         {/* Navigation Arrows */}
-        {images.length > 1 && (
+        {images && images.length > 1 && (
           <>
             <button
               onClick={goToPrevious}
@@ -113,9 +120,9 @@ export function ProductImageCarousel({ images, productName }) {
       </div>
 
       {/* Thumbnails */}
-      {images.length > 1 && (
+      {images && images.length > 1 && (
         <div className="flex justify-center mt-4 space-x-2 px-4">
-          {images.map((image, index) => (
+          {images && images.length > 0 ? images.map((image, index) => (
             <button
               key={index}
               onClick={() => selectThumbnail(index)}
@@ -132,7 +139,7 @@ export function ProductImageCarousel({ images, productName }) {
                 className="w-full h-full object-cover"
               />
             </button>
-          ))}
+          )) : null}
         </div>
       )}
     </div>

@@ -47,7 +47,7 @@ const ProductReviews = ({
         <div className="flex flex-col items-center justify-center p-4 bg-primary/5 rounded-lg transition-transform hover:scale-105">
           <h3 className="text-lg font-medium mb-2">Average Rating</h3>
           <div className="text-5xl font-bold text-primary mb-2">
-            {averageRating.toFixed(1)}
+            {averageRating ? averageRating.toFixed(1) : '0.0'}
           </div>
           <div className="flex items-center space-x-1 mb-1">
             {[...Array(5)].map((_, i) => (

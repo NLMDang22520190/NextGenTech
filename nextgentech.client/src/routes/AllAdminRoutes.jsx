@@ -10,12 +10,14 @@ import Stock from "../pages/Admin/ProductStock/ProductStock"
 import Customers from "../pages/Admin/Customers";
 import Promotions from "../pages/Admin/Promotions";
 import PromotionDetail from "../pages/Admin/PromotionDetail";
+import ProductDetail from "../pages/Admin/ProductDetail";
 
 const AllAdminRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/products" element={<Products/>} />
+      <Route path="/products/:id" element={<ProductDetail />} />
       <Route path="/brands" element={<Brands/>} />      
       <Route path="/categories" element={<Categories/>} />    
       <Route path="/orders" element={<Order/>}/>  
