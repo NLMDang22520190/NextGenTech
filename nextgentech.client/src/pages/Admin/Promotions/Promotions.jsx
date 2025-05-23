@@ -1,219 +1,687 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Filter, ChevronLeft, ChevronRight, Search, ChevronDown, Eye, Pencil, Trash2 } from "lucide-react";
-
-const promotionsData = [
-    { id: 1, name: "Summer Sale", description: "Enjoy our hottest discounts of the season!", discount: "20%", code: "SUMMER20", startDate: "01 Jun 2025", endDate: "30 Jun 2025", isProductPromotion: true },
-    { id: 2, name: "Buy One Get One Free", description: "Get a free item when you buy one of equal or greater value.", discount: "50%", code: "BOGO50", startDate: "01 Jul 2025", endDate: "15 Jul 2025", isProductPromotion: true },
-    { id: 3, name: "Flash Sale 24H", description: "Limited-time deal! Grab your favorite items now.", discount: "30%", code: "FLASH30", startDate: "15 Mar 2025", endDate: "16 Mar 2025", isProductPromotion: true },
-    { id: 4, name: "New Year Special", description: "Start the new year with amazing discounts!", discount: "25%", code: "NY2025", startDate: "31 Dec 2025", endDate: "05 Jan 2026", isProductPromotion: false },
-    { id: 5, name: "Weekend Deal", description: "Exclusive discounts every weekend!", discount: "15%", code: "WKND15", startDate: "10 May 2025", endDate: "12 May 2025", isProductPromotion: true },
-    { id: 6, name: "Free Shipping", description: "No shipping fees on all orders above $50.", discount: "100%", code: "FREESHIP50", startDate: "01 Apr 2025", endDate: "30 Apr 2025", isProductPromotion: false },
-    { id: 7, name: "Back to School Sale", description: "Get ready for school with special discounts!", discount: "18%", code: "SCHOOL18", startDate: "01 Aug 2025", endDate: "15 Aug 2025", isProductPromotion: true },
-    { id: 8, name: "Cyber Monday Mega Sale", description: "The biggest online shopping event of the year!", discount: "40%", code: "CYBER40", startDate: "24 Nov 2025", endDate: "25 Nov 2025", isProductPromotion: true },
-    { id: 9, name: "Loyalty Rewards Bonus", description: "Exclusive discount for our loyal customers.", discount: "10%", code: "LOYAL10", startDate: "01 Jun 2025", endDate: "31 Dec 2025", isProductPromotion: false },
-    { id: 10, name: "Holiday Gift Special", description: "Buy gifts and save big this holiday season!", discount: "35%", code: "GIFT35", startDate: "01 Dec 2025", endDate: "25 Dec 2025", isProductPromotion: true }
-];
+import {
+  Filter,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  ChevronDown,
+  Eye,
+  Pencil,
+  Trash2,
+  Plus,
+} from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  message,
+  Spin,
+  Modal,
+  Form,
+  Input,
+  DatePicker,
+  InputNumber,
+  Popconfirm,
+  Select,
+  Tag,
+} from "antd";
+import {
+  fetchAllPromotion,
+  addPromotion,
+  updatePromotion,
+  deletePromotion,
+} from "../../../features/Admin/Promotions/Promotion";
+import { fetchAllProduct } from "../../../features/Admin/Products/Product";
+import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
 
 const PromotionStatusBadge = ({ status }) => {
-    const getStatusStyles = () => {
-      switch (status) {
-        case true:
-          return "bg-green-100 text-green-800";
-        case false:
-          return "bg-red-100 text-red-800";
-        default:
-          return "bg-gray-100 text-gray-800";
-      }
-    };
-  
-    return (
-      <span className={`px-3 py-1 rounded-full text-xs font-medium uppercase ${getStatusStyles()}`}>
-        {status.toString()}
-      </span>
-    );
+  const getStatusStyles = () => {
+    switch (status) {
+      case true:
+        return "bg-green-100 text-green-800";
+      case false:
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  return (
+    <span
+      className={`px-3 py-1 rounded-full text-xs font-medium uppercase ${getStatusStyles()}`}
+    >
+      {status.toString()}
+    </span>
+  );
 };
-  
+
 export default function Promotions() {
-const [currentPage, setCurrentPage] = useState(0);
-    const [itemsPerPage, setItemsPerPage] = React.useState(8);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [filterStatus, setFilterStatus] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { promotionItems, status, error } = useSelector(
+    (state) => state.promotion
+  );
+  const {
+    productItems,
+    status: productStatus,
+    error: productError,
+  } = useSelector((state) => state.product);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = React.useState(8);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(false);
 
-    const filterData = promotionsData.filter(row => 
-      row.name.toLowerCase().includes(searchQuery.toLowerCase())
-      && (filterStatus != "" ? row.isProductPromotion.toString() === filterStatus : true)
-      // && ((filter != "" && subfilter != "") ? (filter === 'Loại' ? row.categoryName === subfilter : row.supplierName === subfilter): true)
-    );
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [currentPromotion, setCurrentPromotion] = useState(null);
+  const [form] = Form.useForm();
+  const [submitting, setSubmitting] = useState(false);
 
-    const totalItems = filterData.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-  
-    const containerVariants = {
-      hidden: { opacity: 0 },
-      visible: {
-        opacity: 1,
-        transition: {
-          staggerChildren: 0.05
-        }
+  const fetchPromotions = async () => {
+    try {
+      setLoading(true);
+      await dispatch(fetchAllPromotion()).unwrap();
+    } catch (err) {
+      message.error(
+        "Failed to fetch promotions: " + (err.message || "Unknown error")
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      setProductsLoading(true);
+      const result = await dispatch(fetchAllProduct()).unwrap();
+      setProducts(
+        result.map((product) => ({
+          value: product.productId.toString(),
+          label: product.name,
+        }))
+      );
+    } catch (err) {
+      message.error(
+        "Failed to fetch products: " + (err.message || "Unknown error")
+      );
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPromotions();
+    fetchProducts();
+  }, [dispatch]);
+
+  useEffect(() => {
+    console.log(products);
+  },[products])
+
+  const showAddModal = () => {
+    setIsEditMode(false);
+    setCurrentPromotion(null);
+    setIsModalOpen(true);
+    form.resetFields();
+  };
+
+  const showEditModal = (promotion) => {
+    setIsEditMode(true);
+    setCurrentPromotion(promotion);
+    setIsModalOpen(true);
+    form.setFieldsValue({
+      name: promotion.name,
+      description: promotion.description,
+      promotionCode: promotion.code,
+      discountPercentage: parseFloat(promotion.discount),
+      startDate: dayjs(promotion.originalData.startDate),
+      endDate: dayjs(promotion.originalData.endDate),
+      productIDs: promotion.originalData.productIDs || [],
+    });
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    form.resetFields();
+  };
+
+  const handleSubmit = async (values) => {
+    try {
+      setSubmitting(true);
+      const formatDate = (date) => {
+        const d = date.hour(12).minute(0).second(0);
+        return d.toISOString();
+      };
+
+      const promotionData = {
+        name: values.name,
+        description: values.description || "",
+        promotionCode: values.promotionCode,
+        discountPercentage: values.discountPercentage,
+        startDate: formatDate(values.startDate),
+        endDate: formatDate(values.endDate),
+        productIDs: values.productIDs || [],
+      };
+
+      if (isEditMode && currentPromotion) {
+        await dispatch(
+          updatePromotion({
+            promotionId: currentPromotion.id,
+            ...promotionData,
+          })
+        ).unwrap();
+        message.success("Promotion updated successfully");
+      } else {
+        await dispatch(addPromotion(promotionData)).unwrap();
+        message.success("Promotion added successfully");
       }
-    };
-  
-    const itemVariants = {
-      hidden: { opacity: 0, y: 20 },
-      visible: { opacity: 1, y: 0, transition: { duration: 0.3 } }
-    };
+      setIsModalOpen(false);
+      form.resetFields();
+    } catch (err) {
+      const action = isEditMode ? "update" : "add";
+      message.error(
+        `Failed to ${action} promotion: ${err.message || "Unknown error"}`
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-    const handleFilterChange = async (e) => {
-        const value = e.target.value;
-        setFilterStatus(value);
-    };
+  const handleDelete = async (promotionId) => {
+    try {
+      await dispatch(deletePromotion(promotionId)).unwrap();
+      message.success("Promotion deleted successfully");
+    } catch (err) {
+      message.error(
+        "Failed to delete promotion: " + (err.message || "Unknown error")
+      );
+    }
+  };
 
-    return (
-        <div className="space-y-4">
-            <h1 className="text-2xl font-semibold text-gray-800">Promotions</h1> {/* Header */}
-    
-            {/* Search and Filter */}
-            <div className="flex justify-between">
-                <div className={`relative ${searchQuery.length > 0 ? "w-64" : "w-44"} focus-within:w-64 hover:w-64 hover:duration-300 duration-300`}>
-                    <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                    <Search size={18} />
-                    </span>
-                    <input
-                    type="text"
-                    className="pl-10 pr-4 py-2 w-full border rounded-full text-sm focus:outline-none focus:border-primary-600"
-                    placeholder="Search promotion"
-                    value={searchQuery}
-                    onChange={(e) => {
-                        setSearchQuery(e.target.value)
-                        console.log(searchQuery)             
-                    }}
-                    />
-                </div>
-    
-                <div className="flex space-x-4">
-                    <div className="flex items-center py-2">
-                        <Filter size={18} className="mr-2 text-gray-500" />
-                        <span className="text-sm font-medium text-gray-700">Filter By</span>
-                    </div>
+  const promotionsData = promotionItems.map((promotion) => ({
+    id: promotion.promotionId,
+    name: promotion.name,
+    description: promotion.description || "",
+    discount: `${promotion.discountPercentage}%`,
+    code: promotion.promotionCode,
+    startDate: dayjs(promotion.startDate).format("DD-MM-YYYY"),
+    endDate: dayjs(promotion.endDate).format("DD-MM-YYYY"),
+    isProductPromotion: promotion.productIDs && promotion.productIDs.length > 0,
+    originalData: promotion,
+  }));
 
-                    <div class="relative w-48">
-                        <select
-                            title="status filter"
-                            class="w-full bg-white border border-gray-200 rounded-md shadow-sm py-2 px-4 focus:outline-none text-sm text-gray-700 appearance-none"
-                            value={filterStatus}
-                            onChange={handleFilterChange}
-                        >
-                            <option value="" className="italic">
-                                <em>Promotion by product</em>
-                            </option>
-                            <option value="true">TRUE</option>
-                            <option value="false">FALSE</option>
-                        </select>
+  const filterData = promotionsData.filter(
+    (row) =>
+      row.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (filterStatus !== ""
+        ? row.isProductPromotion.toString() === filterStatus
+        : true)
+  );
 
-                        <ChevronDown size={16} className="text-gray-500 absolute inset-y-3 right-3 flex items-center pointer-events-none" />
-                    </div>
-                    
-                    {/* <div className="flex items-center py-2 bg-white border border-gray-200 rounded-md shadow-sm">
-                        <span className="text-sm font-medium text-gray-700 mr-2">Status</span>
-                        <ChevronDown size={16} className="text-gray-500" />
-                    </div>
+  const totalItems = filterData.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-                    <div className="flex items-center py-2 bg-white border border-gray-200 rounded-md shadow-sm">
-                        <span className="text-sm font-medium text-gray-700 mr-2">Orders</span>
-                        <ChevronDown size={16} className="text-gray-500" />
-                    </div> */}
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+      },
+    },
+  };
 
-                    <button 
-                        className="flex items-center py-2 text-red-500 font-medium text-sm"
-                        onClick={() => {setFilterStatus("")}}
-                    >
-                        <span className="cursor-pointer">Reset Filter</span>
-                    </button>
-                </div>
-            </div>
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+  };
 
-            {/* Table */}    
-            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-100 h-[5vh]">
-                        <tr>
-                            <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
-                            <th scope="col" className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Discount</th>
-                            <th scope="col" className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Code</th>
-                            <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</th>
-                            <th scope="col" className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Start Date</th>
-                            <th scope="col" className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">End Date</th>
-                            <th scope="col" className="px-4 py-1 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Promotion by product</th>
-                            <th scope="col" className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider"></th>
-                        </tr>
-                        </thead>
-                        <motion.tbody
-                            variants={containerVariants}
-                            initial="hidden"
-                            animate="visible"
-                            className="bg-white divide-y divide-gray-200 h-[60vh]"
-                        >
-                            {filterData
-                                .slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
-                                .map((promotion, index) => (
-                            <motion.tr key={promotion.id} variants={itemVariants} className="hover:bg-gray-50 h-[7.5vh]">
-                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{promotion.name}</td>
-                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 text-center">{promotion.discount}</td>
-                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{promotion.code} </td>
-                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{promotion.description} </td>
-                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 text-end">{promotion.startDate} </td>
-                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 text-end">{promotion.endDate} </td>
-                                <td className="px-4 py-2 whitespace-nowrap text-center">
-                                    <PromotionStatusBadge status={promotion.isProductPromotion} />
-                                </td>
-                                <td className="px-4 py-2 whitespace-nowrap">
-                                    <div className="flex justify-center">
-                                        { promotion.isProductPromotion &&
-                                        <button className="flex text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200 transition">
-                                            <ChevronRight size={20} />
-                                        </button> }
-                                    </div>
-                                </td>
-                            </motion.tr>
-                            ))}
-        
-                            {Array.from({ length: itemsPerPage - Math.min(itemsPerPage,totalItems-(currentPage * itemsPerPage)) }).map((_, i) => (
-                                <tr key={`empty-${i}`} className="h-[7.5vh]">
-                                    <td className="px-4 py-2 text-sm text-gray-300 text-center">-</td>
-                                    <td className="px-4 py-2 text-sm text-gray-300">-</td>
-                                    <td className="px-4 py-2 text-sm text-gray-300">-</td>
-                                    <td className="px-4 py-2 text-sm text-gray-300">-</td>
-                                </tr>
-                            ))}
-                        </motion.tbody>
-                    </table>
-                </div>
-                
-                {/* Table Footer */}
-                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                <div className="text-sm text-gray-500">
-                    Showing {currentPage * itemsPerPage + 1}-{Math.min((currentPage + 1) * itemsPerPage,totalItems)} of {totalItems}
-                </div>
-                <div className="flex items-center space-x-2">
-                    <button
-                        className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-                        disabled={currentPage === 0}
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
-                    >
-                        <ChevronLeft size={20} className="text-gray-600" />
-                    </button>
-                    <button
-                        className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-                        disabled={(currentPage + 1) === totalPages}
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))}
-                    >
-                        <ChevronRight size={20} className="text-gray-600" />
-                    </button>
-                </div>
-                </div>
-            </div>
+  const handleFilterChange = async (e) => {
+    const value = e.target.value;
+    setFilterStatus(value);
+    setCurrentPage(0);
+  };
+
+  return (
+    <div className="space-y-4">
+      <h1 className="text-2xl font-semibold text-gray-800">Promotions</h1>{" "}
+      {/* Header */}
+      <div className="flex justify-between">
+        <div
+          className={`relative ${
+            searchQuery.length > 0 ? "w-64" : "w-44"
+          } focus-within:w-64 hover:w-64 hover:duration-300 duration-300`}
+        >
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+            <Search size={18} />
+          </span>
+          <input
+            type="text"
+            className="pl-10 pr-4 py-2 w-full border rounded-full text-sm focus:outline-none focus:border-primary-600"
+            placeholder="Search promotion"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+            }}
+          />
         </div>
-    )
+
+        <div className="flex space-x-4">
+          <div className="flex items-center py-2">
+            <Filter size={18} className="mr-2 text-gray-500" />
+            <span className="text-sm font-medium text-gray-700">Filter By</span>
+          </div>
+
+          <div className="relative w-48">
+            <select
+              title="status filter"
+              className="w-full bg-white border border-gray-200 rounded-md shadow-sm py-2 px-4 focus:outline-none text-sm text-gray-700 appearance-none"
+              value={filterStatus}
+              onChange={handleFilterChange}
+            >
+              <option value="" className="italic">
+                Promotion by product
+              </option>
+              <option value="true">TRUE</option>
+              <option value="false">FALSE</option>
+            </select>
+
+            <ChevronDown
+              size={16}
+              className="text-gray-500 absolute inset-y-3 right-3 flex items-center pointer-events-none"
+            />
+          </div>
+
+          <button
+            className="flex items-center py-2 text-red-500 font-medium text-sm"
+            onClick={() => {
+              setFilterStatus("");
+            }}
+          >
+            <span className="cursor-pointer">Reset Filter</span>
+          </button>
+
+          <button
+            className="flex items-center py-2 px-5 text-white bg-primary rounded-lg font-bold text-sm hover:scale-105 active:scale-95 transition-all duration-100"
+            onClick={showAddModal}
+          >
+            <Plus size={16} className="mr-1" />
+            <span className="cursor-pointer">Add Promotion</span>
+          </button>
+        </div>
+      </div>
+      {/* Table */}
+      {loading || status === "loading" ? (
+        <div className="flex justify-center items-center h-64">
+          <Spin size="large" tip="Loading promotions..." />
+        </div>
+      ) : error ? (
+        <div className="text-red-500 text-center">
+          Error loading promotions: {error}
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-100 h-[5vh]">
+                <tr>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                  >
+                    Name
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                  >
+                    Discount
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                  >
+                    Code
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                  >
+                    Description
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                  >
+                    Start Date
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                  >
+                    End Date
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-1 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                  >
+                    Promotion by product
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                  >
+                    Action
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                  ></th>
+                </tr>
+              </thead>
+              <motion.tbody
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="bg-white divide-y divide-gray-200 h-[60vh]"
+              >
+                {filterData
+                  .slice(
+                    currentPage * itemsPerPage,
+                    (currentPage + 1) * itemsPerPage
+                  )
+                  .map((promotion) => (
+                    <motion.tr
+                      key={promotion.id}
+                      variants={itemVariants}
+                      className="hover:bg-gray-50 h-[7.5vh]"
+                    >
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        {promotion.name}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 text-center">
+                        {promotion.discount}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        {promotion.code}{" "}
+                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-500">
+                        <div className="line-clamp-2">
+                          {promotion.description}{" "}
+                        </div>
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 text-end">
+                        {promotion.startDate}{" "}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 text-end">
+                        {promotion.endDate}{" "}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-center">
+                        <PromotionStatusBadge
+                          status={promotion.isProductPromotion}
+                        />
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap">
+                        <div className="flex justify-center space-x-2">
+                          <button
+                            className="text-gray-400 hover:text-green-600 transition-colors"
+                            onClick={() => showEditModal(promotion)}
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <Popconfirm
+                            title="Delete Promotion"
+                            description="Are you sure you want to delete this promotion?"
+                            onConfirm={() => handleDelete(promotion.id)}
+                            okText="Yes"
+                            cancelText="No"
+                            placement="left"
+                          >
+                            <button className="text-gray-400 hover:text-red-600 transition-colors">
+                              <Trash2 size={16} />
+                            </button>
+                          </Popconfirm>
+                        </div>
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap">
+                        {promotion.isProductPromotion && (
+                          <button 
+                            onClick={() => navigate(`/promotions/${promotion.id}`)}
+                            className="flex text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200 transition">
+                            <ChevronRight size={20} />
+                          </button>
+                        )}
+                      </td>
+                    </motion.tr>
+                  ))}
+
+                {Array.from({
+                  length:
+                    itemsPerPage -
+                    Math.min(
+                      itemsPerPage,
+                      totalItems - currentPage * itemsPerPage
+                    ),
+                }).map((_, i) => (
+                  <tr key={`empty-${i}`} className="h-[7.5vh]">
+                    <td className="px-4 py-2 text-sm text-gray-300 text-center">
+                      -
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-300">-</td>
+                    <td className="px-4 py-2 text-sm text-gray-300">-</td>
+                    <td className="px-4 py-2 text-sm text-gray-300">-</td>
+                  </tr>
+                ))}
+              </motion.tbody>
+            </table>
+          </div>
+
+          {/* Table Footer */}
+          <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div className="text-sm text-gray-500">
+              Showing {currentPage * itemsPerPage + 1}-
+              {Math.min((currentPage + 1) * itemsPerPage, totalItems)} of{" "}
+              {totalItems}
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+              >
+                <ChevronLeft size={20} className="text-gray-600" />
+              </button>
+              <button
+                className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
+                disabled={currentPage + 1 === totalPages}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages - 1))
+                }
+              >
+                <ChevronRight size={20} className="text-gray-600" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Add/Edit Promotion Modal */}
+      <Modal
+        title={isEditMode ? "Edit Promotion" : "Add New Promotion"}
+        open={isModalOpen}
+        onCancel={handleCancel}
+        footer={null}
+        width={600}
+      >
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSubmit}
+          className="mt-4"
+        >
+          <Form.Item
+            name="name"
+            label="Promotion Name"
+            rules={[
+              {
+                required: true,
+                message: "Please enter the promotion name",
+              },
+            ]}
+          >
+            <Input placeholder="Enter promotion name" />
+          </Form.Item>
+
+          <Form.Item name="description" label="Description (Optional)">
+            <Input.TextArea
+              placeholder="Enter promotion description"
+              rows={3}
+            />
+          </Form.Item>
+
+          <div className="flex gap-4">
+            <Form.Item
+              name="promotionCode"
+              label="Promotion Code"
+              className="flex-1"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter the promotion code",
+                },
+              ]}
+            >
+              <Input placeholder="e.g. SUMMER20" />
+            </Form.Item>
+
+            <Form.Item
+              name="discountPercentage"
+              label="Discount Percentage"
+              className="flex-1"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter the discount percentage",
+                },
+              ]}
+            >
+              <InputNumber
+                min={0}
+                max={100}
+                formatter={(value) => `${value}%`}
+                parser={(value) => value.replace("%", "")}
+                className="w-full"
+              />
+            </Form.Item>
+          </div>
+
+          <div className="flex gap-4">
+            <Form.Item
+              name="startDate"
+              label="Start Date"
+              className="flex-1"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select the start date",
+                },
+              ]}
+            >
+              <DatePicker className="w-full" format="DD-MM-YYYY" />
+            </Form.Item>
+
+            <Form.Item
+              name="endDate"
+              label="End Date"
+              className="flex-1"
+              rules={[
+                {
+                  required: true,
+                  message: "Please select the end date",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (
+                      !value ||
+                      !getFieldValue("startDate") ||
+                      value.isAfter(getFieldValue("startDate"))
+                    ) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(
+                      new Error("End date must be after start date")
+                    );
+                  },
+                }),
+              ]}
+            >
+              <DatePicker className="w-full" format="DD-MM-YYYY" />
+            </Form.Item>
+          </div>
+
+          <Form.Item
+            name="productIDs"
+            label="Product IDs (Optional)"
+            help="Select products to apply this promotion to. Leave empty for a global promotion."
+          >
+            <Select
+              mode="multiple"
+              placeholder="Select products"
+              loading={productsLoading}
+              options={products}
+              optionRender={(option) => (
+                <div className="flex items-center">
+                  <span>
+                    {option.value} - {option.label}
+                  </span>
+                </div>
+              )}
+              optionFilterProp="label"
+              className="w-full"
+              tokenSeparators={[","]}
+              tagRender={({ label, closable, onClose }) => (
+                <Tag
+                  color="blue"
+                  closable={closable}
+                  onClose={onClose}
+                  style={{ marginRight: 3 }}
+                >
+                  {label}
+                </Tag>
+              )}
+              onChange={(value) => {
+                console.log(value);
+              }}
+            />
+          </Form.Item>
+
+          <Form.Item className="mb-0 flex justify-end">
+            <button
+              type="button"
+              className="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              onClick={handleCancel}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark"
+              disabled={submitting}
+            >
+              {submitting
+                ? isEditMode
+                  ? "Updating..."
+                  : "Adding..."
+                : isEditMode
+                ? "Update Promotion"
+                : "Add Promotion"}
+            </button>
+          </Form.Item>
+        </Form>
+      </Modal>
+    </div>
+  );
 }

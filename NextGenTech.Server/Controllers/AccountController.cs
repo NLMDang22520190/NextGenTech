@@ -40,11 +40,22 @@ namespace HealthBuddy.Server.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
+            // Kiểm tra email đã tồn tại chưa
+            bool emailExists = await userRepository.IsEmailExistsAsync(request.Email);
+            if (emailExists)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Email đã tồn tại trong hệ thống. Vui lòng sử dụng email khác."
+                });
+            }
+
             var hashPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
             var user = new User
             {
                 Email = request.Email,
-                PasswordHash =hashPassword
+                PasswordHash = hashPassword
             };
 
             var result = await userRepository.RegisterUserAsync(user);
@@ -112,7 +123,7 @@ namespace HealthBuddy.Server.Controllers
                 // Mã hóa và cập nhật mật khẩu mới
                 var hashPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
                 await userRepository.UpdatePassword(userToChangePassword, hashPassword);
-                
+
                 return Ok(new
                 {
                     status = "success",
@@ -186,7 +197,7 @@ namespace HealthBuddy.Server.Controllers
             try
             {
                 var code = await _emailService.SendVerificationCodeAsync(email);
-                cache.Set(email, code, TimeSpan.FromMinutes(5));
+                _cache.Set(email, code, TimeSpan.FromMinutes(5));
 
                 return Ok(new
                 {
@@ -217,11 +228,11 @@ namespace HealthBuddy.Server.Controllers
                 });
             }
 
-            if (cache.TryGetValue(request.Email, out string storedCode))
+            if (_cache.TryGetValue(request.Email, out string? storedCode) && storedCode != null)
             {
                 if (storedCode == request.Code)
                 {
-                    cache.Remove(request.Email);
+                    _cache.Remove(request.Email);
                     return Ok(new
                     {
                         status = "success",
@@ -316,6 +327,17 @@ namespace HealthBuddy.Server.Controllers
 
             try
             {
+                // Kiểm tra email đã tồn tại chưa
+                bool emailExists = await userRepository.IsEmailExistsAsync(request.Email);
+                if (emailExists)
+                {
+                    return BadRequest(new
+                    {
+                        status = "error",
+                        message = "Email đã tồn tại trong hệ thống. Vui lòng sử dụng email khác."
+                    });
+                }
+
                 var user = _mapper.Map<User>(request);
                 var result = await userRepository.AddUserAsync(user);
                 return Ok(_mapper.Map<AdminUserDTO>(result));
