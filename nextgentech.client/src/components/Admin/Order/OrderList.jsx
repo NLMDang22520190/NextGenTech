@@ -89,9 +89,9 @@ const OrderList = () => {
       // Filter by date if selected
       if (selectedDate) {
         const orderDate = new Date(order.orderDate);
-        if (!isValid(orderDate) || 
-            orderDate.getDate() !== selectedDate.getDate() || 
-            orderDate.getMonth() !== selectedDate.getMonth() || 
+        if (!isValid(orderDate) ||
+            orderDate.getDate() !== selectedDate.getDate() ||
+            orderDate.getMonth() !== selectedDate.getMonth() ||
             orderDate.getFullYear() !== selectedDate.getFullYear()) {
           return false;
         }
@@ -113,7 +113,7 @@ const OrderList = () => {
   // Lấy đơn hàng cho trang hiện tại
   const paginatedOrders = useMemo(() => {
     return filteredOrders.slice(
-      currentPage * itemsPerPage, 
+      currentPage * itemsPerPage,
       (currentPage + 1) * itemsPerPage
     );
   }, [filteredOrders, currentPage, itemsPerPage]);
@@ -122,7 +122,7 @@ const OrderList = () => {
   const getPaginationNumbers = () => {
     const pages = [];
     const maxDisplayedPages = 5;
-    
+
     if (totalPages <= maxDisplayedPages) {
       // Hiển thị tất cả các trang nếu tổng số trang <= số trang tối đa hiển thị
       for (let i = 0; i < totalPages; i++) {
@@ -132,17 +132,17 @@ const OrderList = () => {
       // Hiển thị một tập hợp con các trang với trang hiện tại ở giữa
       let startPage = Math.max(0, currentPage - Math.floor(maxDisplayedPages / 2));
       let endPage = Math.min(totalPages - 1, startPage + maxDisplayedPages - 1);
-      
+
       // Điều chỉnh nếu chúng ta gần cuối
       if (endPage - startPage < maxDisplayedPages - 1) {
         startPage = Math.max(0, endPage - maxDisplayedPages + 1);
       }
-      
+
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
     }
-    
+
     return pages;
   };
 
@@ -152,7 +152,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
   try {
     // The API expects the new status as a direct string value, not as a JSON object
     // Note: We're sending the status as a raw string with quotes around it
-    await axios.put(`http://localhost:5240/api/Order/update-order-state/${orderId}`, 
+    await axios.put(`http://localhost:5240/api/Order/update-order-state/${orderId}`,
       JSON.stringify(newStatus),
       {
         headers: {
@@ -160,17 +160,17 @@ const updateOrderStatus = async (orderId, newStatus) => {
         }
       }
     );
-    
+
     // Update local state
-    setOrders(orders.map(order => 
+    setOrders(orders.map(order =>
       order.orderId === orderId ? {...order, status: newStatus} : order
     ));
-    
+
     // Update selected order if it's the one being modified
     if (selectedOrder && selectedOrder.orderId === orderId) {
       setSelectedOrder({...selectedOrder, status: newStatus});
     }
-    
+
   } catch (error) {
     console.error("Error updating order status:", error);
     // Add better error handling
@@ -204,7 +204,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
 
   return (
     <div className="w-full max-w-7xl mx-auto font-sans">
-      <motion.h1 
+      <motion.h1
         className="text-2xl font-medium text-gray-800 mb-6"
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -214,7 +214,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
       </motion.h1>
 
       {/* Filter Section */}
-      <motion.div 
+      <motion.div
         className="flex flex-wrap gap-2 mb-6 border border-gray-200 rounded-lg overflow-hidden"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -223,14 +223,14 @@ const updateOrderStatus = async (orderId, newStatus) => {
         <div className="flex items-center p-4 border-r border-gray-200">
           <Filter size={18} className="text-gray-600" />
         </div>
-        
+
         {/* Date Filter */}
         <div className="flex items-center border-r border-gray-200">
           <Popover>
             <PopoverTrigger asChild>
-              <button className="px-4 py-3 flex items-center justify-between min-w-[160px] text-left">
+              <button className="px-4 py-3 flex items-center justify-between min-w-[160px] text-left cursor-pointer">
                 <span className="flex items-center text-sm font-medium text-gray-700">
-                  <CalendarIcon size={16} className="mr-2 text-gray-500" />
+                  <CalendarIcon size={16} className="mr-2 text-primary-500 " />
                   {formatSelectedDate()}
                 </span>
                 <ChevronDown size={16} className="ml-2 text-gray-500" />
@@ -246,15 +246,15 @@ const updateOrderStatus = async (orderId, newStatus) => {
             </PopoverContent>
           </Popover>
         </div>
-        
+
         {/* Order Status Filter */}
         <div className="flex items-center border-r border-gray-200 ">
           <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger className="border-0 focus:ring-0 focus:ring-offset-0 px-4 py-3 h-auto min-w-[160px]">
-              <span className="flex items-center text-sm font-medium text-gray-700">
-                <Tag size={16} className="mr-2 text-gray-500" />
-                <SelectValue placeholder="Trạng thái đơn hàng" />
-              </span>
+            <SelectTrigger className="border-0 focus:ring-0 focus:ring-offset-0 px-4 py-3 h-auto min-w-[220px]">
+              <div className="flex items-center justify-start w-full text-sm font-medium text-gray-700 cursor-pointer">
+                <Tag size={16} className="mr-2 text-green-500 flex-shrink-0 cursor-pointer" />
+                <SelectValue placeholder="Trạng thái đơn hàng" className="flex-grow cursor-pointer" />
+              </div>
             </SelectTrigger>
             <SelectContent className="z-50 bg-white">
               {orderStatuses.map(status => (
@@ -265,12 +265,12 @@ const updateOrderStatus = async (orderId, newStatus) => {
             </SelectContent>
           </Select>
         </div>
-        
+
         {/* Reset Filters */}
         <div className="flex items-center ml-auto">
-          <button 
+          <button
             onClick={resetFilters}
-            className="px-4 py-3 flex items-center text-red-500 hover:text-red-600 transition-colors duration-200 cursor-pointer" 
+            className="px-4 py-3 flex items-center text-red-500 hover:text-red-600 transition-colors duration-200 cursor-pointer"
           >
             <X size={16} className="mr-2" />
             <span className="text-sm font-medium">Xóa bộ lọc</span>
@@ -293,7 +293,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
       ) : (
         <>
           {/* Table */}
-          <motion.div 
+          <motion.div
             className="border border-gray-200 rounded-lg overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -335,7 +335,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
                     </tr>
                   ) : (
                     paginatedOrders.map((order, index) => (
-                      <motion.tr 
+                      <motion.tr
                         key={order.orderId}
                         variants={tableRowVariants}
                         initial="hidden"
@@ -375,7 +375,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
                       </motion.tr>
                     ))
                   )}
-                  
+
                   {/* Thêm hàng trống nếu số đơn hàng ít hơn itemsPerPage */}
                   {paginatedOrders.length > 0 && paginatedOrders.length < itemsPerPage && (
                     Array.from({ length: itemsPerPage - paginatedOrders.length }).map((_, i) => (
@@ -391,29 +391,29 @@ const updateOrderStatus = async (orderId, newStatus) => {
 
           {/* Pagination - Thay thế phần phân trang cũ */}
           {totalPages > 1 && (
-            <motion.div 
+            <motion.div
               className="flex items-center justify-center mt-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4, delay: 0.4 }}
             >
               <div className="flex items-center space-x-2">
-                <button 
+                <button
                   className="p-2 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50"
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
                   disabled={currentPage === 0}
                 >
                   <ChevronLeft size={16} className="text-gray-600" />
                 </button>
-                
+
                 {getPaginationNumbers().map((page) => (
                   <motion.button
                     key={page}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer ${
-                      currentPage === page 
-                        ? 'bg-primary-500 text-white' 
+                      currentPage === page
+                        ? 'bg-primary-500 text-white'
                         : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
                     } transition-colors duration-200`}
                     onClick={() => setCurrentPage(page)}
@@ -421,8 +421,8 @@ const updateOrderStatus = async (orderId, newStatus) => {
                     {page + 1}
                   </motion.button>
                 ))}
-                
-                <button 
+
+                <button
                   className="p-2 rounded-md border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50"
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))}
                   disabled={currentPage >= totalPages - 1}
@@ -444,7 +444,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <motion.div 
+            <motion.div
               className="bg-white rounded-lg shadow-xl w-full max-w-2xl overflow-hidden"
               initial={{ opacity: 0, y: 50, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -453,14 +453,14 @@ const updateOrderStatus = async (orderId, newStatus) => {
             >
               <div className="flex items-center justify-between px-6 py-4 border-b">
                 <h3 className="text-lg font-medium">Chi tiết đơn hàng #{selectedOrder.orderId}</h3>
-                <button 
+                <button
                   onClick={() => setSelectedOrder(null)}
                   className="text-gray-500 hover:text-gray-700 transition-colors cursor-pointer"
                 >
                   <X size={20} />
                 </button>
               </div>
-              
+
               <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div className="space-y-2">
@@ -499,12 +499,12 @@ const updateOrderStatus = async (orderId, newStatus) => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="mb-4">
                   <span className="text-gray-500">Địa chỉ giao hàng:</span>
                   <p className="mt-1 p-2 bg-gray-50 rounded-md">{selectedOrder.shippingAddress}</p>
                 </div>
-                
+
                 {selectedOrder.orderDetails && selectedOrder.orderDetails.length > 0 && (
                   <div className="mt-6">
                     <h4 className="text-md font-medium mb-3">Chi tiết sản phẩm</h4>
@@ -554,7 +554,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
                   </div>
                 )}
               </div>
-              
+
               <div className="flex justify-end gap-3 px-6 py-4 border-t bg-gray-50">
                 <motion.button
                   whileHover={{ scale: 1.02 }}

@@ -1,15 +1,15 @@
 import { motion } from "framer-motion";
-import { 
-  LayoutDashboard, ShoppingBag, Heart, MessageSquare, 
-  ListOrdered, PackageOpen, Tag, Calendar, CheckSquare, 
+import {
+  LayoutDashboard, ShoppingBag,
+  ListOrdered, Tag, Calendar, CheckSquare,
   Users, FileText, Layout, UsersRound, Table, Settings, LogOut,
-  ChevronLeft, ChevronRight, 
+  ChevronLeft, ChevronRight,
   Slack,
   Boxes,
   Users2,
   TicketPercent
 } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import GradientText from "../../ReactBitsComponent/GradientText";
 import { useDispatch } from "react-redux";
 import { logout } from "../../../features/AxiosInstance/Auth/Auth";
@@ -23,11 +23,11 @@ const SidebarItem = ({ icon: Icon, label, path, isActive = false, isCollapsed, o
       className="animate-fade-in"
     >
       {path === "/logout" ? (
-        <button 
+        <button
           onClick={onClick}
           className={`flex gap-3 px-4 py-3 text-base rounded-xl items-center transition-all duration-300 w-full ${
-            isActive 
-              ? 'bg-primary text-white font-medium' 
+            isActive
+              ? 'bg-primary text-white font-medium'
               : 'text-gray-600 hover:bg-primary-50'
           } ${isCollapsed ? 'justify-around' :'' }`}
         >
@@ -35,11 +35,11 @@ const SidebarItem = ({ icon: Icon, label, path, isActive = false, isCollapsed, o
           {!isCollapsed && <span>{label}</span>}
         </button>
       ) : (
-        <Link 
-          to={path} 
+        <Link
+          to={path}
           className={`flex gap-3 px-4 py-3 text-base rounded-xl items-center transition-all duration-300 ${
-            isActive 
-              ? 'bg-primary text-white font-medium' 
+            isActive
+              ? 'bg-primary text-white font-medium'
               : 'text-gray-600 hover:bg-primary-50'
           } ${isCollapsed ? 'justify-around' :'' }`}
         >
@@ -54,14 +54,14 @@ const SidebarItem = ({ icon: Icon, label, path, isActive = false, isCollapsed, o
 const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
   const location = useLocation();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const handleLogout = () => {
     // Hiển thị thông báo xác nhận trước khi đăng xuất
     if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
       dispatch(logout());
       toast.success("Đăng xuất thành công");
-      navigate("/login");
+      // Force a page reload to ensure all state is cleared
+      window.location.href = "/auth/login";
     }
   };
 
@@ -69,7 +69,6 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
     { icon: LayoutDashboard, label: "Dashboard", path: "/" },
     { icon: ShoppingBag, label: "Products", path: "/products" },
     { icon: ListOrdered, label: "Order Lists", path: "/orders" },
-    { icon: PackageOpen, label: "Product Stock", path: "/stock" },
     { icon: Slack, label: "Brands", path: "/brands" },
     { icon: Boxes, label: "Categories", path: "/categories" },
     { icon: Users2, label: "Customers", path: "/customers" },
@@ -105,8 +104,8 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
             </GradientText>
         </Link>
 
-        <button 
-          onClick={toggleSidebar} 
+        <button
+          onClick={toggleSidebar}
           className="mt-1 p-1 rounded-full hover:bg-gray-200 transition"
         >
           {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
@@ -114,16 +113,16 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
       </div>
 
       <nav className="mt-auto h-full flex-1">
-        <motion.div 
+        <motion.div
           className="ps-2 pe-3 h-full flex-1"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ staggerChildren: 0.05, delayChildren: 0.1 }}
         >
-          <div className="flex flex-col justify-around h-9/10">            
+          <div className="flex flex-col justify-around h-9/10">
             {sidebarItems.map((item) => (
               <div key={item.path}>
-                <SidebarItem 
+                <SidebarItem
                   icon={item.icon}
                   label={item.label}
                   path={item.path}

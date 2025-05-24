@@ -31,7 +31,7 @@ namespace NextGenTech.Server.Repositories.Implement
             await _context.SaveChangesAsync();
             return user;
         }
-         
+
 
         public async Task<bool> IsEmailExistsAsync(string email)
         {
@@ -52,7 +52,7 @@ namespace NextGenTech.Server.Repositories.Implement
         public async Task<User?> AuthenticateAsync(string email, string password)
         {
             var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
-            
+
             if (user == null || string.IsNullOrEmpty(user.PasswordHash))
                 return null;
 
@@ -70,7 +70,7 @@ namespace NextGenTech.Server.Repositories.Implement
                 Console.WriteLine($"Invalid BCrypt hash: {user.PasswordHash}");
                 Console.WriteLine($"Error: {ex.Message}");
                 return null;
-            }   
+            }
         }
 
         public async Task<bool> UpdatePassword(User user, string newPassword)
@@ -82,22 +82,71 @@ namespace NextGenTech.Server.Repositories.Implement
 
         public async Task<bool> UpdateUserInfo(int userId, UpdateUserInfoRequestDTO request)
         {
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null)
+            try
             {
-                return false;
+                Console.WriteLine($"UpdateUserInfo called for userId: {userId}");
+                Console.WriteLine($"Request data: FullName={request.FullName}, Phone={request.Phone}, City={request.City}, District={request.District}, Ward={request.Ward}, PhotoUrl={request.PhotoUrl}");
+
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null)
+                {
+                    Console.WriteLine($"User with ID {userId} not found");
+                    return false;
+                }
+
+                Console.WriteLine($"Found user: ID={user.UserId}, FullName={user.FullName}, Role={user.Role}, Email={user.Email}");
+
+                // Lưu giá trị cũ để so sánh
+                var oldFullName = user.FullName;
+                var oldPhone = user.Phone;
+                var oldCity = user.City;
+                var oldDistrict = user.District;
+                var oldWard = user.Ward;
+                var oldAvatarUrl = user.AvatarImageUrl;
+
+                // Chỉ cập nhật các trường cần thiết, không động đến Role
+                user.FullName = request.FullName;
+                user.Phone = request.Phone;
+                user.City = request.City;
+                user.District = request.District;
+                user.Ward = request.Ward;
+                user.AvatarImageUrl = request.PhotoUrl;
+
+                Console.WriteLine($"Updated values: FullName={user.FullName}, Phone={user.Phone}, City={user.City}, District={user.District}, Ward={user.Ward}, AvatarUrl={user.AvatarImageUrl}");
+
+                // Thử phương pháp cập nhật trực tiếp bằng SQL
+                Console.WriteLine("About to save changes...");
+
+                // Sử dụng ExecuteSqlRaw để cập nhật trực tiếp
+                var sql = @"UPDATE Users
+                           SET FullName = {0},
+                               Phone = {1},
+                               City = {2},
+                               District = {3},
+                               Ward = {4},
+                               AvatarImageUrl = {5}
+                           WHERE UserID = {6}";
+
+                var result = await _context.Database.ExecuteSqlRawAsync(sql,
+                    request.FullName ?? (object)DBNull.Value,
+                    request.Phone ?? (object)DBNull.Value,
+                    request.City ?? (object)DBNull.Value,
+                    request.District ?? (object)DBNull.Value,
+                    request.Ward ?? (object)DBNull.Value,
+                    request.PhotoUrl ?? (object)DBNull.Value,
+                    userId);
+
+                Console.WriteLine($"ExecuteSqlRaw result: {result}");
+
+                return result > 0;
             }
-
-            user.FullName = request.FullName;
-            user.Phone = request.Phone;
-            user.City = request.City;
-            user.District=request.District;
-            user.Ward = request.Ward;
-            user.AvatarImageUrl = request.PhotoUrl;
-
-            _context.Users.Update(user);
-            return await _context.SaveChangesAsync() > 0;
-
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UpdateUserInfo: {ex}");
+                Console.WriteLine($"Inner exception: {ex.InnerException?.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw;
+            }
         }
 
         public async Task<List<User>> AdminGetAllUsersAsync()
@@ -124,14 +173,21 @@ namespace NextGenTech.Server.Repositories.Implement
             {
                 return null;
             }
+
+            // Cập nhật các trường thông tin cơ bản
             existingUser.FullName = updatedUser.FullName;
             existingUser.Phone = updatedUser.Phone;
             existingUser.City = updatedUser.City;
             existingUser.District = updatedUser.District;
             existingUser.Ward = updatedUser.Ward;
             existingUser.AvatarImageUrl = updatedUser.AvatarImageUrl;
-            existingUser.Role = updatedUser.Role;
-            
+
+            // Chỉ cập nhật Role nếu có giá trị hợp lệ
+            if (!string.IsNullOrEmpty(updatedUser.Role))
+            {
+                existingUser.Role = updatedUser.Role;
+            }
+
             await _context.SaveChangesAsync();
             return existingUser;
         }
@@ -145,5 +201,5 @@ namespace NextGenTech.Server.Repositories.Implement
             return result;
         }
     }
-    
+
 }

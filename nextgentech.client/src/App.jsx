@@ -14,23 +14,25 @@ import {
 
 function App() {
   const dispatch = useDispatch();
-  const userRole = useSelector((state) => state.auth.userRole) ?? "admin";
+  const userRole = useSelector((state) => state.auth.userRole);
   const userId = useSelector((state) => state.auth.user);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   // Fetch cart ID when the page is refreshed (component mounts)
   useEffect(() => {
     if (userId) {
       dispatch(fetchCartDetailsByCustomerId(userId));
     }
-  }, [dispatch]);
+  }, [dispatch, userId]);
 
   useEffect(() => {
-    console.log("userRole: ", userRole);    
-  }, []);
+    console.log("userRole: ", userRole);
+    console.log("isAuthenticated: ", isAuthenticated);
+  }, [userRole, isAuthenticated]);
 
   return (
     <div>
-      {userRole === "admin" ? (
+      {isAuthenticated && userRole === "admin" ? (
         <AdminLayout>
           <AllAdminRoutes />
         </AdminLayout>

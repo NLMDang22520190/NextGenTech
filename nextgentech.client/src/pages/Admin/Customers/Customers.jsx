@@ -96,6 +96,34 @@ export default function Customers() {
     const totalItems = filterCustomersData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
+    // Hàm tạo số trang để hiển thị
+    const getPaginationNumbers = () => {
+        const pages = [];
+        const maxDisplayedPages = 5;
+
+        if (totalPages <= maxDisplayedPages) {
+            // Hiển thị tất cả các trang nếu tổng số trang <= số trang tối đa hiển thị
+            for (let i = 0; i < totalPages; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Hiển thị một tập hợp con các trang với trang hiện tại ở giữa
+            let startPage = Math.max(0, currentPage - Math.floor(maxDisplayedPages / 2));
+            let endPage = Math.min(totalPages - 1, startPage + maxDisplayedPages - 1);
+
+            // Điều chỉnh nếu chúng ta gần cuối
+            if (endPage - startPage < maxDisplayedPages - 1) {
+                startPage = Math.max(0, endPage - maxDisplayedPages + 1);
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                pages.push(i);
+            }
+        }
+
+        return pages;
+    };
+
     const toggleSelectAll = () => {
         if (selectedCustomers.length === customersData.length) {
             setSelectedCustomers([]);
@@ -455,26 +483,51 @@ export default function Customers() {
                 </div>
 
                 {/* Table Footer */}
-                <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
-                <div className="text-sm text-gray-500">
-                    Showing {currentPage * itemsPerPage + 1}-{Math.min((currentPage + 1) * itemsPerPage,totalItems)} of {totalItems}
-                </div>
-                <div className="flex items-center space-x-2">
-                    <button
-                        className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-                        disabled={currentPage === 0}
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
-                    >
-                        <ChevronLeft size={20} className="text-gray-600" />
-                    </button>
-                    <button
-                        className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50"
-                        disabled={(currentPage + 1) === totalPages}
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))}
-                    >
-                        <ChevronRight size={20} className="text-gray-600" />
-                    </button>
-                </div>
+                <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                    <div className="flex flex-col sm:flex-row justify-between items-center">
+                        <div className="text-sm text-gray-500 mb-4 sm:mb-0">
+                            Showing {currentPage * itemsPerPage + 1}-{Math.min((currentPage + 1) * itemsPerPage,totalItems)} of {totalItems}
+                        </div>
+
+                        {/* Pagination - Centered */}
+                        {totalPages > 1 && (
+                            <div className="flex-grow flex justify-center">
+                                <div className="flex items-center space-x-2">
+                                    <button
+                                        className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 border border-gray-300"
+                                        disabled={currentPage === 0}
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))}
+                                    >
+                                        <ChevronLeft size={18} className="text-gray-600" />
+                                    </button>
+
+                                    {getPaginationNumbers().map((page) => (
+                                        <motion.button
+                                            key={page}
+                                            whileHover={{ scale: 1.1 }}
+                                            whileTap={{ scale: 0.9 }}
+                                            className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer ${
+                                                currentPage === page
+                                                    ? 'bg-primary-500 text-white'
+                                                    : 'border border-gray-300 text-gray-600 hover:bg-gray-100'
+                                            } transition-colors`}
+                                            onClick={() => setCurrentPage(page)}
+                                        >
+                                            {page + 1}
+                                        </motion.button>
+                                    ))}
+
+                                    <button
+                                        className="p-2 rounded-md hover:bg-gray-100 disabled:opacity-50 border border-gray-300"
+                                        disabled={currentPage >= totalPages - 1}
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))}
+                                    >
+                                        <ChevronRight size={18} className="text-gray-600" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
             )}

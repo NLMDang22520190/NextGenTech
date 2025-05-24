@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Edit, Trash2 } from "lucide-react";
 import { Popconfirm } from "antd";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 const BrandCard = ({ brand, onEdit, onDelete }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -32,9 +33,17 @@ const BrandCard = ({ brand, onEdit, onDelete }) => {
       <div className="relative">
         <div className="relative w-full aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
           <img
-            src={brand.image !== '' ? brand.image : `https://logo.clearbit.com/${brand.name}.com`}
+            src={brand.image !== ''
+              ? (brand.image.startsWith('/api')
+                ? `${api.defaults.baseURL}${brand.image}`
+                : brand.image)
+              : `https://logo.clearbit.com/${brand.name}.com`}
             alt={brand.name}
             className="w-full h-full object-contain"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "https://placehold.co/300x300?text=No+Image";
+            }}
           />
 
           {/* Action buttons that appear on hover */}

@@ -284,15 +284,42 @@ namespace HealthBuddy.Server.Controllers
                 });
             }
 
+            // Kiểm tra validation
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Dữ liệu không hợp lệ.",
+                    errors = errors
+                });
+            }
+
             try
             {
-                var success = await userRepository.UpdateUserInfo(userId, request);
-                if (!success)
+                // Kiểm tra user có tồn tại không
+                var existingUser = await userRepository.GetUserByIdAsync(userId);
+                if (existingUser == null)
                 {
                     return NotFound(new
                     {
                         status = "error",
-                        message = "Không tìm thấy người dùng hoặc không thể cập nhật."
+                        message = "Không tìm thấy người dùng với ID đã cung cấp."
+                    });
+                }
+
+                var success = await userRepository.UpdateUserInfo(userId, request);
+                if (!success)
+                {
+                    return BadRequest(new
+                    {
+                        status = "error",
+                        message = "Không thể cập nhật thông tin người dùng."
                     });
                 }
 
@@ -304,6 +331,9 @@ namespace HealthBuddy.Server.Controllers
             }
             catch (Exception ex)
             {
+                // Log chi tiết lỗi để debug
+                Console.WriteLine($"Error updating user info: {ex}");
+
                 return StatusCode(500, new
                 {
                     status = "error",
@@ -385,6 +415,85 @@ namespace HealthBuddy.Server.Controllers
                 {
                     status = "error",
                     message = "Lỗi khi cập nhật người dùng.",
+                    details = ex.Message
+                });
+            }
+        }
+
+        [HttpPut("Admin-Update-info/{userId}")]
+        public async Task<IActionResult> AdminUpdateUserInfo(int userId, [FromBody] UpdateUserInfoRequestDTO request)
+        {
+            Console.WriteLine($"AdminUpdateUserInfo called with userId: {userId}");
+            Console.WriteLine($"Request object: {System.Text.Json.JsonSerializer.Serialize(request)}");
+
+            if (request == null)
+            {
+                Console.WriteLine("Request is null");
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Dữ liệu gửi lên không hợp lệ."
+                });
+            }
+
+            // Kiểm tra validation
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("ModelState is invalid");
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                Console.WriteLine($"Validation errors: {string.Join(", ", errors)}");
+
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Dữ liệu không hợp lệ.",
+                    errors = errors
+                });
+            }
+
+            try
+            {
+                // Kiểm tra user có tồn tại không
+                var existingUser = await userRepository.GetUserByIdAsync(userId);
+                if (existingUser == null)
+                {
+                    return NotFound(new
+                    {
+                        status = "error",
+                        message = "Không tìm thấy người dùng với ID đã cung cấp."
+                    });
+                }
+
+                Console.WriteLine($"Admin updating user info for userId: {userId}");
+                var success = await userRepository.UpdateUserInfo(userId, request);
+                if (!success)
+                {
+                    return BadRequest(new
+                    {
+                        status = "error",
+                        message = "Không thể cập nhật thông tin người dùng."
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Cập nhật thông tin người dùng thành công."
+                });
+            }
+            catch (Exception ex)
+            {
+                // Log chi tiết lỗi để debug
+                Console.WriteLine($"Error in AdminUpdateUserInfo: {ex}");
+
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = "Lỗi khi cập nhật thông tin người dùng.",
                     details = ex.Message
                 });
             }

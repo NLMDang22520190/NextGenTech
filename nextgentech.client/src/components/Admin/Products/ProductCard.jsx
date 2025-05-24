@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Trash2 } from "lucide-react";
 import { Popconfirm } from "antd";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 const StarRating = ({ rating, reviews }) => {
   return (
@@ -41,9 +42,15 @@ const ProductCard = ({ product, onEdit = () => {}, onDelete = () => {} }) => {
       <div className="relative">
         <div className="relative w-full aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
           <img
-            src={product.image}
+            src={product.image && product.image.startsWith('/api')
+              ? `${api.defaults.baseURL}${product.image}`
+              : product.image}
             alt={product.name}
-            className="w-full h-full object-contain "
+            className="w-full h-full object-contain"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = "https://placehold.co/300x300?text=No+Image";
+            }}
           />
 
           {/* Delete button */}

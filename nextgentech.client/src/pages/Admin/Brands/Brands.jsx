@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { Spin, message, Modal, Input, Form, Popconfirm } from "antd";
+import { Spin, message, Modal, Input, Form } from "antd";
 import BrandCard from "../../../components/Admin/Brands/BrandCard";
 import { fetchAllBrand, addBrand, updateBrand, deleteBrand } from "../../../features/Admin/Brands/Brand";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Upload as UploadIcon } from "lucide-react";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 export default function Brands() {
   const dispatch = useDispatch();
@@ -16,6 +17,8 @@ export default function Brands() {
   const [currentBrand, setCurrentBrand] = useState(null);
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   // Function to fetch brands data
   const fetchBrands = async () => {
@@ -41,6 +44,8 @@ export default function Brands() {
     setIsEditMode(false);
     setCurrentBrand(null);
     setIsModalOpen(true);
+    setImagePreview(null);
+    setSelectedFile(null);
     form.resetFields();
   };
 
@@ -48,23 +53,41 @@ export default function Brands() {
     setIsEditMode(true);
     setCurrentBrand(brand);
     setIsModalOpen(true);
+
+    // Handle image preview for API URLs
+    const imageUrl = brand.image || null;
+    setImagePreview(imageUrl);
+    setSelectedFile(null);
+
     form.setFieldsValue({
       brandName: brand.name,
-      brandImageUrl: brand.image
+      brandImageUrl: imageUrl
     });
   };
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    setImagePreview(null);
+    setSelectedFile(null);
     form.resetFields();
   };
 
   const handleSubmit = async (values) => {
     try {
       setSubmitting(true);
+
+      // Upload image if a file is selected
+      let imageUrl = values.brandImageUrl || "";
+      if (selectedFile) {
+        const uploadedImageUrl = await handleImageUpload(selectedFile);
+        if (uploadedImageUrl) {
+          imageUrl = uploadedImageUrl;
+        }
+      }
+
       const brandData = {
         brandName: values.brandName,
-        brandImageUrl: values.brandImageUrl || ""
+        brandImageUrl: imageUrl
       };
 
       if (isEditMode && currentBrand) {
@@ -81,6 +104,8 @@ export default function Brands() {
       }
 
       setIsModalOpen(false);
+      setImagePreview(null);
+      setSelectedFile(null);
       form.resetFields();
 
       // Refresh data after successful operation
@@ -103,6 +128,40 @@ export default function Brands() {
       await fetchBrands();
     } catch (err) {
       message.error("Failed to delete brand: " + (err.message || "Unknown error"));
+    }
+  };
+
+  // Handle image upload
+  const handleImageUpload = async (file) => {
+    try {
+      // Create FormData to send the file
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Call the upload API
+      const response = await api.post('/api/Upload/UploadImage', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      // Get the image URL from the response
+      const imageUrl = response.data.imageUrl;
+
+      // Update the image preview
+      setImagePreview(imageUrl);
+
+      // Update the form field with the new image URL
+      form.setFieldsValue({
+        brandImageUrl: imageUrl
+      });
+
+      message.success("Image uploaded successfully");
+      return imageUrl;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      message.error("Failed to upload image: " + (error.response?.data || error.message));
+      return null;
     }
   };
 
@@ -203,10 +262,60 @@ export default function Brands() {
           </Form.Item>
 
           <Form.Item
-            name="brandImageUrl"
-            label="Brand Image URL (Optional)"
+            label="Brand Image"
           >
-            <Input placeholder="Enter image URL" />
+            <div className="flex items-center gap-4">
+              <div
+                onClick={() => document.getElementById("brandImageUpload").click()}
+                className="w-24 h-24 rounded border border-gray-200 cursor-pointer overflow-hidden flex items-center justify-center hover:bg-gray-50 transition"
+              >
+                {imagePreview ? (
+                  <img
+                    src={imagePreview.startsWith('/api')
+                      ? `${api.defaults.baseURL}${imagePreview}`
+                      : imagePreview}
+                    alt="Preview"
+                    className="object-cover w-full h-full"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://placehold.co/300x300?text=No+Image";
+                    }}
+                  />
+                ) : (
+                  <div className="text-gray-400 text-sm text-center flex flex-col items-center justify-center">
+                    <UploadIcon size={20} className="mb-1" />
+                    <span>Upload</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col text-sm">
+                <span className="font-medium">Upload new image</span>
+                <span className="text-gray-500 text-xs">JPG, JPEG or PNG. Max 5MB.</span>
+              </div>
+            </div>
+
+            <input
+              type="file"
+              id="brandImageUpload"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  if (file.size > 5 * 1024 * 1024) {
+                    message.error("File size should not exceed 5MB");
+                    return;
+                  }
+                  setSelectedFile(file);
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setImagePreview(reader.result);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
           </Form.Item>
 
           <Form.Item className="mb-0 flex justify-end">

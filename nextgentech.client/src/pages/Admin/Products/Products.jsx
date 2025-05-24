@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import ProductCard from "../../../components/Admin/Products/ProductCard";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Upload as UploadIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { message, Spin, Modal, Form, Input, Select, InputNumber, Upload, Button, Popconfirm } from "antd";
-import { PlusOutlined, InboxOutlined } from "@ant-design/icons";
+import { message, Spin, Modal, Form, Input, Select, InputNumber, Button } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { fetchAllProduct, addProduct, updateProduct, deleteProduct } from "../../../features/Admin/Products/Product";
 import { fetchAllBrand } from "../../../features/Admin/Brands/Brand";
 import { fetchAllCategory } from "../../../features/Admin/Categories/Category";
-import dayjs from "dayjs";
+import api from "../../../features/AxiosInstance/AxiosInstance";
 
 export default function Products() {
   const dispatch = useDispatch();
@@ -31,6 +31,10 @@ export default function Products() {
 
   // Image URLs state
   const [imageUrls, setImageUrls] = useState([]);
+
+  // Image upload state
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   // Function to fetch products data
   const fetchProducts = async () => {
@@ -83,7 +87,10 @@ export default function Products() {
     id: product.productId,
     name: product.name,
     price: product.price,
-    image: product.imageUrl || `https://picsum.photos/300/300?random=${product.productId}`,
+    // Use the first image from productImages if available
+    image: product.productImages && product.productImages.length > 0
+      ? product.productImages[0].imageUrl
+      : (product.imageUrl || `https://picsum.photos/300/300?random=${product.productId}`),
     rating: 4.5, // Default rating
     reviews: 100, // Default reviews
     brand: product.brand?.brandName || "Unknown Brand",
@@ -105,6 +112,8 @@ export default function Products() {
     setIsModalOpen(true);
     setColors([{ color: "", colorCode: "#000000", stockQuantity: 0 }]);
     setImageUrls([]);
+    setImagePreview(null);
+    setSelectedFile(null);
     form.resetFields();
   };
 
@@ -112,6 +121,7 @@ export default function Products() {
     setIsEditMode(true);
     setCurrentProduct(product);
     setIsModalOpen(true);
+    setSelectedFile(null);
 
     // Find the original product data
     const productData = productItems.find(p => p.productId === product.id);
@@ -136,15 +146,21 @@ export default function Products() {
       setColors([{ color: "", colorCode: "#000000", stockQuantity: 0 }]);
     }
 
-    if (productData && productData.productImages) {
-      setImageUrls(productData.productImages.map(img => img.imageUrl));
+    if (productData && productData.productImages && productData.productImages.length > 0) {
+      const urls = productData.productImages.map(img => img.imageUrl);
+      setImageUrls(urls);
+      // Set the first image as preview
+      setImagePreview(urls[0]);
     } else {
       setImageUrls([]);
+      setImagePreview(null);
     }
   };
 
   const handleCancel = () => {
     setIsModalOpen(false);
+    setImagePreview(null);
+    setSelectedFile(null);
     form.resetFields();
   };
 
@@ -193,12 +209,16 @@ export default function Products() {
         return;
       }
 
-      // Validate image URLs
-      if (imageUrls.length === 0 || imageUrls.some(url => !url)) {
-        message.error("Please provide at least one valid image URL");
-        setSubmitting(false);
-        return;
+      // Upload image if a file is selected
+      let updatedImageUrls = [...imageUrls];
+      if (selectedFile) {
+        const uploadedImageUrl = await handleImageUpload(selectedFile);
+        if (uploadedImageUrl) {
+          // Add the uploaded image URL to the beginning of the array
+          updatedImageUrls = [uploadedImageUrl, ...updatedImageUrls.filter(url => url !== "")];
+        }
       }
+
 
       const productData = {
         name: values.name,
@@ -208,7 +228,7 @@ export default function Products() {
         brandId: values.brandId,
         categoryId: values.categoryId,
         colors: colors,
-        imageUrls: imageUrls
+        imageUrls: updatedImageUrls
       };
 
       if (isEditMode && currentProduct) {
@@ -225,6 +245,8 @@ export default function Products() {
       }
 
       setIsModalOpen(false);
+      setImagePreview(null);
+      setSelectedFile(null);
       form.resetFields();
 
       // Refresh data after successful operation
@@ -251,13 +273,42 @@ export default function Products() {
     }
   };
 
+  // Handle image upload
+  const handleImageUpload = async (file) => {
+    try {
+      // Create FormData to send the file
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Call the upload API
+      const response = await api.post('/api/Upload/UploadImage', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      // Get the image URL from the response
+      const imageUrl = response.data.imageUrl;
+
+      // Update the image preview
+      setImagePreview(imageUrl);
+
+      message.success("Image uploaded successfully");
+      return imageUrl;
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      message.error("Failed to upload image: " + (error.response?.data || error.message));
+      return null;
+    }
+  };
+
   return (
     <div className='space-y-6'>
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-800">Products</h1>
 
         <button
-          className="flex items-center py-2 px-5 text-white bg-primary rounded-lg font-bold text-sm hover:scale-105 active:scale-95 transition-all duration-100"
+          className="flex items-center py-2 px-5 text-white bg-primary rounded-lg font-bold text-sm hover:scale-105 active:scale-95 transition-all duration-100 cursor-pointer"
           onClick={showAddModal}
         >
           <Plus size={16} className="mr-1" />
@@ -450,41 +501,73 @@ export default function Products() {
 
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Image URLs
+              Image Upload
             </label>
-            {imageUrls.map((url, index) => (
-              <div key={index} className="flex items-center gap-2 mb-2">
-                <Input
-                  placeholder="Image URL"
-                  value={url}
-                  onChange={(e) => updateImageUrl(index, e.target.value)}
-                  style={{ width: '85%' }}
-                />
-                <Button
-                  danger
-                  onClick={() => removeImageUrl(index)}
-                  disabled={imageUrls.length <= 1}
-                >
-                  Remove
-                </Button>
+            <div className="flex items-center gap-4 mb-4">
+              <div
+                onClick={() => document.getElementById("productImageUpload").click()}
+                className="w-24 h-24 rounded border border-gray-200 cursor-pointer overflow-hidden flex items-center justify-center hover:bg-gray-50 transition"
+              >
+                {imagePreview ? (
+                  <img
+                    src={imagePreview.startsWith('/api')
+                      ? `${api.defaults.baseURL}${imagePreview}`
+                      : imagePreview}
+                    alt="Preview"
+                    className="object-cover w-full h-full"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "https://placehold.co/300x300?text=No+Image";
+                    }}
+                  />
+                ) : (
+                  <div className="text-gray-400 text-sm text-center flex flex-col items-center justify-center">
+                    <UploadIcon size={20} className="mb-1" />
+                    <span>Upload</span>
+                  </div>
+                )}
               </div>
-            ))}
-            <Button type="dashed" onClick={addImageUrl} block icon={<PlusOutlined />}>
-              Add Image URL
-            </Button>
+
+              <div className="flex flex-col text-sm">
+                <span className="font-medium">Upload new image</span>
+                <span className="text-gray-500 text-xs">JPG, JPEG or PNG. Max 5MB.</span>
+              </div>
+            </div>
+
+            <input
+              type="file"
+              id="productImageUpload"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                  if (file.size > 5 * 1024 * 1024) {
+                    message.error("File size should not exceed 5MB");
+                    return;
+                  }
+                  setSelectedFile(file);
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setImagePreview(reader.result);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
           </div>
 
           <Form.Item className="mb-0 flex justify-end">
             <button
               type="button"
-              className="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              className="mr-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 cursor-pointer"
               onClick={handleCancel}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark"
+              className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark cursor-pointer"
               disabled={submitting}
             >
               {submitting
