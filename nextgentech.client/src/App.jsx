@@ -32,7 +32,7 @@ function App() {
 
   return (
     <div>
-      {!isAuthenticated && userRole !== "admin" ? (
+      {isAuthenticated && userRole === "admin" ? (
         <AdminLayout>
           <AllAdminRoutes />
         </AdminLayout>
