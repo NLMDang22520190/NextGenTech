@@ -38,6 +38,7 @@ namespace NextGenTech.Server.Repositories.Implement
             .Include(p => p.Brand)
             .Include(p => p.Category)
             .Include(p => p.ProductImages)
+            .Include(p => p.Reviews)
             .ToListAsync();
         }
         public async Task<Product> AdminGetProductByIdAsync(int id)
@@ -47,6 +48,7 @@ namespace NextGenTech.Server.Repositories.Implement
             .Include(p => p.Category)
             .Include(p => p.ProductImages)
             .Include(p => p.ProductColors)
+            .Include(p => p.Reviews)
             .FirstOrDefaultAsync(p => p.ProductId == id);
         }
         public async Task<Product> AddProductAsync(Product product)

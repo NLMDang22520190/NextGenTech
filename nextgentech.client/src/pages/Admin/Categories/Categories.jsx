@@ -217,12 +217,6 @@ export default function Categories() {
                     scope="col"
                     className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider"
                   >
-                    STT
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider"
-                  >
                     ID
                   </th>
                   <th
@@ -262,9 +256,6 @@ export default function Categories() {
                       variants={itemVariants}
                       className="hover:bg-gray-50 h-[7.5vh]"
                     >
-                      <td className="px-4 py-2 text-sm text-gray-900 text-center">
-                        {currentPage * itemsPerPage + index + 1}
-                      </td>
                       <td className="px-4 py-2 text-sm text-gray-500 text-center">
                         {category.id}
                       </td>

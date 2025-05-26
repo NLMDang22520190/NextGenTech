@@ -270,7 +270,7 @@ export default function ProductDetail() {
     >
       <motion.button
         onClick={handleBackToProducts}
-        className="flex items-center cursor-pointer text-primary-300 hover:text-primary-500 transition mb-6 group"
+        className="flex items-center cursor-pointer text-primary-300 hover:text-primary-500 transition mb-2 group"
         whileHover={{ x: -5 }}
       >
         <ArrowLeft className="mr-2 h-4 w-4" />

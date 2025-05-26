@@ -16,8 +16,14 @@ namespace HealthBuddy.Server.Mapping
         {
             CreateMap<Product, CustomerProductDTO>().ReverseMap();
             CreateMap<Product, CustomerDetailProductDTO>().ReverseMap();
-            CreateMap<Product, AdminProductDTO>().ReverseMap();
-            CreateMap<Product, AdminDetailProductDTO>().ReverseMap();
+            CreateMap<Product, AdminProductDTO>()
+                .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews.Count))
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Reviews.Average(r => r.Rating)))
+                .ReverseMap();
+            CreateMap<Product, AdminDetailProductDTO>()
+                .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews.Count))
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Reviews.Average(r => r.Rating)))
+                .ReverseMap();
             CreateMap<AdminAddProductDTO, Product>()
                 .ForMember(dest => dest.StockQuantity, opt => opt.MapFrom(src => src.Colors.Sum(c => c.StockQuantity))) // Map total stock quantity
                 .ForMember(dest => dest.ProductImages, opt => opt.Ignore()) // Ignore ProductImages

@@ -91,8 +91,8 @@ export default function Products() {
     image: product.productImages && product.productImages.length > 0
       ? product.productImages[0].imageUrl
       : (product.imageUrl || `https://picsum.photos/300/300?random=${product.productId}`),
-    rating: 4.5, // Default rating
-    reviews: 100, // Default reviews
+    rating: (product.rating === 0 && product.reviewCount == 0) ? 5 : product.rating, // Default rating
+    reviews: product.reviewCount, // Default reviews
     brand: product.brand?.brandName || "Unknown Brand",
     category: product.category?.categoryName || "Unknown Category",
     description: product.description || "",
