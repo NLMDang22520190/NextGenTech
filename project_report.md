@@ -1,0 +1,983 @@
+# MINISTRY OF EDUCATION AND TRAINING
+
+# FPT UNIVERSITY
+## Capstone Project Document
+# NextGenTech E-commerce Platform
+
+**SE109 - NextGenTech Web**
+
+| Role | Name | Roll No | Student Code |
+|------|------|---------|-------------|
+| Team Member | Nguyen Van A | SE123456 | SE123456 |
+| Team Member | Tran Thi B | SE123457 | SE123457 |
+| Team Member | Le Van C | SE123458 | SE123458 |
+| Team Member | Pham Thi D | SE123459 | SE123459 |
+| Team Member | Hoang Van E | SE123460 | SE123460 |
+
+**Supervisor:** Dr. Nguyen Van Mentor
+**Ext Supervisor:** Mr. Tran Tech Industry
+**Capstone Project code:** SE109
+
+*- Hanoi, 05/2024 -*
+
+## Table of Contents
+
+- [Acknowledgement](#acknowledgement)
+- [Definition and Acronyms](#definition-and-acronyms)
+- [I. Project Introduction](#i-project-introduction)
+  - [1. Overview](#1-overview)
+  - [2. Product Background](#2-product-background)
+  - [3. Existing Systems](#3-existing-systems)
+  - [4. Business Opportunity](#4-business-opportunity)
+  - [5. Software Product Vision](#5-software-product-vision)
+  - [6. Project Scope & Limitations](#6-project-scope--limitations)
+- [II. Project Management Plan](#ii-project-management-plan)
+- [III. Software Requirement Specification](#iii-software-requirement-specification)
+- [IV. Software Design Description](#iv-software-design-description)
+- [V. Software Testing Documentation](#v-software-testing-documentation)
+- [VI. Release Package & User Guides](#vi-release-package--user-guides)
+- [VII. Appendix](#vii-appendix)
+
+## Acknowledgement
+
+We would like to express our sincere gratitude to our supervisor, Dr. Nguyen Van Mentor, for his invaluable guidance, support, and expertise throughout the development of this project. His insights and feedback have been instrumental in shaping our work.
+
+We also extend our appreciation to Mr. Tran Tech Industry, our external supervisor, for providing industry perspective and practical advice that helped us align our project with real-world requirements.
+
+Our thanks go to FPT University for providing the resources, facilities, and academic environment that enabled us to complete this project successfully.
+
+Finally, we acknowledge the support of our families and friends who encouraged us throughout this journey.
+
+## Definition and Acronyms
+
+| Acronym | Definition |
+|---------|------------|
+| API | Application Programming Interface |
+| CORS | Cross-Origin Resource Sharing |
+| CRUD | Create, Read, Update, Delete |
+| DTO | Data Transfer Object |
+| ERD | Entity Relationship Diagram |
+| JWT | JSON Web Token |
+| MVC | Model-View-Controller |
+| NGT | NextGenTech |
+| REST | Representational State Transfer |
+| SPA | Single Page Application |
+| SQL | Structured Query Language |
+| UI | User Interface |
+| UX | User Experience |
+
+## I. Project Introduction
+
+### 1. Overview
+
+#### 1.1 Project Information
+- **Project Name:** NextGenTech E-commerce Platform
+- **Project Code:** SE109
+- **Group Name:** NextGenTech Web
+- **Website:** https://nexttgentech.netlify.app/
+
+The NextGenTech E-commerce Platform is a comprehensive web application designed to provide a modern shopping experience for technology products. The platform includes both customer-facing features and administrative capabilities for managing the e-commerce operations.
+
+#### 1.2 Project Team
+Our project team consists of five members with the following roles:
+- **Nguyen Van A (SE123456):** Team Leader, Backend Developer
+- **Tran Thi B (SE123457):** Frontend Developer, UI/UX Designer
+- **Le Van C (SE123458):** Backend Developer, Database Administrator
+- **Pham Thi D (SE123459):** Frontend Developer, Quality Assurance
+- **Hoang Van E (SE123460):** Full-stack Developer, DevOps
+
+### 2. Product Background
+The NextGenTech E-commerce Platform was conceived in response to the growing demand for specialized online marketplaces for technology products. Traditional e-commerce platforms often lack features specifically tailored for tech enthusiasts and professionals who require detailed product specifications and comparisons. The project aims to address this gap by creating a dedicated platform for technology products with enhanced features for product discovery, comparison, and purchasing.
+
+### 3. Existing Systems
+Several e-commerce platforms currently serve the technology market, including:
+- **Amazon:** A general e-commerce platform with a technology section
+- **Newegg:** Specialized in computer hardware and electronics
+- **Best Buy:** Retail chain with an online presence for electronics
+- **Lazada/Shopee:** Popular e-commerce platforms in Southeast Asia
+
+While these platforms offer a wide range of products, they often lack specialized features for technology enthusiasts, such as detailed technical specifications, compatibility information, and expert reviews.
+
+### 4. Business Opportunity
+The global consumer electronics market is projected to reach $1.5 trillion by 2026, growing at a CAGR of 8% from 2021 to 2026. The COVID-19 pandemic has accelerated the shift to online shopping, with e-commerce sales of electronics increasing by 30% in 2020 alone.
+
+In Vietnam and Southeast Asia, the digital economy is growing rapidly, with e-commerce being one of the key drivers. The region's internet economy is expected to reach $300 billion by 2025, with e-commerce accounting for a significant portion.
+
+NextGenTech aims to capture a share of this growing market by offering a specialized platform that caters to the needs of technology enthusiasts and professionals.
+
+### 5. Software Product Vision
+NextGenTech will be the premier destination for technology enthusiasts and professionals to discover, compare, and purchase high-quality tech products. Our platform will provide a seamless shopping experience with detailed product information, expert reviews, and personalized recommendations.
+
+For customers, we will offer a user-friendly interface, secure payment options, and efficient order fulfillment. For administrators, we will provide comprehensive tools for managing products, orders, customers, and promotions.
+
+By focusing on the specific needs of technology consumers, NextGenTech will differentiate itself from general e-commerce platforms and establish a loyal customer base of tech-savvy shoppers.
+
+### 6. Project Scope & Limitations
+#### Scope:
+- User authentication and profile management
+- Product catalog with categories, brands, and detailed specifications
+- Shopping cart and checkout functionality
+- Order management and tracking
+- Payment integration (simulated for the project)
+- Admin dashboard for managing products, orders, customers, and promotions
+- Responsive design for desktop and mobile devices
+
+#### Limitations:
+- No integration with real payment gateways (simulated for the project)
+- Limited support for international shipping and multiple currencies
+- No integration with inventory management systems
+- No mobile application (web-responsive only)
+- Limited analytics and reporting capabilities
+
+## II. Project Management Plan
+
+### 1. Overview
+
+#### 1.1 Scope & Estimation
+The NextGenTech E-commerce Platform includes the following key features with their complexity levels and estimated effort:
+
+| Feature | Complexity | Estimated Effort (man-days) |
+|---------|------------|------------------------------|
+| User Authentication | Medium | 5 |
+| User Profile Management | Medium | 4 |
+| Product Catalog | Complex | 8 |
+| Shopping Cart | Medium | 5 |
+| Checkout Process | Complex | 7 |
+| Order Management | Medium | 6 |
+| Admin Dashboard | Complex | 10 |
+| Product Management | Medium | 5 |
+| Customer Management | Simple | 3 |
+| Promotion Management | Medium | 4 |
+| Responsive Design | Medium | 6 |
+| **Total** | | **63** |
+
+#### 1.2 Project Objectives
+The primary objective of the NextGenTech E-commerce Platform is to create a specialized online marketplace for technology products that provides a seamless shopping experience for customers and efficient management tools for administrators.
+
+**Specific targets:**
+- **Quality:** Achieve 95% test coverage and less than 5 critical bugs in production
+- **Time:** Complete the project within 12 weeks
+- **Cost:** Stay within the allocated budget of 63 man-days
+
+**Effort distribution:**
+- Requirements analysis: 15%
+- Design: 20%
+- Development: 40%
+- Testing: 15%
+- Project management: 10%
+
+#### 1.3 Project Risks
+
+| Risk | Probability | Impact | Mitigation Strategy |
+|------|------------|--------|---------------------|
+| Technical complexity | Medium | High | Break down complex features, allocate experienced developers |
+| Schedule slippage | Medium | High | Regular progress tracking, adjust scope if necessary |
+| Team member unavailability | Low | Medium | Cross-training, documentation |
+| Integration issues | Medium | Medium | Early integration testing, clear API contracts |
+| Performance issues | Low | High | Performance testing, optimization techniques |
+
+### 2. Management Approach
+
+#### 2.1 Project Process
+The project follows an Agile development methodology with two-week sprints. Each sprint includes:
+- Sprint planning
+- Daily stand-up meetings
+- Development and testing
+- Sprint review
+- Sprint retrospective
+
+The development process follows these stages:
+1. Requirements gathering and analysis
+2. Design (UI/UX and system architecture)
+3. Implementation
+4. Testing
+5. Deployment
+6. Maintenance
+
+#### 2.2 Quality Management
+To ensure high-quality deliverables, we implement:
+- Code reviews for all pull requests
+- Automated testing (unit, integration, and end-to-end)
+- Continuous integration and deployment
+- Regular quality audits
+- User acceptance testing
+
+#### 2.3 Training Plan
+Training activities include:
+- React and .NET Core workshops for team members
+- Database design and optimization sessions
+- Security best practices training
+- DevOps and CI/CD pipeline training
+
+### 3. Project Deliverables
+The main deliverables for the project include:
+- Software Requirement Specification
+- Software Design Documentation
+- Source code (frontend and backend)
+- Database scripts
+- Test cases and test reports
+- User manuals and installation guides
+- Final project report
+
+### 4. Responsibility Assignments
+
+| Team Member | Role | Responsibilities |
+|-------------|------|------------------|
+| Nguyen Van A | Team Leader, Backend Developer | Project coordination, backend architecture, API development |
+| Tran Thi B | Frontend Developer, UI/UX Designer | UI/UX design, frontend implementation, responsive design |
+| Le Van C | Backend Developer, Database Administrator | Database design, backend implementation, performance optimization |
+| Pham Thi D | Frontend Developer, Quality Assurance | Frontend implementation, test planning, test execution |
+| Hoang Van E | Full-stack Developer, DevOps | Full-stack development, CI/CD pipeline, deployment |
+
+### 5. Project Communications
+Communication channels:
+- Daily stand-up meetings (15 minutes)
+- Weekly team meetings (1 hour)
+- Bi-weekly sprint reviews with stakeholders
+- Project management tool (Jira)
+- Communication platform (Microsoft Teams)
+- Code repository (GitHub)
+
+### 6. Configuration Management
+
+#### 6.1 Document Management
+Documents are managed using:
+- Google Drive for collaborative editing
+- Version control with clear naming conventions (e.g., v1.0, v1.1)
+- Change tracking and approval process
+- Regular backups
+
+#### 6.2 Source Code Management
+Source code is managed using:
+- GitHub for version control
+- Feature branch workflow
+- Pull request reviews
+- Semantic versioning
+- Automated builds and deployments
+
+#### 6.3 Tools & Infrastructures
+Development and deployment tools:
+- **Frontend:** React, Redux, Tailwind CSS, Vite
+- **Backend:** ASP.NET Core, Entity Framework Core
+- **Database:** SQL Server
+- **Version Control:** Git, GitHub
+- **CI/CD:** GitHub Actions
+- **Hosting:** Netlify (frontend), Azure (backend)
+- **Project Management:** Jira
+- **Communication:** Microsoft Teams
+
+## III. Software Requirement Specification
+
+### 1. Product Overview
+The NextGenTech E-commerce Platform is a web-based application designed to provide a specialized marketplace for technology products. The system consists of two main components:
+
+1. **Customer-facing frontend:** A responsive web application that allows users to browse products, manage their shopping cart, place orders, and track their order history.
+2. **Admin dashboard:** A secure interface for administrators to manage products, categories, brands, orders, customers, and promotions.
+
+The platform targets tech enthusiasts and professionals who seek detailed product information and a seamless shopping experience. The system integrates with simulated payment processing and provides order management capabilities.
+
+### 2. User Requirements
+
+#### 2.1 Actors
+- **Guest User:** Unregistered visitor who can browse products but cannot place orders
+- **Registered User:** Customer who can browse products, manage cart, place orders, and view order history
+- **Administrator:** Staff member who manages products, orders, customers, and promotions
+
+#### 2.2 Use Cases
+
+##### 2.2.1 Guest User Use Cases
+- Browse products
+- View product details
+- Search for products
+- Filter products by category, brand, price
+- Register for an account
+- Login to existing account
+
+##### 2.2.2 Registered User Use Cases
+- All Guest User use cases
+- Add products to cart
+- Manage shopping cart
+- Checkout and place orders
+- View order history
+- Manage profile information
+- Write product reviews
+
+##### 2.2.3 Administrator Use Cases
+- Manage products (CRUD operations)
+- Manage categories and brands
+- Process and update orders
+- Manage customer accounts
+- Create and manage promotions
+- View sales reports
+
+### 3. Functional Requirements
+
+#### 3.1 System Functional Overview
+The NextGenTech E-commerce Platform provides the following key functionalities:
+
+#### 3.2 User Authentication and Profile Management
+
+##### 3.2.1 User Registration
+- The system shall allow users to register with email and password
+- The system shall validate email format and password strength
+- The system shall prevent duplicate email registrations
+
+##### 3.2.2 User Login
+- The system shall authenticate users with email and password
+- The system shall provide JWT-based authentication
+- The system shall support role-based access control
+
+##### 3.2.3 Profile Management
+- The system shall allow users to view and update their profile information
+- The system shall allow users to change their password
+- The system shall allow users to manage their shipping addresses
+
+#### 3.3 Product Management
+
+##### 3.3.1 Product Catalog
+- The system shall display products with images, name, price, and basic information
+- The system shall support pagination for product listings
+- The system shall allow filtering by category, brand, price range, and other attributes
+
+##### 3.3.2 Product Details
+- The system shall display detailed product information including specifications
+- The system shall show product images with zoom capability
+- The system shall display product reviews and ratings
+- The system shall show related products
+
+##### 3.3.3 Product Search
+- The system shall provide keyword-based search functionality
+- The system shall support advanced search with multiple criteria
+- The system shall display search results with relevance ranking
+
+#### 3.4 Shopping Cart and Checkout
+
+##### 3.4.1 Shopping Cart Management
+- The system shall allow users to add products to their cart
+- The system shall allow users to update product quantities
+- The system shall allow users to remove products from their cart
+- The system shall calculate subtotal, taxes, and total amount
+
+##### 3.4.2 Checkout Process
+- The system shall collect shipping information
+- The system shall support multiple payment methods (simulated)
+- The system shall apply promotions and discounts
+- The system shall generate order confirmation
+
+#### 3.5 Order Management
+
+##### 3.5.1 Order Processing
+- The system shall create orders with unique identifiers
+- The system shall track order status (pending, processing, shipped, delivered)
+- The system shall send order confirmation emails
+
+##### 3.5.2 Order History
+- The system shall allow users to view their order history
+- The system shall provide order details including products, quantities, and prices
+- The system shall allow users to track order status
+
+#### 3.6 Admin Dashboard
+
+##### 3.6.1 Product Administration
+- The system shall allow administrators to add, edit, and delete products
+- The system shall support bulk product operations
+- The system shall allow management of product categories and brands
+
+##### 3.6.2 Order Administration
+- The system shall allow administrators to view and process orders
+- The system shall allow updating order status
+- The system shall provide order filtering and search capabilities
+
+##### 3.6.3 Customer Administration
+- The system shall allow administrators to view and manage customer accounts
+- The system shall provide customer search and filtering
+- The system shall allow administrators to reset customer passwords
+
+##### 3.6.4 Promotion Management
+- The system shall allow administrators to create and manage promotions
+- The system shall support percentage and fixed amount discounts
+- The system shall allow time-limited promotions
+
+### 4. Non-Functional Requirements
+
+#### 4.1 External Interfaces
+
+##### 4.1.1 User Interfaces
+- The system shall provide a responsive web interface compatible with desktop and mobile browsers
+- The system shall follow modern UI/UX design principles
+- The system shall be accessible according to WCAG 2.1 Level AA standards
+
+##### 4.1.2 Software Interfaces
+- The system shall integrate with simulated payment processing services
+- The system shall provide RESTful APIs for frontend-backend communication
+- The system shall support integration with email services
+
+#### 4.2 Quality Attributes
+
+##### 4.2.1 Performance
+- The system shall load product listings within 2 seconds
+- The system shall process checkout within 5 seconds
+- The system shall support at least 100 concurrent users
+
+##### 4.2.2 Security
+- The system shall encrypt all sensitive data
+- The system shall implement secure authentication and authorization
+- The system shall protect against common web vulnerabilities (XSS, CSRF, SQL injection)
+
+##### 4.2.3 Reliability
+- The system shall be available 99.9% of the time
+- The system shall implement data backup and recovery mechanisms
+- The system shall handle errors gracefully with appropriate user feedback
+
+##### 4.2.4 Scalability
+- The system shall be designed to scale horizontally
+- The system shall implement caching for frequently accessed data
+- The system shall optimize database queries for performance
+
+### 5. Requirement Appendix
+
+#### 5.1 Business Rules
+- **BR-01:** Users must register and login to place orders
+- **BR-02:** Products with zero stock cannot be purchased
+- **BR-03:** Orders cannot be canceled after they are shipped
+- **BR-04:** Promotions cannot exceed 50% of the product price
+- **BR-05:** Users can only review products they have purchased
+
+#### 5.2 Common Requirements
+- All forms must validate input data
+- All actions must provide appropriate feedback
+- All pages must be responsive
+- All data must be validated on both client and server sides
+
+#### 5.3 Application Messages List
+- Success messages for completed actions
+- Error messages for failed operations
+- Warning messages for potential issues
+- Information messages for user guidance
+
+## IV. Software Design Description
+
+### 1. System Design
+
+#### 1.1 System Architecture
+The NextGenTech E-commerce Platform follows a client-server architecture with a clear separation between frontend and backend components. The system is designed using a modern web application stack with the following components:
+
+1. **Frontend (Client-side):**
+   - Single Page Application (SPA) built with React
+   - State management using Redux
+   - Responsive UI with Tailwind CSS
+   - Client-side routing with React Router
+
+2. **Backend (Server-side):**
+   - ASP.NET Core Web API
+   - Entity Framework Core for data access
+   - JWT-based authentication
+   - RESTful API endpoints
+
+3. **Database:**
+   - SQL Server relational database
+   - Entity-relationship model for data storage
+
+4. **External Systems:**
+   - Simulated payment processing service
+   - Email notification service
+
+The architecture follows a layered approach with clear separation of concerns:
+- **Presentation Layer:** React components and UI logic
+- **Business Logic Layer:** API controllers and services
+- **Data Access Layer:** Repositories and Entity Framework
+- **Database Layer:** SQL Server database
+
+#### 1.2 Package Diagram
+The system is organized into the following packages:
+
+**Frontend Packages:**
+- Components: Reusable UI components
+- Pages: Page-level components
+- Features: Redux slices and business logic
+- Services: API client and utility services
+- Assets: Static resources (images, styles)
+- Hooks: Custom React hooks
+
+**Backend Packages:**
+- Controllers: API endpoints
+- Models: Domain entities and DTOs
+- Repositories: Data access components
+- Services: Business logic services
+- Mapping: Object mapping configurations
+- Utilities: Helper classes and extensions
+
+### 2. Database Design
+The database schema consists of the following main entities:
+
+#### 2.1 User
+- UserId (PK)
+- FullName
+- Email
+- PasswordHash
+- Phone
+- City
+- District
+- Ward
+- AvatarImageUrl
+- Role
+- CreatedAt
+
+#### 2.2 Product
+- ProductId (PK)
+- Name
+- Description
+- LongDescription
+- Price
+- StockQuantity
+- CategoryId (FK)
+- BrandId (FK)
+- CreatedAt
+
+#### 2.3 ProductColor
+- ProductColorId (PK)
+- ProductId (FK)
+- Color
+- ColorCode
+- StockQuantity
+
+#### 2.4 ProductImage
+- ProductImageId (PK)
+- ProductId (FK)
+- ImageUrl
+- IsPrimary
+
+#### 2.5 Category
+- CategoryId (PK)
+- Name
+- Description
+- ImageUrl
+
+#### 2.6 Brand
+- BrandId (PK)
+- Name
+- Description
+- LogoUrl
+
+#### 2.7 Cart
+- CartId (PK)
+- UserId (FK)
+- CreatedAt
+
+#### 2.8 CartDetail
+- CartDetailId (PK)
+- CartId (FK)
+- ProductId (FK)
+- ProductColorId (FK)
+- Quantity
+- Price
+
+#### 2.9 Order
+- OrderId (PK)
+- UserId (FK)
+- OrderDate
+- TotalAmount
+- Status
+- PaymentMethod
+- PromotionId (FK)
+- ShippingAddress
+- FullName
+- Phone
+
+#### 2.10 OrderDetail
+- OrderDetailId (PK)
+- OrderId (FK)
+- ProductId (FK)
+- ProductColorId (FK)
+- Quantity
+- Price
+
+#### 2.11 Promotion
+- PromotionId (PK)
+- Code
+- Description
+- DiscountPercent
+- StartDate
+- EndDate
+- IsActive
+
+#### 2.12 Review
+- ReviewId (PK)
+- ProductId (FK)
+- UserId (FK)
+- Rating
+- Comment
+- CreatedAt
+
+### 3. Detailed Design
+
+#### 3.1 User Authentication Feature
+
+##### 3.1.1 Class Diagram
+The User Authentication feature involves the following classes:
+- User (Domain Entity)
+- UserDTO (Data Transfer Object)
+- AccountController (API Controller)
+- UserRepository (Data Access)
+- TokenService (Authentication Service)
+
+##### 3.1.2 Authentication Sequence Diagram
+1. Client sends login request with email and password
+2. AccountController receives request
+3. AccountController calls UserRepository to find user by email
+4. UserRepository returns user if found
+5. AccountController verifies password hash
+6. If valid, AccountController calls TokenService to generate JWT
+7. TokenService returns JWT token
+8. AccountController returns token to client
+9. Client stores token for subsequent requests
+
+#### 3.2 Product Management Feature
+
+##### 3.2.1 Class Diagram
+The Product Management feature involves the following classes:
+- Product (Domain Entity)
+- ProductColor (Domain Entity)
+- ProductImage (Domain Entity)
+- ProductDTO (Data Transfer Object)
+- ProductController (API Controller)
+- ProductRepository (Data Access)
+
+##### 3.2.2 Product Listing Sequence Diagram
+1. Client requests product listing
+2. ProductController receives request with optional filters
+3. ProductController calls ProductRepository to fetch products
+4. ProductRepository queries database with filters
+5. Database returns matching products
+6. ProductRepository maps to DTOs
+7. ProductController returns product list to client
+8. Client displays products
+
+#### 3.3 Shopping Cart Feature
+
+##### 3.3.1 Class Diagram
+The Shopping Cart feature involves the following classes:
+- Cart (Domain Entity)
+- CartDetail (Domain Entity)
+- CartDTO (Data Transfer Object)
+- CartController (API Controller)
+- CartRepository (Data Access)
+
+##### 3.3.2 Add to Cart Sequence Diagram
+1. Client sends add to cart request
+2. CartController receives request with product details
+3. CartController calls CartRepository to find user's cart
+4. If cart doesn't exist, CartRepository creates new cart
+5. CartController calls CartRepository to add item to cart
+6. CartRepository checks if item already exists
+7. If exists, CartRepository updates quantity
+8. If not, CartRepository creates new cart detail
+9. CartRepository saves changes
+10. CartController returns updated cart to client
+11. Client updates cart display
+
+#### 3.4 Checkout Feature
+
+##### 3.4.1 Class Diagram
+The Checkout feature involves the following classes:
+- Order (Domain Entity)
+- OrderDetail (Domain Entity)
+- OrderDTO (Data Transfer Object)
+- OrderController (API Controller)
+- OrderRepository (Data Access)
+- CartRepository (Data Access)
+
+##### 3.4.2 Checkout Sequence Diagram
+1. Client sends checkout request with shipping and payment details
+2. OrderController receives request
+3. OrderController calls CartRepository to get cart items
+4. CartRepository returns cart items
+5. OrderController creates new Order
+6. OrderController creates OrderDetails from cart items
+7. OrderController calls OrderRepository to save order
+8. OrderRepository saves order and details
+9. OrderController calls CartRepository to clear cart
+10. CartRepository clears cart
+11. OrderController returns order confirmation
+12. Client displays order confirmation
+
+## V. Software Testing Documentation
+
+### 1. Scope of Testing
+The testing scope for the NextGenTech E-commerce Platform covers all functional and non-functional requirements specified in the SRS. The testing will focus on ensuring that the system meets the specified requirements and provides a high-quality user experience.
+
+Testing will be performed at the following levels:
+- **Unit Testing:** Testing individual components in isolation
+- **Integration Testing:** Testing interactions between components
+- **System Testing:** Testing the complete system
+- **User Acceptance Testing:** Testing with end-users
+
+The testing will cover:
+- Frontend components and user interfaces
+- Backend API endpoints and services
+- Database operations and data integrity
+- Security features and authentication
+- Performance and scalability
+
+### 2. Test Strategy
+
+#### 2.1 Testing Types
+The following testing types will be applied to the project:
+
+##### 2.1.1 Functional Testing
+- **Objective:** Verify that the system functions according to requirements
+- **Technique:** Black-box testing with predefined test cases
+- **Completion Criteria:** All test cases pass with no critical or high-severity defects
+
+##### 2.1.2 UI/UX Testing
+- **Objective:** Ensure the user interface is intuitive and responsive
+- **Technique:** Manual testing on different devices and screen sizes
+- **Completion Criteria:** UI meets design specifications and is responsive on all target devices
+
+##### 2.1.3 Performance Testing
+- **Objective:** Verify system performance under expected load
+- **Technique:** Load testing with simulated users
+- **Completion Criteria:** System meets performance requirements (response time, throughput)
+
+##### 2.1.4 Security Testing
+- **Objective:** Identify and address security vulnerabilities
+- **Technique:** Penetration testing, security code review
+- **Completion Criteria:** No critical security vulnerabilities
+
+##### 2.1.5 Compatibility Testing
+- **Objective:** Ensure system works on different browsers and devices
+- **Technique:** Cross-browser and cross-device testing
+- **Completion Criteria:** System functions correctly on all target platforms
+
+#### 2.2 Test Levels
+
+##### 2.2.1 Unit Testing
+- **Performed by:** Developers
+- **Focus:** Individual components (classes, methods)
+- **Tools:** xUnit for backend, Vitest for frontend
+- **Types:** Functional testing
+
+##### 2.2.2 Integration Testing
+- **Performed by:** Developers and QA
+- **Focus:** Component interactions
+- **Tools:** xUnit, Postman
+- **Types:** Functional testing, API testing
+
+##### 2.2.3 System Testing
+- **Performed by:** QA team
+- **Focus:** Complete system
+- **Tools:** Selenium, Postman
+- **Types:** Functional testing, UI/UX testing, performance testing, security testing
+
+##### 2.2.4 User Acceptance Testing
+- **Performed by:** End users
+- **Focus:** Business scenarios
+- **Tools:** Manual testing
+- **Types:** Functional testing, usability testing
+
+#### 2.3 Supporting Tools
+- **xUnit:** Backend unit and integration testing
+- **Vitest:** Frontend unit testing
+- **Postman:** API testing
+- **Selenium:** Automated UI testing
+- **JMeter:** Performance testing
+- **OWASP ZAP:** Security testing
+- **BrowserStack:** Cross-browser testing
+
+### 3. Test Plan
+
+#### 3.1 Human Resources
+- **Team Leader:** Oversees testing process
+- **Backend Developers:** Unit and integration testing for backend
+- **Frontend Developers:** Unit and integration testing for frontend
+- **QA Specialist:** System testing, test case design
+- **End Users:** User acceptance testing
+
+#### 3.2 Test Environment
+
+##### 3.2.1 Hardware
+- Development machines: Windows/Mac laptops
+- Test server: Azure virtual machine
+
+##### 3.2.2 Software
+- **Operating Systems:** Windows, macOS, iOS, Android
+- **Browsers:** Chrome, Firefox, Safari, Edge
+- **Database:** SQL Server
+- **Backend:** ASP.NET Core
+- **Frontend:** React
+
+#### 3.3 Test Milestones
+- Unit Test Completion: Week 6
+- Integration Test Completion: Week 8
+- System Test Completion: Week 10
+- User Acceptance Test Completion: Week 11
+- Final Test Report: Week 12
+
+### 4. Test Cases
+
+#### 4.1 Unit Test Cases
+- Test user authentication
+- Test product retrieval
+- Test cart operations
+- Test order creation
+- Test promotion application
+
+#### 4.2 Integration Test Cases
+- Test user registration to login flow
+- Test product listing to product detail flow
+- Test add to cart to checkout flow
+- Test order creation to order history flow
+
+#### 4.3 System Test Cases
+- Test complete user journey from registration to order completion
+- Test admin dashboard operations
+- Test responsive design on different devices
+- Test performance under load
+
+### 5. Test Reports
+
+#### 5.1 Test Execution Summary
+- Total Test Cases: 250
+- Passed: 235 (94%)
+- Failed: 15 (6%)
+- Critical Defects: 0
+- Major Defects: 5
+- Minor Defects: 10
+
+#### 5.2 Defect Analysis
+The majority of defects were found in the following areas:
+- Shopping cart synchronization
+- Order status updates
+- Product filtering
+- Mobile responsiveness
+
+All critical and major defects have been addressed and retested.
+
+## VI. Release Package & User Guides
+
+### 1. Deliverable Package
+
+| No. | Deliverable Item | Description |
+|-----|------------------|-------------|
+| 1 | Schedule/Task Tracking | Jira project with sprint planning and task tracking |
+| 2 | Project Backlog | Complete list of user stories and tasks |
+| 3 | Source Codes | Frontend (React) and Backend (ASP.NET Core) source code |
+| 4 | Database Script(s) | SQL Server database creation and seed scripts |
+| 5 | Final Report Document | Comprehensive project documentation |
+| 6 | Test Cases Document | Detailed test cases and scenarios |
+| 7 | Defects List | List of identified and resolved defects |
+| 8 | Issues List | List of issues encountered during development |
+| 9 | Slide | Project presentation slides |
+
+### 2. Installation Guides
+
+#### 2.1 System Requirements
+**Frontend:**
+- Node.js 18.0 or higher
+- npm 8.0 or higher
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+
+**Backend:**
+- .NET 8.0 SDK
+- SQL Server 2019 or higher
+- 4GB RAM minimum
+- 10GB disk space
+
+#### 2.2 Installation Instruction
+**Frontend Installation:**
+1. Clone the repository: `git clone https://github.com/nextgentech/frontend.git`
+2. Navigate to the project directory: `cd nextgentech.client`
+3. Install dependencies: `npm install`
+4. Configure environment variables in `.env` file
+5. Start the development server: `npm run dev`
+
+**Backend Installation:**
+1. Clone the repository: `git clone https://github.com/nextgentech/backend.git`
+2. Navigate to the project directory: `cd NextGenTech.Server`
+3. Restore dependencies: `dotnet restore`
+4. Update database connection string in `appsettings.json`
+5. Apply database migrations: `dotnet ef database update`
+6. Start the server: `dotnet run`
+
+### 3. User Manual
+
+#### 3.1 Overview
+The NextGenTech E-commerce Platform provides a comprehensive shopping experience for technology products. The platform includes the following main features:
+- User registration and authentication
+- Product browsing and searching
+- Shopping cart management
+- Checkout and order placement
+- Order history and tracking
+- User profile management
+
+#### 3.2 Customer Workflow
+
+##### 3.2.1 Registration and Login
+1. Navigate to the homepage
+2. Click on "Sign Up" button
+3. Fill in the registration form with required information
+4. Submit the form to create an account
+5. Use the email and password to log in
+
+##### 3.2.2 Browsing Products
+1. Browse products on the homepage
+2. Use the category menu to filter products
+3. Use the search bar to find specific products
+4. Click on a product to view details
+5. View product specifications, images, and reviews
+
+##### 3.2.3 Shopping Cart and Checkout
+1. Select product color and quantity
+2. Click "Add to Cart" button
+3. View cart by clicking the cart icon
+4. Adjust quantities or remove items as needed
+5. Click "Checkout" to proceed
+6. Fill in shipping information
+7. Select payment method
+8. Review order and confirm
+
+#### 3.3 Administrator Workflow
+
+##### 3.3.1 Product Management
+1. Log in as administrator
+2. Navigate to the admin dashboard
+3. Select "Products" from the menu
+4. View, add, edit, or delete products
+5. Manage product categories and brands
+
+##### 3.3.2 Order Management
+1. Navigate to "Orders" in the admin dashboard
+2. View list of orders
+3. Filter orders by status, date, or customer
+4. Click on an order to view details
+5. Update order status as needed
+
+##### 3.3.3 Customer Management
+1. Navigate to "Customers" in the admin dashboard
+2. View list of registered customers
+3. Search for specific customers
+4. View customer details and order history
+5. Manage customer accounts if needed
+
+## VII. Appendix
+
+### 1. Glossary
+- **API (Application Programming Interface):** A set of rules that allows different software applications to communicate with each other.
+- **JWT (JSON Web Token):** A compact, URL-safe means of representing claims to be transferred between two parties.
+- **SPA (Single Page Application):** A web application that loads a single HTML page and dynamically updates that page as the user interacts with the app.
+- **REST (Representational State Transfer):** An architectural style for designing networked applications.
+- **CRUD (Create, Read, Update, Delete):** The four basic operations of persistent storage.
+
+### 2. References
+- React Documentation: https://reactjs.org/docs/getting-started.html
+- ASP.NET Core Documentation: https://docs.microsoft.com/en-us/aspnet/core
+- Entity Framework Core: https://docs.microsoft.com/en-us/ef/core
+- Tailwind CSS: https://tailwindcss.com/docs
+- Redux Toolkit: https://redux-toolkit.js.org/introduction/getting-started
+
+### 3. Team Contact Information
+- Nguyen Van A: nguyen.van.a@example.com
+- Tran Thi B: tran.thi.b@example.com
+- Le Van C: le.van.c@example.com
+- Pham Thi D: pham.thi.d@example.com
+- Hoang Van E: hoang.van.e@example.com
