@@ -337,23 +337,23 @@ const EnhancedAccountSettings = () => {
   const saveProfileChanges = async () => {
     try {
       if (!userId) {
-        toast.error("User không được xác định. Vui lòng đăng nhập lại.");
+        toast.error("User not identified. Please login again.");
         return;
       }
 
-      // Chuẩn bị dữ liệu gửi lên server
+      // Prepare data to send to server
       const payload = {
         fullName: tempProfileData.fullName || "",
         phone: tempProfileData.phoneNumber || "",
         district: tempProfileData.district || "",
         city: tempProfileData.city || "",
         ward: tempProfileData.ward || "",
-        photoUrl: tempProfileData.avatarUrl || "" // Sử dụng URL ảnh đã cập nhật
+        photoUrl: tempProfileData.avatarUrl || "" // Use updated image URL
       };
 
       console.log("Saving profile with avatar URL:", tempProfileData.avatarUrl);
 
-      // Lưu URL ảnh vào localStorage để đảm bảo nó được giữ lại sau khi tải lại trang
+      // Save image URL to localStorage to ensure it's retained after page reload
       if (tempProfileData.avatarUrl) {
         localStorage.setItem(`user_avatar_${userId}`, tempProfileData.avatarUrl);
       }
@@ -379,11 +379,11 @@ const EnhancedAccountSettings = () => {
 
       // Show detailed error messages
       if (err.response) {
-        toast.error(`Lỗi: ${err.response.data?.message || "Đã xảy ra lỗi."}`);
+        toast.error(`Error: ${err.response.data?.message || "An error occurred."}`);
       } else if (err.request) {
-        toast.error("Không nhận được phản hồi từ server.");
+        toast.error("No response received from server.");
       } else {
-        toast.error(`Lỗi: ${err.message}`);
+        toast.error(`Error: ${err.message}`);
       }
     }
   };
@@ -417,7 +417,7 @@ const EnhancedAccountSettings = () => {
       const email = profileData.email;
 
       if (!email) {
-        toast.error("Email không được xác định. Vui lòng thử lại.");
+        toast.error("Email not identified. Please try again.");
         return;
       }
 
@@ -428,7 +428,7 @@ const EnhancedAccountSettings = () => {
       });
 
       if (response.status === 200) {
-        toast.success("Đổi mật khẩu thành công!");
+        toast.success("Password changed successfully!");
         // Reset the form
         setPasswordForm({
           currentPassword: '',
@@ -436,17 +436,17 @@ const EnhancedAccountSettings = () => {
           confirmPassword: ''
         });
       } else {
-        toast.error("Không thể đổi mật khẩu");
+        toast.error("Unable to change password");
       }
     } catch (err) {
-      console.error("Lỗi khi đổi mật khẩu:", err);
+      console.error("Error changing password:", err);
 
       if (err.response) {
-        toast.error(`Lỗi: ${err.response.data?.message || "Không thể đổi mật khẩu"}`);
+        toast.error(`Error: ${err.response.data?.message || "Unable to change password"}`);
       } else if (err.request) {
-        toast.error("Không nhận được phản hồi từ máy chủ");
+        toast.error("No response received from server");
       } else {
-        toast.error(`Lỗi: ${err.message}`);
+        toast.error(`Error: ${err.message}`);
       }
     }
   };

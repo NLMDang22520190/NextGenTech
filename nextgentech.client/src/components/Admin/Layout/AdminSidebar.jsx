@@ -56,10 +56,10 @@ const AdminSidebar = ({ isCollapsed, toggleSidebar }) => {
   const dispatch = useDispatch();
 
   const handleLogout = () => {
-    // Hiển thị thông báo xác nhận trước khi đăng xuất
-    if (confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+    // Show confirmation message before logout
+    if (confirm("Are you sure you want to logout?")) {
       dispatch(logout());
-      toast.success("Đăng xuất thành công");
+      toast.success("Logout successful");
       // Force a page reload to ensure all state is cleared
       window.location.href = "/auth/login";
     }

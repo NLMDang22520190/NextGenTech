@@ -27,20 +27,20 @@ namespace HealthBuddy.Server.Controllers
         {
             if (request.Rating < 1 || request.Rating > 5)
             {
-                return BadRequest(new 
+                return BadRequest(new
                 {
                     status = "error",
-                    message = "Rating phải từ 1 đến 5"
+                    message = "Rating must be between 1 and 5"
                 });
             }
 
             try
             {
                 var review = await _reviewRepository.AddReviewAsync(request);
-                return Ok(new 
+                return Ok(new
                 {
                     status = "success",
-                    message = "Đánh giá đã được gửi",
+                    message = "Review has been submitted",
                     data = review
                 });
             }
@@ -49,7 +49,7 @@ namespace HealthBuddy.Server.Controllers
                 return StatusCode(500, new
                 {
                     status = "error",
-                    message = "Lỗi khi gửi đánh giá",
+                    message = "Error submitting review",
                     details = ex.Message
                 });
             }
