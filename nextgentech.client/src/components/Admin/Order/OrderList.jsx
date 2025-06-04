@@ -68,15 +68,15 @@ const OrderList = () => {
   // Get status color based on status value
   const getStatusColor = (status) => {
     switch (status) {
-      case "Hoàn tất":
+      case "Completed":
         return "bg-emerald-100 text-emerald-600";
-      case "Đang xử lý":
+      case "Processing":
         return "bg-purple-100 text-purple-600";
-      case "Hủy":
+      case "Cancelled":
         return "bg-red-100 text-red-600";
-      case "Chờ xác nhận":
+      case "Pending":
         return "bg-amber-100 text-amber-600";
-      case "Đang giao":
+      case "Pending Confirm":
         return "bg-blue-100 text-blue-600";
       default:
         return "bg-gray-100 text-gray-600";
@@ -483,16 +483,16 @@ const updateOrderStatus = async (orderId, newStatus) => {
                       <span className="font-medium text-primary-600">{selectedOrder.totalAmount.toLocaleString('vi-VN')} ₫</span>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-gray-500 w-40">Status:</span>
+                      <span className="text-gray-500 w-60">Status:</span>
                       <AntdSelect
                         defaultValue={selectedOrder.status}
                         style={{ width: 150 }}
                         onChange={(value) => updateOrderStatus(selectedOrder.orderId, value)}
                         className="border border-gray-300 rounded-md"
                       >
-                        <AntdSelect.Option value="Pending Confirmation">Pending Confirmation</AntdSelect.Option>
+                        <AntdSelect.Option value="Pending Confirm">Pending Confirm</AntdSelect.Option>
                         <AntdSelect.Option value="Processing">Processing</AntdSelect.Option>
-                        <AntdSelect.Option value="Shipping">Shipping</AntdSelect.Option>
+                        {/* <AntdSelect.Option value="Shipping">Shipping</AntdSelect.Option> */}
                         <AntdSelect.Option value="Completed">Completed</AntdSelect.Option>
                         <AntdSelect.Option value="Cancelled">Cancelled</AntdSelect.Option>
                       </AntdSelect>
@@ -501,7 +501,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
                 </div>
 
                 <div className="mb-4">
-                  <span className="text-gray-500">Địa chỉ giao hàng:</span>
+                  <span className="text-gray-500">Address:</span>
                   <p className="mt-1 p-2 bg-gray-50 rounded-md">{selectedOrder.shippingAddress}</p>
                 </div>
 
