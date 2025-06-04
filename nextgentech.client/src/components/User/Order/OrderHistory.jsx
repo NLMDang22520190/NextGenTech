@@ -7,6 +7,8 @@ import {
   ClockIcon,
   CheckCircleIcon,
   XCircleIcon,
+  ExclamationTriangleIcon,
+  CogIcon,
 } from "@heroicons/react/24/outline";
 import axios from "../../../features/AxiosInstance/AxiosInstance";
 
@@ -84,30 +86,53 @@ const OrderHistory = () => {
   const getStatusColor = (status) => {
     switch (status.toUpperCase()) {
       case "COMPLETED":
-        return "text-green-500";
-      case "IN PROGRESS":
+        return "text-green-600";
       case "PROCESSING":
+        return "text-blue-600";
+      case "PENDING CONFIRM":
       case "PENDING":
-        return "text-orange-500";
+        return "text-amber-600";
+      case "CANCELLED":
       case "CANCELED":
-        return "text-red-500";
+        return "text-red-600";
       default:
-        return "text-gray-500";
+        return "text-gray-600";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status.toUpperCase()) {
       case "COMPLETED":
-        return <CheckCircleIcon className="h-5 w-5 text-green-500" />;
-      case "IN PROGRESS":
+        return <CheckCircleIcon className="h-5 w-5" />;
       case "PROCESSING":
+        return <CogIcon className="h-5 w-5" />;
+      case "PENDING CONFIRM":
       case "PENDING":
-        return <ClockIcon className="h-5 w-5 text-orange-500" />;
+        return <ExclamationTriangleIcon className="h-5 w-5" />;
+      case "CANCELLED":
       case "CANCELED":
-        return <XCircleIcon className="h-5 w-5 text-red-500" />;
+        return <XCircleIcon className="h-5 w-5" />;
       default:
-        return null;
+        return <ClockIcon className="h-5 w-5" />;
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const baseClasses = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium";
+
+    switch (status.toUpperCase()) {
+      case "COMPLETED":
+        return `${baseClasses} bg-green-100 text-green-800 border border-green-200`;
+      case "PROCESSING":
+        return `${baseClasses} bg-blue-100 text-blue-800 border border-blue-200`;
+      case "PENDING CONFIRM":
+      case "PENDING":
+        return `${baseClasses} bg-amber-100 text-amber-800 border border-amber-200`;
+      case "CANCELLED":
+      case "CANCELED":
+        return `${baseClasses} bg-red-100 text-red-800 border border-red-200`;
+      default:
+        return `${baseClasses} bg-gray-100 text-gray-800 border border-gray-200`;
     }
   };
 
@@ -215,18 +240,18 @@ const OrderHistory = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="grid grid-cols-12 py-3 px-4 border-b border-gray-100 hover:bg-gray-50"
+              className="grid grid-cols-12 py-4 px-4 border-b border-gray-100 hover:bg-white hover:shadow-sm transition-all duration-200"
             >
               <div className="col-span-2 font-medium">#{order.id}</div>
-              <div
-                className={`col-span-2 font-medium flex items-center space-x-2 ${getStatusColor(
-                  order.status
-                )}`}
-              >
-                {getStatusIcon(order.status)}
-                <span className="hidden md:inline capitalize">
-                  {order.status}
-                </span>
+              <div className="col-span-2 flex items-center">
+                <div className={getStatusBadge(order.status)}>
+                  <span className={`mr-2 ${getStatusColor(order.status)}`}>
+                    {getStatusIcon(order.status)}
+                  </span>
+                  <span className="capitalize">
+                    {order.status}
+                  </span>
+                </div>
               </div>
               <div className="col-span-3 text-gray-600">
                 {formatDate(order.date)}

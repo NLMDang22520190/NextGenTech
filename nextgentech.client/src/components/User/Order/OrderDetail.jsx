@@ -214,6 +214,53 @@ const OrderDetail = () => {
     });
   };
 
+  // Helper function to get product information by ProductColorId
+  const getProductInfoByColorId = async (productColorId) => {
+    try {
+      // Get all products to find the one that contains this color
+      const allProductsResponse = await axios.get('/api/Product/CustomerGetAllProduct');
+
+      if (allProductsResponse.status === 200) {
+        const products = allProductsResponse.data;
+
+        for (const product of products) {
+          // Get detailed product info to check colors
+          try {
+            const productDetailResponse = await axios.get(`/api/Product/CustomerGetProductById/${product.productId}`);
+            if (productDetailResponse.status === 200) {
+              const productDetail = productDetailResponse.data;
+              const matchingColor = productDetail.productColors.find(color => color.productColorId === productColorId);
+
+              if (matchingColor) {
+                return {
+                  name: productDetail.name,
+                  color: matchingColor.color,
+                  productId: productDetail.productId
+                };
+              }
+            }
+          } catch (error) {
+            console.warn(`Error fetching product detail for product ${product.productId}:`, error);
+          }
+        }
+      }
+
+      // Fallback if product not found
+      return {
+        name: `Product #${productColorId}`,
+        color: 'Unknown',
+        productId: null
+      };
+    } catch (error) {
+      console.warn(`Error fetching product info for color ${productColorId}:`, error);
+      return {
+        name: `Product #${productColorId}`,
+        color: 'Unknown',
+        productId: null
+      };
+    }
+  };
+
   const fetchOrderDetails = async () => {
     setLoading(true);
     try {
@@ -243,6 +290,23 @@ const OrderDetail = () => {
         // Calculate expected delivery date
         const expectedDelivery = calculateExpectedDelivery(orderInfo.orderDate);
 
+        // Fetch product information for each order detail
+        const productsWithInfo = await Promise.all(
+          orderDetails.map(async (item) => {
+            const productInfo = await getProductInfoByColorId(item.productColorId);
+            return {
+              id: item.orderDetailId,
+              productId: item.productColorId,
+              category: 'PRODUCT',
+              name: productInfo.name,
+              color: productInfo.color,
+              price: formatPrice(item.price),
+              quantity: item.quantity,
+              subtotal: formatPrice(item.price * item.quantity * (1 - (item.discountPercentage || 0) / 100))
+            };
+          })
+        );
+
         setOrderData({
           id: orderId,
           productCount: orderDetails.length,
@@ -259,15 +323,7 @@ const OrderDetail = () => {
           status: orderInfo.status,
           currentStep: currentStep,
           activities: activities,
-          products: orderDetails.map(item => ({
-            id: item.orderDetailId,
-            productId: item.productColorId,
-            category: 'PRODUCT',
-            name: `Product #${item.productColorId}`,
-            price: formatPrice(item.price),
-            quantity: item.quantity,
-            subtotal: formatPrice(item.price * item.quantity * (1 - (item.discountPercentage || 0) / 100))
-          })),
+          products: productsWithInfo,
           addresses: {
             billing: {
               name: orderInfo.fullName || 'Customer',
@@ -293,6 +349,12 @@ const OrderDetail = () => {
   const openRatingModal = (productId) => {
     if (!userID) {
       alert('Please login to rate the product!');
+      return;
+    }
+
+    // Check if order is completed before allowing rating
+    if (orderData?.status?.toUpperCase() !== 'COMPLETED') {
+      alert('You can only rate products from completed orders.');
       return;
     }
 
@@ -438,6 +500,7 @@ const OrderDetail = () => {
           onClose={() => setIsRatingModalOpen(false)}
           orderId={orderId}
           productId={selectedProductId}
+          orderStatus={orderData?.status}
           onSubmit={handleRatingSubmit}
         />
       )}
@@ -557,6 +620,9 @@ const OrderDetail = () => {
                   <div>
                     <p className="text-blue-500 text-xs font-medium">{product.category}</p>
                     <p className="text-gray-800 text-sm">{product.name}</p>
+                    {product.color && product.color !== 'Unknown' && (
+                      <p className="text-gray-500 text-xs">Color: {product.color}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -569,13 +635,22 @@ const OrderDetail = () => {
                     <Star size={16} fill="currentColor" className="mr-1" />
                     <span className="text-gray-700">Rated</span>
                   </div>
-                ) : (
+                ) : orderData?.status?.toUpperCase() === 'COMPLETED' ? (
                   <button
                     onClick={() => openRatingModal(product.productId)}
                     className="flex items-center px-3 py-1 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm cursor-pointer"
                   >
                     <Star size={14} className="mr-1" /> Rate
                   </button>
+                ) : (
+                  <div className="flex items-center text-gray-500">
+                    <Star size={14} className="mr-1" />
+                    <span className="text-sm">
+                      {orderData?.status?.toUpperCase() === 'CANCELLED'
+                        ? 'Order Cancelled'
+                        : 'Complete order to rate'}
+                    </span>
+                  </div>
                 )}
               </div>
             </motion.div>
