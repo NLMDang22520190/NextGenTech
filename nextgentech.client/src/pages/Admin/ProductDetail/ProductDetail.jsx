@@ -119,7 +119,6 @@ const mockReviews = [
   },
 ];
 
-
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -129,7 +128,7 @@ export default function ProductDetail() {
   //const cartId = 5;
 
   const [product, setProduct] = useState({});
-  const [reviews, setReviews] = useState(mockReviews);
+  const [reviews, setReviews] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -154,8 +153,8 @@ export default function ProductDetail() {
         categoryName: data.category.categoryName,
         brandId: data.brand.brandId,
         brandName: data.brand.brandName,
-        rating: 4.7,
-        reviewCount: 128,
+        rating: data.rating || 0,
+        reviewCount: data.reviewCount || 0,
         images: [
           "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop",
           "https://images.unsplash.com/photo-1577174881658-0f30ed549adc?q=80&w=1974&auto=format&fit=crop",
@@ -178,6 +177,27 @@ export default function ProductDetail() {
       mappedData.stockQuantity = totalStock;
       setProduct(mappedData);
       setAvailableStock(totalStock);
+
+      // Map reviews from API response
+      if (data.reviews && data.reviews.length > 0) {
+        const mappedReviews = data.reviews.map((review) => ({
+          id: review.reviewId,
+          userId: review.userId,
+          userName: review.userName || "Anonymous",
+          userAvatar:
+            review.userAvatar ||
+            `https://i.pravatar.cc/150?img=${review.userId}`,
+          productId: review.productId,
+          rating: review.rating,
+          comment: review.comment,
+          createdAt: review.createdAt,
+          helpfulCount: 0, // Default value since it's not in the API
+        }));
+        setReviews(mappedReviews);
+      } else {
+        setReviews([]);
+      }
+
       setLoading(false);
     } catch (error) {
       console.error(error);
@@ -332,16 +352,19 @@ export default function ProductDetail() {
             {/* Price */}
             <div className="flex items-baseline space-x-2 mt-1">
               <span className="text-2xl font-bold">
-                ${product.price ? product.price.toFixed(2) : '0.00'}
+                ${product.price ? product.price.toFixed(2) : "0.00"}
               </span>
               {product.oldPrice && product.oldPrice > product.price && (
                 <span className="text-muted-foreground line-through">
-                  ${product.oldPrice ? product.oldPrice.toFixed(2) : '0.00'}
+                  ${product.oldPrice ? product.oldPrice.toFixed(2) : "0.00"}
                 </span>
               )}
               {product.oldPrice && product.oldPrice > product.price && (
                 <div className="ml-2 px-2 py-1 text-sm font-medium bg-red-300 rounded">
-                  Save ${(product.oldPrice && product.price) ? (product.oldPrice - product.price).toFixed(2) : '0.00'}
+                  Save $
+                  {product.oldPrice && product.price
+                    ? (product.oldPrice - product.price).toFixed(2)
+                    : "0.00"}
                 </div>
               )}
             </div>
@@ -357,27 +380,30 @@ export default function ProductDetail() {
                 Color: {selectedColor?.name || "None"}
               </span>
               <div className="flex space-x-2">
-                {product.productColors && product.productColors.map((color) => (
-                  <button
-                    key={color.id}
-                    onClick={() => handleColorSelect(color)}
-                    className={`w-10 h-10 rounded-full border-2 cursor-pointer ${
-                      selectedColor?.id === color.id
-                        ? "border-primary"
-                        : "border-transparent"
-                    } transform transition-transform ${
-                      selectedColor?.id === color.id ? "scale-110" : "scale-100"
-                    } hover:scale-110`}
-                    style={{
-                      backgroundColor: color.code,
-                      boxShadow:
+                {product.productColors &&
+                  product.productColors.map((color) => (
+                    <button
+                      key={color.id}
+                      onClick={() => handleColorSelect(color)}
+                      className={`w-10 h-10 rounded-full border-2 cursor-pointer ${
                         selectedColor?.id === color.id
-                          ? "0 0 0 2px rgba(59, 130, 246, 0.3)"
-                          : "none",
-                    }}
-                    aria-label={`Select ${color.name} color`}
-                  />
-                ))}
+                          ? "border-primary"
+                          : "border-transparent"
+                      } transform transition-transform ${
+                        selectedColor?.id === color.id
+                          ? "scale-110"
+                          : "scale-100"
+                      } hover:scale-110`}
+                      style={{
+                        backgroundColor: color.code,
+                        boxShadow:
+                          selectedColor?.id === color.id
+                            ? "0 0 0 2px rgba(59, 130, 246, 0.3)"
+                            : "none",
+                      }}
+                      aria-label={`Select ${color.name} color`}
+                    />
+                  ))}
               </div>
             </div>
 
@@ -450,4 +476,4 @@ export default function ProductDetail() {
       />
     </motion.div>
   );
-};
+}

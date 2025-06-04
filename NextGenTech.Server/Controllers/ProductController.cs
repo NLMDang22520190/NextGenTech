@@ -19,7 +19,7 @@ namespace HealthBuddy.Server.Controllers
         private readonly IMapper _mapper;
 
         public ProductController(
-            IProductRepository productRepository, 
+            IProductRepository productRepository,
             IProductImageRepository productImageRepository,
             IProductColorRepository productColorRepository,
             IMapper mapper)

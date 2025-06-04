@@ -19,6 +19,8 @@ namespace NextGenTech.Server.Repositories.Implement
             .Include(p => p.Category)
             .Include(p => p.Promotions)
             .Include(p => p.ProductImages)
+            .Include(p => p.Reviews)
+                .ThenInclude(r => r.User)
             .ToListAsync();
         }
 
@@ -29,6 +31,8 @@ namespace NextGenTech.Server.Repositories.Implement
             .Include(p => p.Category)
             .Include(p => p.ProductColors)
             .Include(p => p.ProductImages)
+            .Include(p => p.Reviews)
+                .ThenInclude(r => r.User)
             .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
@@ -153,6 +157,8 @@ namespace NextGenTech.Server.Repositories.Implement
                 .Include(p => p.Brand)
                 .Include(p => p.Category)
                 .Include(p => p.ProductImages)
+                .Include(p => p.Reviews)
+                    .ThenInclude(r => r.User)
                 .Include(p => p.Promotions.Where(promo =>
                     promo.StartDate <= now && promo.EndDate >= now))
                 .Where(p => p.Promotions.Any(promo =>
@@ -171,6 +177,8 @@ namespace NextGenTech.Server.Repositories.Implement
                     .Include(p => p.Category)
                     .Include(p => p.Promotions)
                     .Include(p => p.ProductImages)
+                    .Include(p => p.Reviews)
+                        .ThenInclude(r => r.User)
                     .Take(5)
                     .ToListAsync();
             }

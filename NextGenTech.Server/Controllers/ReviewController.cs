@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NextGenTech.Server.Models.DTO.ADD;
 using NextGenTech.Server.Models.DTO.UPDATE;
+using NextGenTech.Server.Models.DTO.GET;
 
 namespace HealthBuddy.Server.Controllers
 {
@@ -129,6 +130,30 @@ namespace HealthBuddy.Server.Controllers
             });
         }
 
+        [HttpGet("product/{productId}")]
+        public async Task<IActionResult> GetReviewsByProductId(int productId)
+        {
+            try
+            {
+                var reviews = await _reviewRepository.GetReviewsByProductIdAsync(productId);
+                var reviewDTOs = _mapper.Map<List<ReviewDTO>>(reviews);
 
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Reviews retrieved successfully",
+                    data = reviewDTOs
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = "Error retrieving reviews",
+                    details = ex.Message
+                });
+            }
+        }
     }
 }

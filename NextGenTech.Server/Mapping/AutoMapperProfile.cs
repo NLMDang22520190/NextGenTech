@@ -14,15 +14,21 @@ namespace HealthBuddy.Server.Mapping
     {
         public AutoMapperProfile()
         {
-            CreateMap<Product, CustomerProductDTO>().ReverseMap();
-            CreateMap<Product, CustomerDetailProductDTO>().ReverseMap();
+            CreateMap<Product, CustomerProductDTO>()
+                .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews.Count))
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Reviews.Any() ? src.Reviews.Average(r => r.Rating ?? 0) : 0))
+                .ReverseMap();
+            CreateMap<Product, CustomerDetailProductDTO>()
+                .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews.Count))
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Reviews.Any() ? src.Reviews.Average(r => r.Rating ?? 0) : 0))
+                .ReverseMap();
             CreateMap<Product, AdminProductDTO>()
                 .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews.Count))
-                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Reviews.Average(r => r.Rating)))
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Reviews.Any() ? src.Reviews.Average(r => r.Rating ?? 0) : 0))
                 .ReverseMap();
             CreateMap<Product, AdminDetailProductDTO>()
                 .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews.Count))
-                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Reviews.Average(r => r.Rating)))
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Reviews.Any() ? src.Reviews.Average(r => r.Rating ?? 0) : 0))
                 .ReverseMap();
             CreateMap<AdminAddProductDTO, Product>()
                 .ForMember(dest => dest.StockQuantity, opt => opt.MapFrom(src => src.Colors.Sum(c => c.StockQuantity))) // Map total stock quantity
@@ -42,6 +48,10 @@ namespace HealthBuddy.Server.Mapping
 
             CreateMap<ProductImage, ProductImageDTO>().ReverseMap();
             CreateMap<ProductColor, ProductColorDTO>().ReverseMap();
+            CreateMap<Review, ReviewDTO>()
+                .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : "Anonymous"))
+                .ForMember(dest => dest.UserAvatar, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarImageUrl : null))
+                .ReverseMap();
 
             CreateMap<Promotion, CustomerProductPromotionDTO>().ReverseMap();
             CreateMap<Promotion, CustomerPromotionDTO>().ReverseMap();
