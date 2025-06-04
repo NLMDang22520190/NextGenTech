@@ -624,7 +624,7 @@ export default function Promotions() {
                 max={100}
                 formatter={(value) => `${value}%`}
                 parser={(value) => value.replace("%", "")}
-                className="w-full"
+                style={{ width: '100%' }}
               />
             </Form.Item>
           </div>

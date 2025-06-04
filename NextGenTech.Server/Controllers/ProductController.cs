@@ -16,13 +16,17 @@ namespace HealthBuddy.Server.Controllers
         private readonly IProductRepository _productRepository;
         private readonly IProductImageRepository _productImageRepository;
         private readonly IProductColorRepository _productColorRepository;
-
-
         private readonly IMapper _mapper;
 
-        public ProductController(IProductRepository productRepository, IMapper mapper)
+        public ProductController(
+            IProductRepository productRepository, 
+            IProductImageRepository productImageRepository,
+            IProductColorRepository productColorRepository,
+            IMapper mapper)
         {
             _productRepository = productRepository;
+            _productImageRepository = productImageRepository;
+            _productColorRepository = productColorRepository;
             _mapper = mapper;
         }
 
