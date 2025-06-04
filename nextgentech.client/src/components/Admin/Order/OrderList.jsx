@@ -16,7 +16,7 @@ const OrderList = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // Thêm state cho phân trang
+  // Add state for pagination
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
@@ -68,15 +68,15 @@ const OrderList = () => {
   // Get status color based on status value
   const getStatusColor = (status) => {
     switch (status) {
-      case "Hoàn tất":
+      case "Completed":
         return "bg-emerald-100 text-emerald-600";
-      case "Đang xử lý":
+      case "Processing":
         return "bg-purple-100 text-purple-600";
-      case "Hủy":
+      case "Cancelled":
         return "bg-red-100 text-red-600";
-      case "Chờ xác nhận":
+      case "Pending":
         return "bg-amber-100 text-amber-600";
-      case "Đang giao":
+      case "Pending Confirm":
         return "bg-blue-100 text-blue-600";
       default:
         return "bg-gray-100 text-gray-600";
@@ -106,11 +106,11 @@ const OrderList = () => {
     });
   }, [orders, selectedDate, selectedStatus]);
 
-  // Tính toán tổng số trang
+  // Calculate total pages
   const totalItems = filteredOrders.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  // Lấy đơn hàng cho trang hiện tại
+  // Get orders for current page
   const paginatedOrders = useMemo(() => {
     return filteredOrders.slice(
       currentPage * itemsPerPage,
@@ -118,22 +118,22 @@ const OrderList = () => {
     );
   }, [filteredOrders, currentPage, itemsPerPage]);
 
-  // Hàm tạo số trang để hiển thị
+  // Function to generate page numbers for display
   const getPaginationNumbers = () => {
     const pages = [];
     const maxDisplayedPages = 5;
 
     if (totalPages <= maxDisplayedPages) {
-      // Hiển thị tất cả các trang nếu tổng số trang <= số trang tối đa hiển thị
+      // Display all pages if total pages <= max displayed pages
       for (let i = 0; i < totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Hiển thị một tập hợp con các trang với trang hiện tại ở giữa
+      // Display a subset of pages with current page in the middle
       let startPage = Math.max(0, currentPage - Math.floor(maxDisplayedPages / 2));
       let endPage = Math.min(totalPages - 1, startPage + maxDisplayedPages - 1);
 
-      // Điều chỉnh nếu chúng ta gần cuối
+      // Adjust if we're near the end
       if (endPage - startPage < maxDisplayedPages - 1) {
         startPage = Math.max(0, endPage - maxDisplayedPages + 1);
       }
@@ -210,7 +210,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1.0] }}
       >
-        Danh sách đơn hàng
+        Order List
       </motion.h1>
 
       {/* Filter Section */}
@@ -253,7 +253,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
             <SelectTrigger className="border-0 focus:ring-0 focus:ring-offset-0 px-4 py-3 h-auto min-w-[220px]">
               <div className="flex items-center justify-start w-full text-sm font-medium text-gray-700 cursor-pointer">
                 <Tag size={16} className="mr-2 text-green-500 flex-shrink-0 cursor-pointer" />
-                <SelectValue placeholder="Trạng thái đơn hàng" className="flex-grow cursor-pointer" />
+                <SelectValue placeholder="Order Status" className="flex-grow cursor-pointer" />
               </div>
             </SelectTrigger>
             <SelectContent className="z-50 bg-white">
@@ -273,7 +273,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
             className="px-4 py-3 flex items-center text-red-500 hover:text-red-600 transition-colors duration-200 cursor-pointer"
           >
             <X size={16} className="mr-2" />
-            <span className="text-sm font-medium">Xóa bộ lọc</span>
+            <span className="text-sm font-medium">Reset Filters</span>
           </button>
         </div>
       </motion.div>
@@ -307,22 +307,22 @@ const updateOrderStatus = async (orderId, newStatus) => {
                       ID
                     </th>
                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Ngày đặt
+                      Order Date
                     </th>
                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Địa chỉ
+                      Address
                     </th>
                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Tổng tiền
+                      Total Amount
                     </th>
                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Phương thức
+                      Payment Method
                     </th>
                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Trạng thái
+                      Status
                     </th>
                     <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                      Thao tác
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -330,7 +330,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
                   {paginatedOrders.length === 0 ? (
                     <tr>
                       <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
-                        Không tìm thấy đơn hàng nào
+                        No orders found
                       </td>
                     </tr>
                   ) : (
@@ -369,14 +369,14 @@ const updateOrderStatus = async (orderId, newStatus) => {
                             onClick={() => setSelectedOrder(order)}
                             className="text-blue-500 hover:text-blue-700 transition-colors cursor-pointer"
                           >
-                            Chi tiết
+                            Details
                           </button>
                         </td>
                       </motion.tr>
                     ))
                   )}
 
-                  {/* Thêm hàng trống nếu số đơn hàng ít hơn itemsPerPage */}
+                  {/* Add empty rows if number of orders is less than itemsPerPage */}
                   {paginatedOrders.length > 0 && paginatedOrders.length < itemsPerPage && (
                     Array.from({ length: itemsPerPage - paginatedOrders.length }).map((_, i) => (
                       <tr key={`empty-${i}`} className="h-[60px]">
@@ -389,7 +389,7 @@ const updateOrderStatus = async (orderId, newStatus) => {
             </div>
           </motion.div>
 
-          {/* Pagination - Thay thế phần phân trang cũ */}
+          {/* Pagination - Replace old pagination section */}
           {totalPages > 1 && (
             <motion.div
               className="flex items-center justify-center mt-6"
@@ -465,74 +465,74 @@ const updateOrderStatus = async (orderId, newStatus) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div className="space-y-2">
                     <div className="flex items-center">
-                      <span className="text-gray-500 w-40">Mã đơn hàng:</span>
+                      <span className="text-gray-500 w-40">Order ID:</span>
                       <span className="font-medium">#{selectedOrder.orderId}</span>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-gray-500 w-40">Ngày đặt:</span>
+                      <span className="text-gray-500 w-40">Order Date:</span>
                       <span>{formatDate(selectedOrder.orderDate)}</span>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-gray-500 w-40">Phương thức thanh toán:</span>
+                      <span className="text-gray-500 w-40">Payment Method:</span>
                       <span>{selectedOrder.paymentMethod}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center">
-                      <span className="text-gray-500 w-40">Tổng tiền:</span>
+                      <span className="text-gray-500 w-40">Total Amount:</span>
                       <span className="font-medium text-primary-600">{selectedOrder.totalAmount.toLocaleString('vi-VN')} ₫</span>
                     </div>
                     <div className="flex items-center">
-                      <span className="text-gray-500 w-40">Trạng thái:</span>
+                      <span className="text-gray-500 w-60">Status:</span>
                       <AntdSelect
                         defaultValue={selectedOrder.status}
                         style={{ width: 150 }}
                         onChange={(value) => updateOrderStatus(selectedOrder.orderId, value)}
                         className="border border-gray-300 rounded-md"
                       >
-                        <AntdSelect.Option value="Chờ xác nhận">Chờ xác nhận</AntdSelect.Option>
-                        <AntdSelect.Option value="Đang xử lý">Đang xử lý</AntdSelect.Option>
-                        <AntdSelect.Option value="Đang giao">Đang giao</AntdSelect.Option>
-                        <AntdSelect.Option value="Hoàn tất">Hoàn tất</AntdSelect.Option>
-                        <AntdSelect.Option value="Hủy">Hủy</AntdSelect.Option>
+                        <AntdSelect.Option value="Pending Confirm">Pending Confirm</AntdSelect.Option>
+                        <AntdSelect.Option value="Processing">Processing</AntdSelect.Option>
+                        {/* <AntdSelect.Option value="Shipping">Shipping</AntdSelect.Option> */}
+                        <AntdSelect.Option value="Completed">Completed</AntdSelect.Option>
+                        <AntdSelect.Option value="Cancelled">Cancelled</AntdSelect.Option>
                       </AntdSelect>
                     </div>
                   </div>
                 </div>
 
                 <div className="mb-4">
-                  <span className="text-gray-500">Địa chỉ giao hàng:</span>
+                  <span className="text-gray-500">Address:</span>
                   <p className="mt-1 p-2 bg-gray-50 rounded-md">{selectedOrder.shippingAddress}</p>
                 </div>
 
                 {selectedOrder.orderDetails && selectedOrder.orderDetails.length > 0 && (
                   <div className="mt-6">
-                    <h4 className="text-md font-medium mb-3">Chi tiết sản phẩm</h4>
+                    <h4 className="text-md font-medium mb-3">Product Details</h4>
                     <div className="border rounded-lg overflow-hidden">
                       <Table
                         pagination={false}
                         size="small"
                         columns={[
                           {
-                            title: "Sản phẩm",
+                            title: "Product",
                             dataIndex: "productName",
                             key: "productName",
                           },
                           {
-                            title: "Số lượng",
+                            title: "Quantity",
                             dataIndex: "quantity",
                             key: "quantity",
                             className: "text-center",
                           },
                           {
-                            title: "Đơn giá",
+                            title: "Unit Price",
                             dataIndex: "price",
                             key: "price",
                             render: (value) => value.toLocaleString("vi-VN") + " ₫",
                             className: "text-right",
                           },
                           {
-                            title: "Thành tiền",
+                            title: "Total",
                             key: "total",
                             render: (_, record) => (record.price * record.quantity).toLocaleString("vi-VN") + " ₫",
                             className: "text-right font-medium",

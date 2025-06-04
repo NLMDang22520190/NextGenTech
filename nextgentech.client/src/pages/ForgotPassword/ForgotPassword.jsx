@@ -55,10 +55,10 @@ const ForgorPassword = () => {
                   className="text-center"
                 >
                   <h2 className="text-3xl font-bold text-primary-800">
-                    Cài lại mật khẩu
+                    Reset Password
                   </h2>
                   <p className="mt-2 text-sm text-primary-600">
-                    Vui lòng nhập email để nhận mã xác nhận
+                    Please enter your email to receive verification code
                   </p>
                 </motion.div>
     

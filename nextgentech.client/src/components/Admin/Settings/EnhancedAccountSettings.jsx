@@ -337,10 +337,10 @@ const EnhancedAccountSettings = () => {
         console.log("Saved avatar URL to localStorage:", imageUrl);
       }
 
-      toast.success("Ảnh đại diện đã được tải lên thành công!");
+      toast.success("Avatar uploaded successfully!");
     } catch (err) {
       console.error("Error uploading avatar:", err);
-      toast.error("Không thể tải lên ảnh đại diện. Vui lòng thử lại.");
+      toast.error("Unable to upload avatar. Please try again.");
     }
   };
 
@@ -348,7 +348,7 @@ const EnhancedAccountSettings = () => {
   const saveProfileChanges = async () => {
     try {
       if (!userId) {
-        toast.error("User không được xác định. Vui lòng đăng nhập lại.");
+        toast.error("User not identified. Please login again.");
         return;
       }
 
@@ -388,10 +388,10 @@ const EnhancedAccountSettings = () => {
         setIsProfileModalOpen(false);
 
         // Show success message
-        toast.success("Thông tin cá nhân đã được cập nhật thành công!");
+        toast.success("Personal information updated successfully!");
         console.log("Profile updated successfully with avatar:", tempProfileData.avatarUrl);
       } else {
-        toast.error("Không thể cập nhật hồ sơ. Vui lòng thử lại.");
+        toast.error("Unable to update profile. Please try again.");
       }
     } catch (err) {
       console.error("Error in saveProfileChanges:", err);
@@ -408,8 +408,8 @@ const EnhancedAccountSettings = () => {
         const errorMessage = err.response.data?.customData?.message ||
                             err.response.data?.message ||
                             err.response.data?.status ||
-                            "Đã xảy ra lỗi khi cập nhật thông tin.";
-        toast.error(`Lỗi: ${errorMessage}`);
+                            "An error occurred while updating information.";
+        toast.error(`Error: ${errorMessage}`);
 
         // Log the detailed error for debugging
         if (err.response.data?.customData?.details) {
@@ -418,13 +418,13 @@ const EnhancedAccountSettings = () => {
 
         // If it's a 500 error, show a more specific message
         if (err.response.status === 500) {
-          toast.error("Lỗi máy chủ nội bộ. Vui lòng thử lại sau hoặc liên hệ quản trị viên.");
+          toast.error("Internal server error. Please try again later or contact administrator.");
           console.error("Server error details:", err.response.data);
         }
       } else if (err.request) {
-        toast.error("Không nhận được phản hồi từ server.");
+        toast.error("No response received from server.");
       } else {
-        toast.error(`Lỗi: ${err.message}`);
+        toast.error(`Error: ${err.message}`);
       }
     }
   };
@@ -434,23 +434,23 @@ const EnhancedAccountSettings = () => {
     try {
       // Validate passwords
       if (!passwordData.currentPassword || !passwordData.newPassword || !passwordData.confirmPassword) {
-        toast.error("Vui lòng điền đầy đủ tất cả các trường mật khẩu");
+        toast.error("Please fill in all password fields");
         return;
       }
 
       if (passwordData.newPassword !== passwordData.confirmPassword) {
-        toast.error("Mật khẩu mới và xác nhận mật khẩu không khớp.");
+        toast.error("New password and confirm password do not match.");
         return;
       }
 
       if (passwordData.newPassword.length < 6) {
-        toast.error("Mật khẩu mới phải có ít nhất 6 ký tự.");
+        toast.error("New password must be at least 6 characters.");
         return;
       }
 
       const email = profileData.email;
       if (!email) {
-        toast.error("Email không được xác định. Vui lòng thử lại.");
+        toast.error("Email not identified. Please try again.");
         return;
       }
 
@@ -478,26 +478,26 @@ const EnhancedAccountSettings = () => {
         setIsPasswordModalOpen(false);
 
         // Show success message
-        toast.success("Mật khẩu đã được thay đổi thành công!");
+        toast.success("Password changed successfully!");
       } else {
-        toast.error("Không thể đổi mật khẩu");
+        toast.error("Unable to change password");
       }
     } catch (err) {
-      console.error("Lỗi khi đổi mật khẩu:", err);
+      console.error("Error changing password:", err);
       console.log("Error details:", err.response?.data);
 
       if (err.response) {
-        const errorMessage = err.response.data?.message || "Không thể đổi mật khẩu";
-        toast.error(`Lỗi: ${errorMessage}`);
+        const errorMessage = err.response.data?.message || "Unable to change password";
+        toast.error(`Error: ${errorMessage}`);
 
         // If there's a specific error about the current password
-        if (errorMessage.includes("current password") || errorMessage.includes("mật khẩu hiện tại")) {
-          toast.error("Mật khẩu hiện tại không chính xác");
+        if (errorMessage.includes("current password")) {
+          toast.error("Current password is incorrect");
         }
       } else if (err.request) {
-        toast.error("Không nhận được phản hồi từ máy chủ");
+        toast.error("No response received from server");
       } else {
-        toast.error(`Lỗi: ${err.message}`);
+        toast.error(`Error: ${err.message}`);
       }
     }
   };

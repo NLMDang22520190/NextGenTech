@@ -39,28 +39,28 @@ const SignUp = () => {
     setError("");
     setIsLoading(true);
 
-    // Lưu email và mật khẩu vào sessionStorage
+    // Save email and password to sessionStorage
     sessionStorage.setItem("signupPassword", password);
 
-    try 
+    try
     {
       const response = await api.post(
         `api/Account/send-verification-code/${encodeURIComponent(email)}`
       );
       if (response.status === 200 && response.data.status === "success") {
-        // Chuyển hướng sang trang VerifyCode
+        // Redirect to VerifyCode page
         navigate(
           `/auth/verify-code?email=${encodeURIComponent(email)}&type=signup`
         );
       } else {
-        alert("Không thể gửi mã xác minh. Vui lòng thử lại.");
+        alert("Unable to send verification code. Please try again.");
       }
     } catch (error) {
       alert(
-        error.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại."
+        error.response?.data?.message || "An error occurred. Please try again."
       );
     } finally {
-      // Kết thúc quá trình gửi mã, ẩn loading
+      // End code sending process, hide loading
       setIsLoading(false);
     }
   };

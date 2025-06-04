@@ -17,8 +17,8 @@ const VerifyCode = () => {
   const type = searchParams.get("type") || "reset"; // 'reset' or 'signup'
 
   const [error, setError] = useState("");
-  const [message, setMessage] = useState(""); // Thông báo thành công
-  const [isResending, setIsResending] = useState(false); // Trạng thái gửi lại mã
+  const [message, setMessage] = useState(""); // Success message
+  const [isResending, setIsResending] = useState(false); // Resend code status
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -32,17 +32,17 @@ const VerifyCode = () => {
       });
 
       if (response.status === 200 && response.data.status === "success") {
-        setMessage("Xác minh thành công!");
+        setMessage("Verification successful!");
 
-        // Điều hướng và lưu trữ thông tin
+        // Navigation and information storage
         if (type === "reset") {
           sessionStorage.setItem("email", email);
           navigate("/auth/reset-password");
         } else {
-          // Lấy password từ sessionStorage và tạo username ngẫu nhiên
+          // Get password from sessionStorage and create random username
           const password = sessionStorage.getItem("signupPassword");
-          setMessage("Đang tạo tài khoản...");
-          // Gọi API đăng ký người dùng
+          setMessage("Creating account...");
+          // Call user registration API
           const registerResponse = await api.post("api/Account/register", {
             email,
             password,
@@ -52,16 +52,16 @@ const VerifyCode = () => {
             navigate("/auth/login");
           } else {
             setError(
-              registerResponse.data.message || "Đăng ký không thành công."
+              registerResponse.data.message || "Registration failed."
             );
           }
         }
       } else {
-        setError(response.data.message || "Mã xác minh không chính xác.");
+        setError(response.data.message || "Verification code is incorrect.");
       }
     } catch (error) {
       setError(
-        error.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại."
+        error.response?.data?.message || "An error occurred. Please try again."
       );
     } finally {
       setIsLoading(false);
@@ -86,13 +86,13 @@ const VerifyCode = () => {
       );
 
       if (response.status === 200 && response.data.status === "success") {
-        setMessage("Mã xác minh đã được gửi lại thành công.");
+        setMessage("Verification code has been resent successfully.");
       } else {
-        setError(response.data.message || "Không thể gửi lại mã.");
+        setError(response.data.message || "Unable to resend code.");
       }
     } catch (error) {
       setError(
-        error.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại."
+        error.response?.data?.message || "An error occurred. Please try again."
       );
     } finally {
       setIsResending(false);

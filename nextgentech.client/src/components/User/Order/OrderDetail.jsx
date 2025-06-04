@@ -26,17 +26,17 @@ const OrderDetail = () => {
     fetchOrderDetails();
   }, [orderId]);
 
-  // Hàm tạo các hoạt động đơn hàng dựa trên trạng thái
+  // Function to generate order activities based on status
   const generateOrderActivities = (status, orderDate) => {
     const activities = [];
     const orderDateObj = new Date(orderDate);
 
-    // Luôn có hoạt động đặt hàng
+    // Always have order placement activity
     activities.push({
       icon: FileText,
       color: 'text-blue-500',
-      description: 'Đơn hàng của bạn đã được đặt thành công.',
-      date: orderDateObj.toLocaleDateString('vi-VN', {
+      description: 'Your order has been placed successfully.',
+      date: orderDateObj.toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'numeric',
         year: 'numeric',
@@ -46,21 +46,19 @@ const OrderDetail = () => {
       })
     });
 
-    // Thêm các hoạt động dựa trên trạng thái
+    // Add activities based on status
     switch(status.toUpperCase()) {
       case 'PENDING':
-      case 'CHỜ XÁC NHẬN':
-        // Chỉ có hoạt động đặt hàng
+        // Only order placement activity
         break;
 
       case 'PROCESSING':
-      case 'ĐANG XỬ LÝ':
-        // Thêm hoạt động xác nhận đơn hàng
+        // Add order confirmation activity
         activities.push({
           icon: FileCheck,
           color: 'text-green-500',
-          description: 'Đơn hàng của bạn đã được xác nhận.',
-          date: new Date(orderDateObj.getTime() + 2 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+          description: 'Your order has been confirmed.',
+          date: new Date(orderDateObj.getTime() + 2 * 60 * 60 * 1000).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',
@@ -72,13 +70,12 @@ const OrderDetail = () => {
         break;
 
       case 'SHIPPING':
-      case 'ĐANG GIAO':
-        // Thêm hoạt động xác nhận và đóng gói
+        // Add confirmation and packaging activities
         activities.push({
           icon: FileCheck,
           color: 'text-green-500',
-          description: 'Đơn hàng của bạn đã được xác nhận.',
-          date: new Date(orderDateObj.getTime() + 2 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+          description: 'Your order has been confirmed.',
+          date: new Date(orderDateObj.getTime() + 2 * 60 * 60 * 1000).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',
@@ -91,8 +88,8 @@ const OrderDetail = () => {
         activities.push({
           icon: Package,
           color: 'text-orange-500',
-          description: 'Đơn hàng của bạn đã được đóng gói và giao cho đơn vị vận chuyển.',
-          date: new Date(orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+          description: 'Your order has been packaged and handed over to the shipping carrier.',
+          date: new Date(orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',
@@ -104,13 +101,12 @@ const OrderDetail = () => {
         break;
 
       case 'COMPLETED':
-      case 'HOÀN TẤT':
-        // Thêm tất cả các hoạt động
+        // Add all activities
         activities.push({
           icon: FileCheck,
           color: 'text-green-500',
-          description: 'Đơn hàng của bạn đã được xác nhận.',
-          date: new Date(orderDateObj.getTime() + 2 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+          description: 'Your order has been confirmed.',
+          date: new Date(orderDateObj.getTime() + 2 * 60 * 60 * 1000).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',
@@ -123,8 +119,8 @@ const OrderDetail = () => {
         activities.push({
           icon: Package,
           color: 'text-orange-500',
-          description: 'Đơn hàng của bạn đã được đóng gói và giao cho đơn vị vận chuyển.',
-          date: new Date(orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+          description: 'Your order has been packaged and handed over to the shipping carrier.',
+          date: new Date(orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',
@@ -137,8 +133,8 @@ const OrderDetail = () => {
         activities.push({
           icon: Truck,
           color: 'text-blue-500',
-          description: 'Đơn hàng của bạn đang được giao đến địa chỉ của bạn.',
-          date: new Date(orderDateObj.getTime() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+          description: 'Your order is being delivered to your address.',
+          date: new Date(orderDateObj.getTime() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',
@@ -151,8 +147,8 @@ const OrderDetail = () => {
         activities.push({
           icon: CheckCircle,
           color: 'text-green-500',
-          description: 'Đơn hàng của bạn đã được giao thành công.',
-          date: new Date(orderDateObj.getTime() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+          description: 'Your order has been delivered successfully.',
+          date: new Date(orderDateObj.getTime() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',
@@ -164,13 +160,12 @@ const OrderDetail = () => {
         break;
 
       case 'CANCELED':
-      case 'ĐÃ HUỶ':
-        // Thêm hoạt động huỷ đơn hàng
+        // Add order cancellation activity
         activities.push({
           icon: CheckCircle2,
           color: 'text-red-500',
-          description: 'Đơn hàng của bạn đã bị huỷ.',
-          date: new Date(orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN', {
+          description: 'Your order has been canceled.',
+          date: new Date(orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',
@@ -182,42 +177,37 @@ const OrderDetail = () => {
         break;
 
       default:
-        // Mặc định chỉ có hoạt động đặt hàng
+        // Default only order placement activity
         break;
     }
 
     return activities;
   };
 
-  // Hàm xác định bước hiện tại của đơn hàng
+  // Function to determine current order step
   const getOrderStep = (status) => {
     switch(status.toUpperCase()) {
       case 'PENDING':
-      case 'CHỜ XÁC NHẬN':
         return 1;
       case 'PROCESSING':
-      case 'ĐANG XỬ LÝ':
         return 2;
       case 'SHIPPING':
-      case 'ĐANG GIAO':
         return 3;
       case 'COMPLETED':
-      case 'HOÀN TẤT':
         return 4;
       case 'CANCELED':
-      case 'ĐÃ HUỶ':
         return 0;
       default:
         return 1;
     }
   };
 
-  // Hàm tính ngày dự kiến giao hàng dựa trên ngày đặt hàng
+  // Function to calculate expected delivery date based on order date
   const calculateExpectedDelivery = (orderDate) => {
     const orderDateObj = new Date(orderDate);
-    // Dự kiến giao hàng sau 7 ngày kể từ ngày đặt hàng
+    // Expected delivery after 7 days from order date
     const expectedDate = new Date(orderDateObj.getTime() + 7 * 24 * 60 * 60 * 1000);
-    return expectedDate.toLocaleDateString('vi-VN', {
+    return expectedDate.toLocaleDateString('en-US', {
       day: 'numeric',
       month: 'numeric',
       year: 'numeric'
@@ -227,36 +217,36 @@ const OrderDetail = () => {
   const fetchOrderDetails = async () => {
     setLoading(true);
     try {
-      // Lấy thông tin chi tiết đơn hàng
-      console.log(`Đang gọi API: /api/OrderDetail/order/${orderId}`);
+      // Get order details
+      console.log(`Calling API: /api/OrderDetail/order/${orderId}`);
       const orderDetailsResponse = await axios.get(`/api/OrderDetail/order/${orderId}`);
 
-      // Lấy thông tin đơn hàng
-      console.log(`Đang gọi API: /api/Order/${orderId}`);
+      // Get order information
+      console.log(`Calling API: /api/Order/${orderId}`);
       const orderResponse = await axios.get(`/api/Order/${orderId}`);
 
       if (orderDetailsResponse.status === 200 && orderResponse.status === 200) {
-        console.log("Chi tiết đơn hàng:", orderDetailsResponse.data);
-        console.log("Thông tin đơn hàng:", orderResponse.data);
+        console.log("Order details:", orderDetailsResponse.data);
+        console.log("Order information:", orderResponse.data);
 
         const orderDetails = orderDetailsResponse.data;
         const orderInfo = orderResponse.data;
 
         setOrderDetails(orderDetails);
 
-        // Tạo các hoạt động đơn hàng dựa trên trạng thái
+        // Generate order activities based on status
         const activities = generateOrderActivities(orderInfo.status, orderInfo.orderDate);
 
-        // Xác định bước hiện tại của đơn hàng
+        // Determine current order step
         const currentStep = getOrderStep(orderInfo.status);
 
-        // Tính ngày dự kiến giao hàng
+        // Calculate expected delivery date
         const expectedDelivery = calculateExpectedDelivery(orderInfo.orderDate);
 
         setOrderData({
           id: orderId,
           productCount: orderDetails.length,
-          orderDate: new Date(orderInfo.orderDate).toLocaleDateString('vi-VN', {
+          orderDate: new Date(orderInfo.orderDate).toLocaleDateString('en-US', {
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',
@@ -272,37 +262,37 @@ const OrderDetail = () => {
           products: orderDetails.map(item => ({
             id: item.orderDetailId,
             productId: item.productColorId,
-            category: 'SẢN PHẨM',
-            name: `Sản phẩm #${item.productColorId}`,
+            category: 'PRODUCT',
+            name: `Product #${item.productColorId}`,
             price: formatPrice(item.price),
             quantity: item.quantity,
             subtotal: formatPrice(item.price * item.quantity * (1 - (item.discountPercentage || 0) / 100))
           })),
           addresses: {
             billing: {
-              name: orderInfo.fullName || 'Khách hàng',
-              address: orderInfo.shippingAddress || 'Thông tin địa chỉ giao hàng'
+              name: orderInfo.fullName || 'Customer',
+              address: orderInfo.shippingAddress || 'Shipping address information'
             },
             shipping: {
-              name: orderInfo.fullName || 'Khách hàng',
-              address: orderInfo.shippingAddress || 'Thông tin địa chỉ giao hàng'
+              name: orderInfo.fullName || 'Customer',
+              address: orderInfo.shippingAddress || 'Shipping address information'
             }
           },
-          notes: orderInfo.paymentMethod || 'Thanh toán khi nhận hàng'
+          notes: orderInfo.paymentMethod || 'Cash on delivery'
         });
       }
       setLoading(false);
     } catch (err) {
-      console.error("Không thể tải chi tiết đơn hàng:", err);
-      setError("Không thể tải chi tiết đơn hàng. Vui lòng thử lại sau.");
+      console.error("Unable to load order details:", err);
+      setError("Unable to load order details. Please try again later.");
       setLoading(false);
     }
   };
 
-   // Mở modal đánh giá cho sản phẩm cụ thể
+   // Open rating modal for specific product
   const openRatingModal = (productId) => {
     if (!userID) {
-      alert('Vui lòng đăng nhập để đánh giá sản phẩm!');
+      alert('Please login to rate the product!');
       return;
     }
 
@@ -314,7 +304,7 @@ const OrderDetail = () => {
     setIsRatingModalOpen(true);
   };
 
-  // Tính tổng tiền từ chi tiết đơn hàng
+  // Calculate total from order details
   const calculateTotal = (details) => {
     if (!details || details.length === 0) return 0;
 
@@ -324,7 +314,7 @@ const OrderDetail = () => {
     }, 0);
   };
 
-  // Định dạng giá tiền theo VND
+  // Format price in VND
   const formatPrice = (price) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -352,7 +342,7 @@ const OrderDetail = () => {
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             onClick={fetchOrderDetails}
           >
-            Thử lại
+            Try Again
           </button>
         </div>
       </div>
@@ -363,19 +353,19 @@ const OrderDetail = () => {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="bg-yellow-50 rounded-lg p-4 text-yellow-700">
-          <p>Không tìm thấy thông tin đơn hàng!</p>
+          <p>Order information not found!</p>
           <button
             className="mt-2 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700"
             onClick={() => navigate('/order-history')}
           >
-            Trở về lịch sử đơn hàng
+            Back to Order History
           </button>
         </div>
       </div>
     );
   }
 
-  // Cập nhật trạng thái đánh giá của sản phẩm
+  // Update product rating status
   const handleRatingSubmit = async (productId, rating, comment) => {
     try {
       console.log("Submitting rating with data:", { userId: userID, productId, rating, comment });
@@ -406,11 +396,11 @@ const OrderDetail = () => {
         }));
 
         setIsRatingModalOpen(false);
-        alert("Cảm ơn bạn đã đánh giá sản phẩm!");
+        alert("Thank you for rating the product!");
       }
     }
     catch (error) {
-      console.error("Lỗi khi gửi đánh giá:", error);
+      console.error("Error submitting review:", error);
 
       // Enhanced error logging for better debugging
       if (error.response) {
@@ -422,12 +412,12 @@ const OrderDetail = () => {
           const errorMessages = Object.entries(error.response.data.errors)
             .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
             .join('; ');
-          alert(`Lỗi xác thực dữ liệu: ${errorMessages}`);
+          alert(`Data validation error: ${errorMessages}`);
           return;
         }
       }
 
-      alert("Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại sau.");
+      alert("An error occurred while submitting the review. Please try again later.");
     }
   };
 
@@ -438,7 +428,7 @@ const OrderDetail = () => {
           onClick={() => navigate(-1)}
           className="flex items-center text-primary-600 hover:text-primary-700 transition-colors text-xl font-bold mb-4 cursor-pointer"
         >
-          <ArrowLeft size={20} className="mr-2 text-primary-700" /> CHI TIẾT ĐƠN HÀNG
+          <ArrowLeft size={20} className="mr-2 text-primary-700" /> ORDER DETAILS
         </button>
       </div>
 
@@ -461,16 +451,16 @@ const OrderDetail = () => {
         <div className="flex justify-between items-center">
           <div>
             <p className="text-gray-800 font-semibold">#{orderData.id}</p>
-            <p className="text-gray-600 text-sm">{orderData.productCount} Sản phẩm • Đơn hàng đặt vào {orderData.orderDate}</p>
+            <p className="text-gray-600 text-sm">{orderData.productCount} Products • Order placed on {orderData.orderDate}</p>
           </div>
           <p className="text-blue-500 font-bold text-2xl">{orderData.totalAmount}</p>
         </div>
       </motion.div>
 
       <div className="mb-8">
-        {orderData.status.toUpperCase() !== 'CANCELED' && orderData.status.toUpperCase() !== 'ĐÃ HUỶ' ? (
+        {orderData.status.toUpperCase() !== 'CANCELED' ? (
           <>
-            <p className="text-gray-700 mb-4">Dự kiến giao hàng vào {orderData.expectedDelivery}</p>
+            <p className="text-gray-700 mb-4">Expected delivery on {orderData.expectedDelivery}</p>
 
             <div className="relative mb-8">
               <div className="absolute top-4 left-0 right-0 h-1 bg-gray-200 z-0"></div>
@@ -482,41 +472,41 @@ const OrderDetail = () => {
                   <div className={`w-8 h-8 rounded-full ${orderData.currentStep >= 1 ? 'bg-primary-500' : 'bg-white'} border-4 ${orderData.currentStep >= 1 ? 'border-white' : 'border-gray-200'} flex items-center justify-center mb-2`}>
                     <FileText size={16} className={orderData.currentStep >= 1 ? 'text-white' : 'text-gray-400'} />
                   </div>
-                  <p className="text-sm text-gray-700">Đặt hàng</p>
+                  <p className="text-sm text-gray-700">Order Placed</p>
                 </div>
 
                 <div className="flex flex-col items-center">
                   <div className={`w-8 h-8 rounded-full ${orderData.currentStep >= 2 ? 'bg-primary-500' : 'bg-white'} border-4 ${orderData.currentStep >= 2 ? 'border-white' : 'border-gray-200'} flex items-center justify-center mb-2`}>
                     <Package size={16} className={orderData.currentStep >= 2 ? 'text-white' : 'text-gray-400'} />
                   </div>
-                  <p className="text-sm text-gray-700">Đóng gói</p>
+                  <p className="text-sm text-gray-700">Packaging</p>
                 </div>
 
                 <div className="flex flex-col items-center">
                   <div className={`w-8 h-8 rounded-full ${orderData.currentStep >= 3 ? 'bg-primary-500' : 'bg-white'} border-4 ${orderData.currentStep >= 3 ? 'border-white' : 'border-gray-200'} flex items-center justify-center mb-2`}>
                     <Truck size={16} className={orderData.currentStep >= 3 ? 'text-white' : 'text-gray-400'} />
                   </div>
-                  <p className="text-sm text-gray-700">Đang giao</p>
+                  <p className="text-sm text-gray-700">Shipping</p>
                 </div>
 
                 <div className="flex flex-col items-center">
                   <div className={`w-8 h-8 rounded-full ${orderData.currentStep >= 4 ? 'bg-primary-500' : 'bg-white'} border-4 ${orderData.currentStep >= 4 ? 'border-white' : 'border-gray-200'} flex items-center justify-center mb-2`}>
                     <CheckCircle size={16} className={orderData.currentStep >= 4 ? 'text-white' : 'text-gray-400'} />
                   </div>
-                  <p className="text-sm text-gray-700">Đã giao</p>
+                  <p className="text-sm text-gray-700">Delivered</p>
                 </div>
               </div>
             </div>
           </>
         ) : (
           <div className="bg-red-50 rounded-lg p-4 mb-8">
-            <p className="text-red-700 font-medium">Đơn hàng này đã bị hủy.</p>
+            <p className="text-red-700 font-medium">This order has been canceled.</p>
           </div>
         )}
       </div>
 
       <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-4">Hoạt động đơn hàng</h2>
+        <h2 className="text-lg font-semibold mb-4">Order Activity</h2>
 
         <div className="space-y-6">
           {orderData.activities.map((activity, index) => (
@@ -542,15 +532,15 @@ const OrderDetail = () => {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-4">Sản phẩm ({orderData.products.length})</h2>
+        <h2 className="text-lg font-semibold mb-4">Products ({orderData.products.length})</h2>
 
         <div className="bg-gray-50 rounded-lg overflow-hidden">
           <div className="grid grid-cols-12 bg-gray-100 py-3 px-4 border-b border-gray-200">
-            <div className="col-span-5 font-medium text-gray-700">SẢN PHẨM</div>
-            <div className="col-span-2 font-medium text-gray-700">GIÁ</div>
-            <div className="col-span-1 font-medium text-gray-700">SỐ LƯỢNG</div>
-            <div className="col-span-2 font-medium text-gray-700">TỔNG</div>
-            <div className="col-span-2 font-medium text-gray-700">ĐÁNH GIÁ</div>
+            <div className="col-span-5 font-medium text-gray-700">PRODUCT</div>
+            <div className="col-span-2 font-medium text-gray-700">PRICE</div>
+            <div className="col-span-1 font-medium text-gray-700">QUANTITY</div>
+            <div className="col-span-2 font-medium text-gray-700">TOTAL</div>
+            <div className="col-span-2 font-medium text-gray-700">RATING</div>
           </div>
 
           {orderData.products.map((product, index) => (
@@ -577,14 +567,14 @@ const OrderDetail = () => {
                 {product.isRated ? (
                   <div className="flex items-center text-yellow-500">
                     <Star size={16} fill="currentColor" className="mr-1" />
-                    <span className="text-gray-700">Đã đánh giá</span>
+                    <span className="text-gray-700">Rated</span>
                   </div>
                 ) : (
                   <button
                     onClick={() => openRatingModal(product.productId)}
                     className="flex items-center px-3 py-1 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm cursor-pointer"
                   >
-                    <Star size={14} className="mr-1" /> Đánh giá
+                    <Star size={14} className="mr-1" /> Rate
                   </button>
                 )}
               </div>
@@ -595,7 +585,7 @@ const OrderDetail = () => {
 
       <div className="grid grid-cols-3 gap-6 mb-4">
         <div>
-          <h3 className="text-gray-800 font-medium mb-3">Địa chỉ thanh toán</h3>
+          <h3 className="text-gray-800 font-medium mb-3">Billing Address</h3>
           <div className="bg-gray-50 p-4 rounded-lg h-full">
             <p className="font-medium mb-1">{orderData.addresses.billing.name}</p>
             <p className="text-gray-600 text-sm">{orderData.addresses.billing.address}</p>
@@ -603,7 +593,7 @@ const OrderDetail = () => {
         </div>
 
         <div>
-          <h3 className="text-gray-800 font-medium mb-3">Địa chỉ giao hàng</h3>
+          <h3 className="text-gray-800 font-medium mb-3">Shipping Address</h3>
           <div className="bg-gray-50 p-4 rounded-lg h-full">
             <p className="font-medium mb-1">{orderData.addresses.shipping.name}</p>
             <p className="text-gray-600 text-sm">{orderData.addresses.shipping.address}</p>
@@ -611,7 +601,7 @@ const OrderDetail = () => {
         </div>
 
         <div>
-          <h3 className="text-gray-800 font-medium mb-3">Ghi chú đơn hàng</h3>
+          <h3 className="text-gray-800 font-medium mb-3">Order Notes</h3>
           <div className="bg-gray-50 p-4 rounded-lg h-full">
             <p className="text-gray-600 text-sm">{orderData.notes}</p>
           </div>

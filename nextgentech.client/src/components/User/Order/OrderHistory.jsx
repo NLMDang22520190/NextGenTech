@@ -54,22 +54,22 @@ const fetchOrders = async () => {
       // No orders found
       setOrders([]);
     } else {
-      setError("Không thể tải danh sách đơn hàng. Vui lòng thử lại sau.");
+      setError("Unable to load order list. Please try again later.");
     }
     setLoading(false);
   }
 };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
       currency: 'VND',
       maximumFractionDigits: 0
     }).format(price);
   };
 
   const formatDate = (date) => {
-    return date.toLocaleDateString('vi-VN', {
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -79,14 +79,12 @@ const fetchOrders = async () => {
   const getStatusColor = (status) => {
     switch (status.toUpperCase()) {
       case "COMPLETED":
-      case "HOÀN TẤT":
         return "text-green-500";
       case "IN PROGRESS":
-      case "ĐANG XỬ LÝ":
-      case "CHỜ XÁC NHẬN":
+      case "PROCESSING":
+      case "PENDING":
         return "text-orange-500";
       case "CANCELED":
-      case "ĐÃ HUỶ":
         return "text-red-500";
       default:
         return "text-gray-500";
@@ -96,14 +94,12 @@ const fetchOrders = async () => {
   const getStatusIcon = (status) => {
     switch (status.toUpperCase()) {
       case 'COMPLETED':
-      case 'HOÀN TẤT':
         return <CheckCircleIcon className="h-5 w-5 text-green-500"/>;
       case 'IN PROGRESS':
-      case 'ĐANG XỬ LÝ':
-      case 'CHỜ XÁC NHẬN':
+      case 'PROCESSING':
+      case 'PENDING':
         return <ClockIcon className="h-5 w-5 text-orange-500"/>;
       case 'CANCELED':
-      case 'ĐÃ HUỶ':
         return <XCircleIcon className="h-5 w-5 text-red-500"/>;
       default:
         return null;
@@ -154,7 +150,7 @@ const fetchOrders = async () => {
   if (loading && orders.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <h1 className="text-xl font-bold mb-4 text-primary-700">LỊCH SỬ ĐƠN HÀNG</h1>
+        <h1 className="text-xl font-bold mb-4 text-primary-700">ORDER HISTORY</h1>
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
         </div>
@@ -165,14 +161,14 @@ const fetchOrders = async () => {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <h1 className="text-xl font-bold mb-4 text-primary-700">LỊCH SỬ ĐƠN HÀNG</h1>
+        <h1 className="text-xl font-bold mb-4 text-primary-700">ORDER HISTORY</h1>
         <div className="bg-red-50 rounded-lg p-4 text-red-700">
           <p>{error}</p>
-          <button 
+          <button
             className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             onClick={fetchOrders}
           >
-            Thử lại
+            Try Again
           </button>
         </div>
       </div>
@@ -181,20 +177,20 @@ const fetchOrders = async () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <h1 className="text-xl font-bold mb-4 text-primary-700">LỊCH SỬ ĐƠN HÀNG</h1>
-      
+      <h1 className="text-xl font-bold mb-4 text-primary-700">ORDER HISTORY</h1>
+
       {orders.length === 0 ? (
         <div className="bg-gray-50 rounded-lg p-8 text-center">
-          <p className="text-gray-600">Bạn chưa có đơn hàng nào.</p>
+          <p className="text-gray-600">You don't have any orders yet.</p>
         </div>
       ) : (
         <div className="bg-gray-50 rounded-lg overflow-hidden shadow-sm mb-6">
           <div className="grid grid-cols-12 bg-gray-100 py-3 px-4 border-b border-gray-200">
-            <div className="col-span-2 font-medium text-gray-700">MÃ ĐƠN HÀNG</div>
-            <div className="col-span-2 font-medium text-gray-700">TRẠNG THÁI</div>
-            <div className="col-span-3 font-medium text-gray-700">NGÀY ĐẶT</div>
-            <div className="col-span-3 font-medium text-gray-700">TỔNG TIỀN</div>
-            <div className="col-span-2 font-medium text-gray-700">THAO TÁC</div>
+            <div className="col-span-2 font-medium text-gray-700">ORDER ID</div>
+            <div className="col-span-2 font-medium text-gray-700">STATUS</div>
+            <div className="col-span-3 font-medium text-gray-700">ORDER DATE</div>
+            <div className="col-span-3 font-medium text-gray-700">TOTAL AMOUNT</div>
+            <div className="col-span-2 font-medium text-gray-700">ACTIONS</div>
           </div>
 
           {paginatedOrders.map((order, index) => (
@@ -219,7 +215,7 @@ const fetchOrders = async () => {
                   className="text-blue-500 flex items-center hover:text-blue-700 transition-colors cursor-pointer"
                   onClick={() => handleViewDetails(order.id)}
                 >
-                  Xem chi tiết <ChevronRight size={16} className="ml-1" />
+                  View Details <ChevronRight size={16} className="ml-1" />
                 </motion.button>
               </div>
             </motion.div>
@@ -238,10 +234,10 @@ const fetchOrders = async () => {
                 setCurrentPage(1);
               }}
             >
-              <option value={5}>5 mục/trang</option>
-              <option value={10}>10 mục/trang</option>
-              <option value={20}>20 mục/trang</option>
-              <option value={50}>50 mục/trang</option>
+              <option value={5}>5 items/page</option>
+              <option value={10}>10 items/page</option>
+              <option value={20}>20 items/page</option>
+              <option value={50}>50 items/page</option>
             </select>
           </div>
           
