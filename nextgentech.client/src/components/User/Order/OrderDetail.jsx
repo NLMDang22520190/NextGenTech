@@ -1,12 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Plus, CheckCircle, Truck, Package, MapPin, CheckCircle2, FileCheck, FileText, Star } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from '../../../features/AxiosInstance/AxiosInstance';
-import { useSelector } from 'react-redux';
-import RatingModal from '../../../components/User/Order/RatingModal';
-import { pre } from 'motion/react-client';
-import { set } from 'date-fns';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { message } from "antd";
+import {
+  ArrowLeft,
+  Plus,
+  CheckCircle,
+  Truck,
+  Package,
+  MapPin,
+  CheckCircle2,
+  FileCheck,
+  FileText,
+  Star,
+} from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "../../../features/AxiosInstance/AxiosInstance";
+import { useSelector } from "react-redux";
+import RatingModal from "../../../components/User/Order/RatingModal";
 
 const OrderDetail = () => {
   const navigate = useNavigate();
@@ -19,7 +29,7 @@ const OrderDetail = () => {
   const [error, setError] = useState(null);
 
   // Get user ID from Redux store
-    const userID = useSelector((state) => state.auth.user);
+  const userID = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     // Fetch order details when component mounts
@@ -34,145 +44,163 @@ const OrderDetail = () => {
     // Always have order placement activity
     activities.push({
       icon: FileText,
-      color: 'text-blue-500',
-      description: 'Your order has been placed successfully.',
-      date: orderDateObj.toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'numeric',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: false
-      })
+      color: "text-blue-500",
+      description: "Your order has been placed successfully.",
+      date: orderDateObj.toLocaleDateString("en-US", {
+        day: "numeric",
+        month: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: false,
+      }),
     });
 
     // Add activities based on status
-    switch(status.toUpperCase()) {
-      case 'PENDING':
+    switch (status.toUpperCase()) {
+      case "PENDING":
         // Only order placement activity
         break;
 
-      case 'PROCESSING':
+      case "PROCESSING":
         // Add order confirmation activity
         activities.push({
           icon: FileCheck,
-          color: 'text-green-500',
-          description: 'Your order has been confirmed.',
-          date: new Date(orderDateObj.getTime() + 2 * 60 * 60 * 1000).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: false
-          })
+          color: "text-green-500",
+          description: "Your order has been confirmed.",
+          date: new Date(
+            orderDateObj.getTime() + 2 * 60 * 60 * 1000
+          ).toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: false,
+          }),
         });
         break;
 
-      case 'SHIPPING':
+      case "SHIPPING":
         // Add confirmation and packaging activities
         activities.push({
           icon: FileCheck,
-          color: 'text-green-500',
-          description: 'Your order has been confirmed.',
-          date: new Date(orderDateObj.getTime() + 2 * 60 * 60 * 1000).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: false
-          })
+          color: "text-green-500",
+          description: "Your order has been confirmed.",
+          date: new Date(
+            orderDateObj.getTime() + 2 * 60 * 60 * 1000
+          ).toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: false,
+          }),
         });
 
         activities.push({
           icon: Package,
-          color: 'text-orange-500',
-          description: 'Your order has been packaged and handed over to the shipping carrier.',
-          date: new Date(orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: false
-          })
+          color: "text-orange-500",
+          description:
+            "Your order has been packaged and handed over to the shipping carrier.",
+          date: new Date(
+            orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000
+          ).toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: false,
+          }),
         });
         break;
 
-      case 'COMPLETED':
+      case "COMPLETED":
         // Add all activities
         activities.push({
           icon: FileCheck,
-          color: 'text-green-500',
-          description: 'Your order has been confirmed.',
-          date: new Date(orderDateObj.getTime() + 2 * 60 * 60 * 1000).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: false
-          })
+          color: "text-green-500",
+          description: "Your order has been confirmed.",
+          date: new Date(
+            orderDateObj.getTime() + 2 * 60 * 60 * 1000
+          ).toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: false,
+          }),
         });
 
         activities.push({
           icon: Package,
-          color: 'text-orange-500',
-          description: 'Your order has been packaged and handed over to the shipping carrier.',
-          date: new Date(orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: false
-          })
+          color: "text-orange-500",
+          description:
+            "Your order has been packaged and handed over to the shipping carrier.",
+          date: new Date(
+            orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000
+          ).toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: false,
+          }),
         });
 
         activities.push({
           icon: Truck,
-          color: 'text-blue-500',
-          description: 'Your order is being delivered to your address.',
-          date: new Date(orderDateObj.getTime() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: false
-          })
+          color: "text-blue-500",
+          description: "Your order is being delivered to your address.",
+          date: new Date(
+            orderDateObj.getTime() + 3 * 24 * 60 * 60 * 1000
+          ).toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: false,
+          }),
         });
 
         activities.push({
           icon: CheckCircle,
-          color: 'text-green-500',
-          description: 'Your order has been delivered successfully.',
-          date: new Date(orderDateObj.getTime() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: false
-          })
+          color: "text-green-500",
+          description: "Your order has been delivered successfully.",
+          date: new Date(
+            orderDateObj.getTime() + 5 * 24 * 60 * 60 * 1000
+          ).toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: false,
+          }),
         });
         break;
 
-      case 'CANCELED':
+      case "CANCELED":
         // Add order cancellation activity
         activities.push({
           icon: CheckCircle2,
-          color: 'text-red-500',
-          description: 'Your order has been canceled.',
-          date: new Date(orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: false
-          })
+          color: "text-red-500",
+          description: "Your order has been canceled.",
+          date: new Date(
+            orderDateObj.getTime() + 1 * 24 * 60 * 60 * 1000
+          ).toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: false,
+          }),
         });
         break;
 
@@ -186,16 +214,16 @@ const OrderDetail = () => {
 
   // Function to determine current order step
   const getOrderStep = (status) => {
-    switch(status.toUpperCase()) {
-      case 'PENDING':
+    switch (status.toUpperCase()) {
+      case "PENDING":
         return 1;
-      case 'PROCESSING':
+      case "PROCESSING":
         return 2;
-      case 'SHIPPING':
+      case "SHIPPING":
         return 3;
-      case 'COMPLETED':
+      case "COMPLETED":
         return 4;
-      case 'CANCELED':
+      case "CANCELED":
         return 0;
       default:
         return 1;
@@ -206,11 +234,13 @@ const OrderDetail = () => {
   const calculateExpectedDelivery = (orderDate) => {
     const orderDateObj = new Date(orderDate);
     // Expected delivery after 7 days from order date
-    const expectedDate = new Date(orderDateObj.getTime() + 7 * 24 * 60 * 60 * 1000);
-    return expectedDate.toLocaleDateString('en-US', {
-      day: 'numeric',
-      month: 'numeric',
-      year: 'numeric'
+    const expectedDate = new Date(
+      orderDateObj.getTime() + 7 * 24 * 60 * 60 * 1000
+    );
+    return expectedDate.toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "numeric",
+      year: "numeric",
     });
   };
 
@@ -218,7 +248,9 @@ const OrderDetail = () => {
   const getProductInfoByColorId = async (productColorId) => {
     try {
       // Get all products to find the one that contains this color
-      const allProductsResponse = await axios.get('/api/Product/CustomerGetAllProduct');
+      const allProductsResponse = await axios.get(
+        "/api/Product/CustomerGetAllProduct"
+      );
 
       if (allProductsResponse.status === 200) {
         const products = allProductsResponse.data;
@@ -226,21 +258,28 @@ const OrderDetail = () => {
         for (const product of products) {
           // Get detailed product info to check colors
           try {
-            const productDetailResponse = await axios.get(`/api/Product/CustomerGetProductById/${product.productId}`);
+            const productDetailResponse = await axios.get(
+              `/api/Product/CustomerGetProductById/${product.productId}`
+            );
             if (productDetailResponse.status === 200) {
               const productDetail = productDetailResponse.data;
-              const matchingColor = productDetail.productColors.find(color => color.productColorId === productColorId);
+              const matchingColor = productDetail.productColors.find(
+                (color) => color.productColorId === productColorId
+              );
 
               if (matchingColor) {
                 return {
                   name: productDetail.name,
                   color: matchingColor.color,
-                  productId: productDetail.productId
+                  productId: productDetail.productId,
                 };
               }
             }
           } catch (error) {
-            console.warn(`Error fetching product detail for product ${product.productId}:`, error);
+            console.warn(
+              `Error fetching product detail for product ${product.productId}:`,
+              error
+            );
           }
         }
       }
@@ -248,15 +287,18 @@ const OrderDetail = () => {
       // Fallback if product not found
       return {
         name: `Product #${productColorId}`,
-        color: 'Unknown',
-        productId: null
+        color: "Unknown",
+        productId: null,
       };
     } catch (error) {
-      console.warn(`Error fetching product info for color ${productColorId}:`, error);
+      console.warn(
+        `Error fetching product info for color ${productColorId}:`,
+        error
+      );
       return {
         name: `Product #${productColorId}`,
-        color: 'Unknown',
-        productId: null
+        color: "Unknown",
+        productId: null,
       };
     }
   };
@@ -265,24 +307,24 @@ const OrderDetail = () => {
     setLoading(true);
     try {
       // Get order details
-      console.log(`Calling API: /api/OrderDetail/order/${orderId}`);
-      const orderDetailsResponse = await axios.get(`/api/OrderDetail/order/${orderId}`);
+      const orderDetailsResponse = await axios.get(
+        `/api/OrderDetail/order/${orderId}`
+      );
 
       // Get order information
-      console.log(`Calling API: /api/Order/${orderId}`);
       const orderResponse = await axios.get(`/api/Order/${orderId}`);
 
       if (orderDetailsResponse.status === 200 && orderResponse.status === 200) {
-        console.log("Order details:", orderDetailsResponse.data);
-        console.log("Order information:", orderResponse.data);
-
         const orderDetails = orderDetailsResponse.data;
         const orderInfo = orderResponse.data;
 
         setOrderDetails(orderDetails);
 
         // Generate order activities based on status
-        const activities = generateOrderActivities(orderInfo.status, orderInfo.orderDate);
+        const activities = generateOrderActivities(
+          orderInfo.status,
+          orderInfo.orderDate
+        );
 
         // Determine current order step
         const currentStep = getOrderStep(orderInfo.status);
@@ -293,16 +335,23 @@ const OrderDetail = () => {
         // Fetch product information for each order detail
         const productsWithInfo = await Promise.all(
           orderDetails.map(async (item) => {
-            const productInfo = await getProductInfoByColorId(item.productColorId);
+            const productInfo = await getProductInfoByColorId(
+              item.productColorId
+            );
             return {
               id: item.orderDetailId,
-              productId: item.productColorId,
-              category: 'PRODUCT',
+              productColorId: item.productColorId, // Keep the original productColorId
+              productId: productInfo.productId, // Use the actual productId from productInfo
+              category: "PRODUCT",
               name: productInfo.name,
               color: productInfo.color,
               price: formatPrice(item.price),
               quantity: item.quantity,
-              subtotal: formatPrice(item.price * item.quantity * (1 - (item.discountPercentage || 0) / 100))
+              subtotal: formatPrice(
+                item.price *
+                  item.quantity *
+                  (1 - (item.discountPercentage || 0) / 100)
+              ),
             };
           })
         );
@@ -310,15 +359,17 @@ const OrderDetail = () => {
         setOrderData({
           id: orderId,
           productCount: orderDetails.length,
-          orderDate: new Date(orderInfo.orderDate).toLocaleDateString('en-US', {
-            day: 'numeric',
-            month: 'numeric',
-            year: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: false
+          orderDate: new Date(orderInfo.orderDate).toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: false,
           }),
-          totalAmount: formatPrice(orderInfo.totalAmount || calculateTotal(orderDetails)),
+          totalAmount: formatPrice(
+            orderInfo.totalAmount || calculateTotal(orderDetails)
+          ),
           expectedDelivery: expectedDelivery,
           status: orderInfo.status,
           currentStep: currentStep,
@@ -326,15 +377,17 @@ const OrderDetail = () => {
           products: productsWithInfo,
           addresses: {
             billing: {
-              name: orderInfo.fullName || 'Customer',
-              address: orderInfo.shippingAddress || 'Shipping address information'
+              name: orderInfo.fullName || "Customer",
+              address:
+                orderInfo.shippingAddress || "Shipping address information",
             },
             shipping: {
-              name: orderInfo.fullName || 'Customer',
-              address: orderInfo.shippingAddress || 'Shipping address information'
-            }
+              name: orderInfo.fullName || "Customer",
+              address:
+                orderInfo.shippingAddress || "Shipping address information",
+            },
           },
-          notes: orderInfo.paymentMethod || 'Cash on delivery'
+          notes: orderInfo.paymentMethod || "Cash on delivery",
         });
       }
       setLoading(false);
@@ -345,21 +398,26 @@ const OrderDetail = () => {
     }
   };
 
-   // Open rating modal for specific product
+  // Open rating modal for specific product
   const openRatingModal = (productId) => {
     if (!userID) {
-      alert('Please login to rate the product!');
+      message.warning("Please login to rate the product!");
       return;
     }
 
     // Check if order is completed before allowing rating
-    if (orderData?.status?.toUpperCase() !== 'COMPLETED') {
-      alert('You can only rate products from completed orders.');
+    if (orderData?.status?.toUpperCase() !== "COMPLETED") {
+      message.warning("You can only rate products from completed orders.");
       return;
     }
 
-    // Log the productId to verify it's being set correctly
-    console.log("Opening rating modal for product ID:", productId);
+    // Validate productId
+    if (!productId || productId === null || productId === undefined) {
+      message.error(
+        "Product information is not available. Please try again later."
+      );
+      return;
+    }
 
     // Ensure productId is a number before setting it
     setSelectedProductId(Number(productId));
@@ -372,16 +430,16 @@ const OrderDetail = () => {
 
     return details.reduce((total, item) => {
       const discountedPrice = item.price * (1 - item.discountPercentage / 100);
-      return total + (discountedPrice * item.quantity);
+      return total + discountedPrice * item.quantity;
     }, 0);
   };
 
   // Format price in VND
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      maximumFractionDigits: 0
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+      maximumFractionDigits: 0,
     }).format(price);
   };
 
@@ -418,7 +476,7 @@ const OrderDetail = () => {
           <p>Order information not found!</p>
           <button
             className="mt-2 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700"
-            onClick={() => navigate('/order-history')}
+            onClick={() => navigate("/order-history")}
           >
             Back to Order History
           </button>
@@ -430,56 +488,56 @@ const OrderDetail = () => {
   // Update product rating status
   const handleRatingSubmit = async (productId, rating, comment) => {
     try {
-      console.log("Submitting rating with data:", { userId: userID, productId, rating, comment });
-
       // Make sure all values are in the correct format
       const reviewData = {
         userId: parseInt(userID),
         productId: parseInt(productId),
         rating: parseInt(rating),
-        comment: comment || ""
+        comment: comment || "",
       };
 
       // Verify data before sending
       if (!reviewData.userId || !reviewData.productId || !reviewData.rating) {
-        console.error("Missing required fields:", reviewData);
-        alert("Missing required fields for review");
+        message.error("Missing required fields for review");
         return;
       }
 
-      const response = await axios.post('/api/Review/add', reviewData);
+      const response = await axios.post("/api/Review/add", reviewData);
 
       if (response.status === 200) {
-        setOrderData(prevData => ({
+        setOrderData((prevData) => ({
           ...prevData,
-          products: prevData.products.map(product =>
+          products: prevData.products.map((product) =>
             product.id === productId ? { ...product, isRated: true } : product
-          )
+          ),
         }));
 
         setIsRatingModalOpen(false);
-        alert("Thank you for rating the product!");
+        message.success("Thank you for rating the product!");
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error submitting review:", error);
 
-      // Enhanced error logging for better debugging
+      // Enhanced error handling with Ant Design messages
       if (error.response) {
-        console.error("Error response data:", error.response.data);
-        console.error("Error response status:", error.response.status);
-
         // Show more specific error message if available
+        if (error.response.data && error.response.data.message) {
+          message.error(error.response.data.message);
+          return;
+        }
+
         if (error.response.data && error.response.data.errors) {
           const errorMessages = Object.entries(error.response.data.errors)
-            .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
-            .join('; ');
-          alert(`Data validation error: ${errorMessages}`);
+            .map(([field, messages]) => `${field}: ${messages.join(", ")}`)
+            .join("; ");
+          message.error(`Data validation error: ${errorMessages}`);
           return;
         }
       }
 
-      alert("An error occurred while submitting the review. Please try again later.");
+      message.error(
+        "An error occurred while submitting the review. Please try again later."
+      );
     }
   };
 
@@ -490,7 +548,8 @@ const OrderDetail = () => {
           onClick={() => navigate(-1)}
           className="flex items-center text-primary-600 hover:text-primary-700 transition-colors text-xl font-bold mb-4 cursor-pointer"
         >
-          <ArrowLeft size={20} className="mr-2 text-primary-700" /> ORDER DETAILS
+          <ArrowLeft size={20} className="mr-2 text-primary-700" /> ORDER
+          DETAILS
         </button>
       </div>
 
@@ -514,47 +573,117 @@ const OrderDetail = () => {
         <div className="flex justify-between items-center">
           <div>
             <p className="text-gray-800 font-semibold">#{orderData.id}</p>
-            <p className="text-gray-600 text-sm">{orderData.productCount} Products • Order placed on {orderData.orderDate}</p>
+            <p className="text-gray-600 text-sm">
+              {orderData.productCount} Products • Order placed on{" "}
+              {orderData.orderDate}
+            </p>
           </div>
-          <p className="text-blue-500 font-bold text-2xl">{orderData.totalAmount}</p>
+          <p className="text-blue-500 font-bold text-2xl">
+            {orderData.totalAmount}
+          </p>
         </div>
       </motion.div>
 
       <div className="mb-8">
-        {orderData.status.toUpperCase() !== 'CANCELED' ? (
+        {orderData.status.toUpperCase() !== "CANCELED" ? (
           <>
-            <p className="text-gray-700 mb-4">Expected delivery on {orderData.expectedDelivery}</p>
+            <p className="text-gray-700 mb-4">
+              Expected delivery on {orderData.expectedDelivery}
+            </p>
 
             <div className="relative mb-8">
               <div className="absolute top-4 left-0 right-0 h-1 bg-gray-200 z-0"></div>
 
-              <div className="absolute top-4 left-0 h-1 bg-primary-500 z-0" style={{ width: `${orderData.currentStep * 25}%` }}></div>
+              <div
+                className="absolute top-4 left-0 h-1 bg-primary-500 z-0"
+                style={{ width: `${orderData.currentStep * 25}%` }}
+              ></div>
 
               <div className="flex justify-between relative z-10">
                 <div className="flex flex-col items-center">
-                  <div className={`w-8 h-8 rounded-full ${orderData.currentStep >= 1 ? 'bg-primary-500' : 'bg-white'} border-4 ${orderData.currentStep >= 1 ? 'border-white' : 'border-gray-200'} flex items-center justify-center mb-2`}>
-                    <FileText size={16} className={orderData.currentStep >= 1 ? 'text-white' : 'text-gray-400'} />
+                  <div
+                    className={`w-8 h-8 rounded-full ${
+                      orderData.currentStep >= 1 ? "bg-primary-500" : "bg-white"
+                    } border-4 ${
+                      orderData.currentStep >= 1
+                        ? "border-white"
+                        : "border-gray-200"
+                    } flex items-center justify-center mb-2`}
+                  >
+                    <FileText
+                      size={16}
+                      className={
+                        orderData.currentStep >= 1
+                          ? "text-white"
+                          : "text-gray-400"
+                      }
+                    />
                   </div>
                   <p className="text-sm text-gray-700">Order Placed</p>
                 </div>
 
                 <div className="flex flex-col items-center">
-                  <div className={`w-8 h-8 rounded-full ${orderData.currentStep >= 2 ? 'bg-primary-500' : 'bg-white'} border-4 ${orderData.currentStep >= 2 ? 'border-white' : 'border-gray-200'} flex items-center justify-center mb-2`}>
-                    <Package size={16} className={orderData.currentStep >= 2 ? 'text-white' : 'text-gray-400'} />
+                  <div
+                    className={`w-8 h-8 rounded-full ${
+                      orderData.currentStep >= 2 ? "bg-primary-500" : "bg-white"
+                    } border-4 ${
+                      orderData.currentStep >= 2
+                        ? "border-white"
+                        : "border-gray-200"
+                    } flex items-center justify-center mb-2`}
+                  >
+                    <Package
+                      size={16}
+                      className={
+                        orderData.currentStep >= 2
+                          ? "text-white"
+                          : "text-gray-400"
+                      }
+                    />
                   </div>
                   <p className="text-sm text-gray-700">Packaging</p>
                 </div>
 
                 <div className="flex flex-col items-center">
-                  <div className={`w-8 h-8 rounded-full ${orderData.currentStep >= 3 ? 'bg-primary-500' : 'bg-white'} border-4 ${orderData.currentStep >= 3 ? 'border-white' : 'border-gray-200'} flex items-center justify-center mb-2`}>
-                    <Truck size={16} className={orderData.currentStep >= 3 ? 'text-white' : 'text-gray-400'} />
+                  <div
+                    className={`w-8 h-8 rounded-full ${
+                      orderData.currentStep >= 3 ? "bg-primary-500" : "bg-white"
+                    } border-4 ${
+                      orderData.currentStep >= 3
+                        ? "border-white"
+                        : "border-gray-200"
+                    } flex items-center justify-center mb-2`}
+                  >
+                    <Truck
+                      size={16}
+                      className={
+                        orderData.currentStep >= 3
+                          ? "text-white"
+                          : "text-gray-400"
+                      }
+                    />
                   </div>
                   <p className="text-sm text-gray-700">Shipping</p>
                 </div>
 
                 <div className="flex flex-col items-center">
-                  <div className={`w-8 h-8 rounded-full ${orderData.currentStep >= 4 ? 'bg-primary-500' : 'bg-white'} border-4 ${orderData.currentStep >= 4 ? 'border-white' : 'border-gray-200'} flex items-center justify-center mb-2`}>
-                    <CheckCircle size={16} className={orderData.currentStep >= 4 ? 'text-white' : 'text-gray-400'} />
+                  <div
+                    className={`w-8 h-8 rounded-full ${
+                      orderData.currentStep >= 4 ? "bg-primary-500" : "bg-white"
+                    } border-4 ${
+                      orderData.currentStep >= 4
+                        ? "border-white"
+                        : "border-gray-200"
+                    } flex items-center justify-center mb-2`}
+                  >
+                    <CheckCircle
+                      size={16}
+                      className={
+                        orderData.currentStep >= 4
+                          ? "text-white"
+                          : "text-gray-400"
+                      }
+                    />
                   </div>
                   <p className="text-sm text-gray-700">Delivered</p>
                 </div>
@@ -563,7 +692,9 @@ const OrderDetail = () => {
           </>
         ) : (
           <div className="bg-red-50 rounded-lg p-4 mb-8">
-            <p className="text-red-700 font-medium">This order has been canceled.</p>
+            <p className="text-red-700 font-medium">
+              This order has been canceled.
+            </p>
           </div>
         )}
       </div>
@@ -581,7 +712,9 @@ const OrderDetail = () => {
               className="flex"
             >
               <div className="mr-4">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.color} bg-opacity-10`}>
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${activity.color} bg-opacity-10`}
+                >
                   <activity.icon size={18} className={activity.color} />
                 </div>
               </div>
@@ -595,7 +728,9 @@ const OrderDetail = () => {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-lg font-semibold mb-4">Products ({orderData.products.length})</h2>
+        <h2 className="text-lg font-semibold mb-4">
+          Products ({orderData.products.length})
+        </h2>
 
         <div className="bg-gray-50 rounded-lg overflow-hidden">
           <div className="grid grid-cols-12 bg-gray-100 py-3 px-4 border-b border-gray-200">
@@ -618,24 +753,34 @@ const OrderDetail = () => {
                 <div className="flex">
                   <div className="w-12 h-12 bg-gray-200 rounded-md mr-3 flex-shrink-0"></div>
                   <div>
-                    <p className="text-blue-500 text-xs font-medium">{product.category}</p>
+                    <p className="text-blue-500 text-xs font-medium">
+                      {product.category}
+                    </p>
                     <p className="text-gray-800 text-sm">{product.name}</p>
-                    {product.color && product.color !== 'Unknown' && (
-                      <p className="text-gray-500 text-xs">Color: {product.color}</p>
+                    {product.color && product.color !== "Unknown" && (
+                      <p className="text-gray-500 text-xs">
+                        Color: {product.color}
+                      </p>
                     )}
                   </div>
                 </div>
               </div>
-              <div className="col-span-2 self-center text-gray-700">{product.price}</div>
-              <div className="col-span-1 self-center text-gray-700">{product.quantity}</div>
-              <div className="col-span-2 self-center text-gray-700 font-medium">{product.subtotal}</div>
+              <div className="col-span-2 self-center text-gray-700">
+                {product.price}
+              </div>
+              <div className="col-span-1 self-center text-gray-700">
+                {product.quantity}
+              </div>
+              <div className="col-span-2 self-center text-gray-700 font-medium">
+                {product.subtotal}
+              </div>
               <div className="col-span-2 self-center">
                 {product.isRated ? (
                   <div className="flex items-center text-yellow-500">
                     <Star size={16} fill="currentColor" className="mr-1" />
                     <span className="text-gray-700">Rated</span>
                   </div>
-                ) : orderData?.status?.toUpperCase() === 'COMPLETED' ? (
+                ) : orderData?.status?.toUpperCase() === "COMPLETED" ? (
                   <button
                     onClick={() => openRatingModal(product.productId)}
                     className="flex items-center px-3 py-1 bg-primary-600 text-white rounded-md hover:bg-primary-700 transition-colors text-sm cursor-pointer"
@@ -646,9 +791,9 @@ const OrderDetail = () => {
                   <div className="flex items-center text-gray-500">
                     <Star size={14} className="mr-1" />
                     <span className="text-sm">
-                      {orderData?.status?.toUpperCase() === 'CANCELLED'
-                        ? 'Order Cancelled'
-                        : 'Complete order to rate'}
+                      {orderData?.status?.toUpperCase() === "CANCELLED"
+                        ? "Order Cancelled"
+                        : "Complete order to rate"}
                     </span>
                   </div>
                 )}
@@ -662,16 +807,24 @@ const OrderDetail = () => {
         <div>
           <h3 className="text-gray-800 font-medium mb-3">Billing Address</h3>
           <div className="bg-gray-50 p-4 rounded-lg h-full">
-            <p className="font-medium mb-1">{orderData.addresses.billing.name}</p>
-            <p className="text-gray-600 text-sm">{orderData.addresses.billing.address}</p>
+            <p className="font-medium mb-1">
+              {orderData.addresses.billing.name}
+            </p>
+            <p className="text-gray-600 text-sm">
+              {orderData.addresses.billing.address}
+            </p>
           </div>
         </div>
 
         <div>
           <h3 className="text-gray-800 font-medium mb-3">Shipping Address</h3>
           <div className="bg-gray-50 p-4 rounded-lg h-full">
-            <p className="font-medium mb-1">{orderData.addresses.shipping.name}</p>
-            <p className="text-gray-600 text-sm">{orderData.addresses.shipping.address}</p>
+            <p className="font-medium mb-1">
+              {orderData.addresses.shipping.name}
+            </p>
+            <p className="text-gray-600 text-sm">
+              {orderData.addresses.shipping.address}
+            </p>
           </div>
         </div>
 

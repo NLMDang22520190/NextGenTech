@@ -13,12 +13,14 @@ namespace HealthBuddy.Server.Controllers
     public class ReviewController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IMapper _mapper;
         private readonly IReviewRepository _reviewRepository;
 
-        public ReviewController(IUserRepository userRepository, IMapper mapper, IReviewRepository reviewRepository)
+        public ReviewController(IUserRepository userRepository, IProductRepository productRepository, IMapper mapper, IReviewRepository reviewRepository)
         {
             _userRepository = userRepository;
+            _productRepository = productRepository;
             _mapper = mapper;
             _reviewRepository = reviewRepository;
         }
@@ -26,6 +28,34 @@ namespace HealthBuddy.Server.Controllers
         [HttpPost("add")]
         public async Task<IActionResult> AddReview([FromBody] AddReviewRequestDTO request)
         {
+            // Validate input
+            if (request == null)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Request data is required"
+                });
+            }
+
+            if (request.UserId <= 0)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Valid User ID is required"
+                });
+            }
+
+            if (request.ProductId <= 0)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = "Valid Product ID is required"
+                });
+            }
+
             if (request.Rating < 1 || request.Rating > 5)
             {
                 return BadRequest(new
@@ -41,8 +71,24 @@ namespace HealthBuddy.Server.Controllers
                 return Ok(new
                 {
                     status = "success",
-                    message = "Review has been submitted",
+                    message = "Review has been submitted successfully",
                     data = review
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new
+                {
+                    status = "error",
+                    message = ex.Message
                 });
             }
             catch (Exception ex)
@@ -50,7 +96,72 @@ namespace HealthBuddy.Server.Controllers
                 return StatusCode(500, new
                 {
                     status = "error",
-                    message = "Error submitting review",
+                    message = "An unexpected error occurred while submitting the review",
+                    details = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("test")]
+        public async Task<IActionResult> TestReview([FromBody] AddReviewRequestDTO request)
+        {
+            return Ok(new
+            {
+                status = "success",
+                message = "Test endpoint",
+                receivedData = new
+                {
+                    UserId = request?.UserId,
+                    ProductId = request?.ProductId,
+                    Rating = request?.Rating,
+                    Comment = request?.Comment
+                }
+            });
+        }
+
+        [HttpGet("debug/products")]
+        public async Task<IActionResult> GetProductsForDebug()
+        {
+            try
+            {
+                var products = await _productRepository.GetAllAsync();
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Products retrieved for debugging",
+                    data = products.Take(5).Select(p => new { p.ProductId, p.Name }).ToList()
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = "Error retrieving products",
+                    details = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("debug/users")]
+        public async Task<IActionResult> GetUsersForDebug()
+        {
+            try
+            {
+                var users = await _userRepository.GetAllAsync();
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Users retrieved for debugging",
+                    data = users.Take(5).Select(u => new { u.UserId, u.Email }).ToList()
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = "Error retrieving users",
                     details = ex.Message
                 });
             }

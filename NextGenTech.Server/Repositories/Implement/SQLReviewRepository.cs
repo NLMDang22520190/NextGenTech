@@ -14,6 +14,28 @@ namespace NextGenTech.Server.Repositories.Implement
 
         public async Task<Review> AddReviewAsync(AddReviewRequestDTO request)
         {
+            // Validate that the Product exists
+            var productExists = await dbContext.Products.AnyAsync(p => p.ProductId == request.ProductId);
+            if (!productExists)
+            {
+                throw new ArgumentException($"Product with ID {request.ProductId} does not exist.");
+            }
+
+            // Validate that the User exists
+            var userExists = await dbContext.Users.AnyAsync(u => u.UserId == request.UserId);
+            if (!userExists)
+            {
+                throw new ArgumentException($"User with ID {request.UserId} does not exist.");
+            }
+
+            // Check if user has already reviewed this product
+            var existingReview = await dbContext.Reviews
+                .FirstOrDefaultAsync(r => r.UserId == request.UserId && r.ProductId == request.ProductId);
+            if (existingReview != null)
+            {
+                throw new InvalidOperationException("User has already reviewed this product.");
+            }
+
             var review = new Review
             {
                 UserId = request.UserId,
@@ -22,7 +44,7 @@ namespace NextGenTech.Server.Repositories.Implement
                 Comment = request.Comment,
                 CreatedAt = DateTime.UtcNow,
             };
-            
+
             await dbContext.Reviews.AddAsync(review);
             await dbContext.SaveChangesAsync();
 

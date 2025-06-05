@@ -77,7 +77,6 @@
   --color-orange-700: #c2410c;
   --color-orange-800: #9a3412;
   --color-orange-900: #7c2d12;
- 
 
   --animate-gradient: gradient 8s linear infinite;
 
@@ -140,7 +139,6 @@
   .ant-btn-primary {
     border-radius: 6px !important;
   }
-}
 
   .translate-101 {
     transform: translateX(101%);
@@ -312,4 +310,3 @@
   font-weight: bold;
   text-align: center;
 }
-
