@@ -157,9 +157,7 @@ namespace HealthBuddy.Server.Controllers
                     ProductId = productId,
                     ImageUrl = url
                 }).ToList();
-                await _productImageRepository.AddProductImagesAsync(productImages);
-
-                var productColors = adminAddProductDTO.Colors.Select(color => new ProductColor
+                await _productImageRepository.AddProductImagesAsync(productImages);                var productColors = adminAddProductDTO.Colors.Select(color => new ProductColor
                 {
                     ProductId = productId,
                     Color = color.Color,
@@ -168,7 +166,7 @@ namespace HealthBuddy.Server.Controllers
                 }).ToList();
                 await _productColorRepository.AddProductColorsAsync(productColors);
 
-                return Ok(AdminGetProductById(productId));
+                return await AdminGetProductById(productId);
             }
             catch (Exception ex)
             {

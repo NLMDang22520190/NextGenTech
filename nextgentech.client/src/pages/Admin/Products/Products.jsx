@@ -248,9 +248,6 @@ export default function Products() {
       setImagePreview(null);
       setSelectedFile(null);
       form.resetFields();
-
-      // Refresh data after successful operation
-      await fetchProducts();
     } catch (err) {
       console.error("Error submitting product:", err);
       const action = isEditMode ? "update" : "add";
