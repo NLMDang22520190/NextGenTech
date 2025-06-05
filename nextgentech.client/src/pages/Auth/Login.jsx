@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+import { Form, Input, Button, message } from "antd";
+import { UserOutlined, LockOutlined } from "@ant-design/icons";
 
 import { fetchCartIdByCustomerId } from "../../features/Cart/Cart";
 import { login } from "../../features/AxiosInstance/Auth/Auth";
@@ -13,31 +14,39 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
   const auth = useSelector((state) => state.auth);
 
   // Get the redirect path from location state
   const from = location.state?.from || "/";
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values) => {
+    setLoading(true);
     try {
-      const resultAction = await dispatch(login({ email, password }));
+      const resultAction = await dispatch(
+        login({
+          email: values.email,
+          password: values.password,
+        })
+      );
       dispatch(fetchCartIdByCustomerId(auth.user));
 
       if (login.fulfilled.match(resultAction)) {
-        console.log("Login successful: ", resultAction.payload); // Log payload để kiểm tra
+        console.log("Login successful: ", resultAction.payload);
+        message.success("Đăng nhập thành công!");
         navigate(from); // Redirect to the original page or home
       } else {
-        // Log thông tin khi không thành công
         console.log("Login failed: ", resultAction);
-        alert("Login failed: Có lỗi xảy ra");
+        message.error(
+          "Đăng nhập thất bại: " + (resultAction.payload || "Có lỗi xảy ra")
+        );
       }
     } catch (error) {
       console.error("Error during login:", error);
-      alert("Có lỗi xảy ra trong quá trình đăng nhập");
+      message.error("Có lỗi xảy ra trong quá trình đăng nhập");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,60 +123,56 @@ const Login = () => {
               Sign in
             </motion.h1>
 
-            <form onSubmit={handleSubmit}>
+            <Form
+              form={form}
+              onFinish={handleSubmit}
+              layout="vertical"
+              size="large"
+              className="w-full"
+            >
               <motion.div
-                className="mb-6"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <label htmlFor="email" className="block text-sm mb-2">
-                  Enter your Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                  placeholder="Email address"
-                  required
-                />
+                <Form.Item
+                  name="email"
+                  label="Enter your Email"
+                  rules={[
+                    { required: true, message: "Please input your email!" },
+                    { type: "email", message: "Please enter a valid email!" },
+                  ]}
+                  className="mb-6"
+                >
+                  <Input
+                    prefix={<UserOutlined className="text-gray-400" />}
+                    placeholder="Email address"
+                    className="py-3"
+                  />
+                </Form.Item>
               </motion.div>
 
               <motion.div
-                className="mb-6"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <div className="flex justify-between items-center mb-2">
-                  <label htmlFor="password" className="block text-sm">
-                    Enter your Password
-                  </label>
-                </div>
-                <div className="relative">
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+                <Form.Item
+                  name="password"
+                  label="Enter your Password"
+                  rules={[
+                    { required: true, message: "Please input your password!" },
+                  ]}
+                  className="mb-2"
+                >
+                  <Input.Password
+                    prefix={<LockOutlined className="text-gray-400" />}
                     placeholder="Password"
-                    required
+                    className="py-3"
+                    autoComplete="current-password"
                   />
-                  <button
-                    type="button"
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-                <div className="flex justify-end mt-2">
+                </Form.Item>
+                <div className="flex justify-end mb-6">
                   <Link
                     to="/auth/forgot-password"
                     className="text-xs text-primary-500 hover:underline transition-all"
@@ -177,18 +182,28 @@ const Login = () => {
                 </div>
               </motion.div>
 
-              <motion.button
-                type="submit"
-                className="w-full cursor-pointer bg-gradient-to-br from-primary to-secondary text-white py-3 rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                Sign in
-              </motion.button>
-            </form>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    loading={loading}
+                    className="w-full h-12 bg-gradient-to-br from-primary to-secondary border-none hover:from-primary-600 hover:to-secondary-600 text-white font-medium"
+                    style={{
+                      background: loading
+                        ? undefined
+                        : "linear-gradient(135deg, #50bbf5 0%, #5069f5 100%)",
+                    }}
+                  >
+                    Sign in
+                  </Button>
+                </Form.Item>
+              </motion.div>
+            </Form>
           </motion.div>
         </div>
       </motion.div>

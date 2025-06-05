@@ -97,6 +97,51 @@
     scrollbar-width: none; /* Firefox */
   }
 
+  /* Hide browser's default password visibility toggle */
+  input[type="password"]::-webkit-credentials-auto-fill-button,
+  input[type="password"]::-webkit-password-toggle-button,
+  input[type="password"]::-ms-reveal {
+    display: none !important;
+  }
+
+  /* Prevent Edge from showing password reveal button */
+  input[type="password"]::-ms-reveal {
+    display: none;
+  }
+
+  /* Custom Ant Design styles for auth forms */
+  .ant-form-item-label > label {
+    color: #374151 !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+  }
+
+  .ant-input-affix-wrapper {
+    border-radius: 6px !important;
+    border-color: #e5e7eb !important;
+  }
+
+  .ant-input-affix-wrapper:focus,
+  .ant-input-affix-wrapper-focused {
+    border-color: #50bbf5 !important;
+    box-shadow: 0 0 0 2px rgba(80, 187, 245, 0.2) !important;
+  }
+
+  .ant-input {
+    border-radius: 6px !important;
+    border-color: #e5e7eb !important;
+  }
+
+  .ant-input:focus {
+    border-color: #50bbf5 !important;
+    box-shadow: 0 0 0 2px rgba(80, 187, 245, 0.2) !important;
+  }
+
+  .ant-btn-primary {
+    border-radius: 6px !important;
+  }
+}
+
   .translate-101 {
     transform: translateX(101%);
   }

@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
-import { Eye, EyeOff, Edit2, X, Camera } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef } from "react";
+import { Eye, EyeOff, Edit2, X, Camera } from "lucide-react";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
-import EditModal from './EditModal';
-import { useNavigate } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
+import EditModal from "./EditModal";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../../features/AxiosInstance/Auth/Auth";
 import api from "../../../features/AxiosInstance/AxiosInstance";
 
@@ -16,9 +16,9 @@ const fadeIn = {
     transition: {
       delay: custom * 0.1,
       duration: 0.5,
-      ease: [0.25, 0.1, 0.25, 1.0]
-    }
-  })
+      ease: [0.25, 0.1, 0.25, 1.0],
+    },
+  }),
 };
 
 const EnhancedAccountSettings = () => {
@@ -34,7 +34,7 @@ const EnhancedAccountSettings = () => {
   const [showPassword, setShowPassword] = useState({
     current: false,
     new: false,
-    confirm: false
+    confirm: false,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,7 +50,7 @@ const EnhancedAccountSettings = () => {
     ward: "",
     avatarUrl: "/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png", // Default avatar
   });
-  const [tempProfileData, setTempProfileData] = useState({...profileData});
+  const [tempProfileData, setTempProfileData] = useState({ ...profileData });
 
   // File upload state
   const [isUploading, setIsUploading] = useState(false);
@@ -59,9 +59,9 @@ const EnhancedAccountSettings = () => {
 
   // Password Form State
   const [passwordForm, setPasswordForm] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
 
   // Location States
@@ -75,7 +75,7 @@ const EnhancedAccountSettings = () => {
       setLoading(true);
       try {
         if (!userId) {
-          throw new Error('User ID not found. Please login again.');
+          throw new Error("User ID not found. Please login again.");
         }
 
         const response = await api.get(`api/account/GetUserById/${userId}`);
@@ -96,7 +96,9 @@ const EnhancedAccountSettings = () => {
           city: userData.city || "",
           district: userData.district || "",
           ward: userData.ward || "",
-          avatarUrl: userData.avatarImageUrl || "/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png", // Use user's avatar or default
+          avatarUrl:
+            userData.avatarImageUrl ||
+            "/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png", // Use user's avatar or default
         };
 
         console.log("Formatted user data:", formattedData);
@@ -131,7 +133,7 @@ const EnhancedAccountSettings = () => {
   // Sync tempProfileData with profileData when modal opens
   useEffect(() => {
     if (isProfileModalOpen) {
-      setTempProfileData({...profileData});
+      setTempProfileData({ ...profileData });
     }
   }, [isProfileModalOpen, profileData]);
 
@@ -177,7 +179,9 @@ const EnhancedAccountSettings = () => {
               "Content-Type": "application/json",
               Token: apiKey,
             },
-            body: JSON.stringify({ province_id: parseInt(tempProfileData.city) }),
+            body: JSON.stringify({
+              province_id: parseInt(tempProfileData.city),
+            }),
           }
         );
         const data = await response.json();
@@ -208,7 +212,9 @@ const EnhancedAccountSettings = () => {
               "Content-Type": "application/json",
               Token: apiKey,
             },
-            body: JSON.stringify({ district_id: parseInt(tempProfileData.district) }),
+            body: JSON.stringify({
+              district_id: parseInt(tempProfileData.district),
+            }),
           }
         );
         const data = await response.json();
@@ -229,25 +235,25 @@ const EnhancedAccountSettings = () => {
   const togglePasswordVisibility = (field) => {
     setShowPassword({
       ...showPassword,
-      [field]: !showPassword[field]
+      [field]: !showPassword[field],
     });
   };
 
   // Animation variants
   const inputVariants = {
     focus: { scale: 1.01, boxShadow: "0 0 0 2px rgba(249, 115, 22, 0.2)" },
-    blur: { scale: 1, boxShadow: "none" }
+    blur: { scale: 1, boxShadow: "none" },
   };
 
   const buttonVariants = {
     initial: { scale: 1 },
     hover: { scale: 1.03, transition: { duration: 0.2 } },
-    tap: { scale: 0.98, transition: { duration: 0.2 } }
+    tap: { scale: 0.98, transition: { duration: 0.2 } },
   };
 
   // Open profile modal
   const openProfileModal = () => {
-    setTempProfileData({...profileData});
+    setTempProfileData({ ...profileData });
     setIsProfileModalOpen(true);
   };
 
@@ -258,13 +264,13 @@ const EnhancedAccountSettings = () => {
 
       // Create FormData to send the file
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
       // Call the upload API
-      const response = await api.post('/api/Upload/UploadImage', formData, {
+      const response = await api.post("/api/Upload/UploadImage", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       // Get the image URL from the response
@@ -273,18 +279,18 @@ const EnhancedAccountSettings = () => {
       console.log("Uploaded image URL:", imageUrl);
 
       // Update the avatar URL in the temp profile data
-      setTempProfileData(prev => ({
+      setTempProfileData((prev) => ({
         ...prev,
-        avatarUrl: imageUrl
+        avatarUrl: imageUrl,
       }));
 
       // Đánh dấu là ảnh đã được thay đổi
       setImageChanged(true);
 
       // Cập nhật luôn profileData để hiển thị ảnh mới ngay lập tức
-      setProfileData(prev => ({
+      setProfileData((prev) => ({
         ...prev,
-        avatarUrl: imageUrl
+        avatarUrl: imageUrl,
       }));
 
       // Lưu URL ảnh vào localStorage để đảm bảo nó được giữ lại sau khi tải lại trang
@@ -294,7 +300,7 @@ const EnhancedAccountSettings = () => {
       }
 
       // Hiển thị ảnh đã tải lên
-      const previewUrl = imageUrl.startsWith('/api')
+      const previewUrl = imageUrl.startsWith("/api")
         ? `${api.defaults.baseURL}${imageUrl}`
         : imageUrl;
 
@@ -304,7 +310,9 @@ const EnhancedAccountSettings = () => {
       return imageUrl;
     } catch (error) {
       console.error("Lỗi khi tải ảnh lên:", error);
-      toast.error("Không thể tải ảnh lên: " + (error.response?.data || error.message));
+      toast.error(
+        "Không thể tải ảnh lên: " + (error.response?.data || error.message)
+      );
       return null;
     } finally {
       setIsUploading(false);
@@ -317,7 +325,7 @@ const EnhancedAccountSettings = () => {
     if (!file) return;
 
     // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const validTypes = ["image/jpeg", "image/jpg", "image/png"];
     if (!validTypes.includes(file.type)) {
       toast.error("Chỉ chấp nhận file hình ảnh (jpg, jpeg, png)");
       return;
@@ -348,21 +356,27 @@ const EnhancedAccountSettings = () => {
         district: tempProfileData.district || "",
         city: tempProfileData.city || "",
         ward: tempProfileData.ward || "",
-        photoUrl: tempProfileData.avatarUrl || "" // Use updated image URL
+        photoUrl: tempProfileData.avatarUrl || "", // Use updated image URL
       };
 
       console.log("Saving profile with avatar URL:", tempProfileData.avatarUrl);
 
       // Save image URL to localStorage to ensure it's retained after page reload
       if (tempProfileData.avatarUrl) {
-        localStorage.setItem(`user_avatar_${userId}`, tempProfileData.avatarUrl);
+        localStorage.setItem(
+          `user_avatar_${userId}`,
+          tempProfileData.avatarUrl
+        );
       }
 
-      const response = await api.put(`api/Account/Update-info/${userId}`, payload);
+      const response = await api.put(
+        `api/Account/Update-info/${userId}`,
+        payload
+      );
 
       if (response && response.status === 200) {
         // Cập nhật dữ liệu hồ sơ với thông tin mới
-        setProfileData({...tempProfileData});
+        setProfileData({ ...tempProfileData });
 
         // Đóng modal
         setIsProfileModalOpen(false);
@@ -370,7 +384,10 @@ const EnhancedAccountSettings = () => {
         // Hiển thị thông báo thành công
         toast.success("Hồ sơ đã được cập nhật thành công!");
 
-        console.log("Profile updated successfully with avatar:", tempProfileData.avatarUrl);
+        console.log(
+          "Profile updated successfully with avatar:",
+          tempProfileData.avatarUrl
+        );
       } else {
         toast.error("Không thể cập nhật hồ sơ. Vui lòng thử lại.");
       }
@@ -379,7 +396,9 @@ const EnhancedAccountSettings = () => {
 
       // Show detailed error messages
       if (err.response) {
-        toast.error(`Error: ${err.response.data?.message || "An error occurred."}`);
+        toast.error(
+          `Error: ${err.response.data?.message || "An error occurred."}`
+        );
       } else if (err.request) {
         toast.error("No response received from server.");
       } else {
@@ -393,7 +412,7 @@ const EnhancedAccountSettings = () => {
     const { name, value } = e.target;
     setPasswordForm({
       ...passwordForm,
-      [name]: value
+      [name]: value,
     });
   };
 
@@ -431,9 +450,9 @@ const EnhancedAccountSettings = () => {
         toast.success("Password changed successfully!");
         // Reset the form
         setPasswordForm({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: ''
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
         });
       } else {
         toast.error("Unable to change password");
@@ -442,7 +461,9 @@ const EnhancedAccountSettings = () => {
       console.error("Error changing password:", err);
 
       if (err.response) {
-        toast.error(`Error: ${err.response.data?.message || "Unable to change password"}`);
+        toast.error(
+          `Error: ${err.response.data?.message || "Unable to change password"}`
+        );
       } else if (err.request) {
         toast.error("No response received from server");
       } else {
@@ -455,7 +476,7 @@ const EnhancedAccountSettings = () => {
   const handleLogout = () => {
     dispatch(logout());
     // dispatch(clearCart()); // Uncomment if needed
-    navigate("/login");
+    navigate("/auth/login");
   };
 
   // Show loading state
@@ -491,13 +512,13 @@ const EnhancedAccountSettings = () => {
 
     switch (locationType) {
       case "city":
-        const city = cities.find(c => c.ProvinceID === parseInt(id));
+        const city = cities.find((c) => c.ProvinceID === parseInt(id));
         return city ? city.ProvinceName : id;
       case "district":
-        const district = districts.find(d => d.DistrictID === parseInt(id));
+        const district = districts.find((d) => d.DistrictID === parseInt(id));
         return district ? district.DistrictName : id;
       case "ward":
-        const ward = wards.find(w => w.WardCode === id.toString());
+        const ward = wards.find((w) => w.WardCode === id.toString());
         return ward ? ward.WardName : id;
       default:
         return id;
@@ -512,11 +533,7 @@ const EnhancedAccountSettings = () => {
     >
       <h1 className="text-xl font-bold mb-4 text-primary-600">USER PROFILE</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        <motion.div
-          variants={fadeIn}
-          custom={1}
-          className="space-y-8"
-        >
+        <motion.div variants={fadeIn} custom={1} className="space-y-8">
           <div className="flex flex-col bg-white rounded-xl shadow-lg p-8 md:p-12 items-start gap-6 relative">
             {/* Profile Image */}
             <div className="flex flex-col items-center">
@@ -530,14 +547,18 @@ const EnhancedAccountSettings = () => {
               >
                 {/* Avatar Image */}
                 <img
-                  src={profileData.avatarUrl?.startsWith('/api')
-                    ? `${api.defaults.baseURL}${profileData.avatarUrl}`
-                    : (profileData.avatarUrl || "/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png")}
+                  src={
+                    profileData.avatarUrl?.startsWith("/api")
+                      ? `${api.defaults.baseURL}${profileData.avatarUrl}`
+                      : profileData.avatarUrl ||
+                        "/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png"
+                  }
                   alt="Profile"
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = "/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png";
+                    e.target.src =
+                      "/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png";
                   }}
                 />
 
@@ -555,7 +576,9 @@ const EnhancedAccountSettings = () => {
                   onChange={handleFileSelect}
                 />
               </motion.div>
-              <p className="text-xs text-gray-500 mt-2">Click to change avatar</p>
+              <p className="text-xs text-gray-500 mt-2">
+                Click to change avatar
+              </p>
             </div>
 
             {/* Account Info */}
@@ -564,9 +587,18 @@ const EnhancedAccountSettings = () => {
                 { label: "Full Name", value: profileData.fullName },
                 { label: "Email", value: profileData.email },
                 { label: "Phone Number", value: profileData.phoneNumber },
-                { label: "City", value: getLocationName(profileData.city, "city") },
-                { label: "District", value: getLocationName(profileData.district, "district") },
-                { label: "Ward", value: getLocationName(profileData.ward, "ward") }
+                {
+                  label: "City",
+                  value: getLocationName(profileData.city, "city"),
+                },
+                {
+                  label: "District",
+                  value: getLocationName(profileData.district, "district"),
+                },
+                {
+                  label: "Ward",
+                  value: getLocationName(profileData.ward, "ward"),
+                },
               ].map((item, index) => (
                 <motion.div
                   key={item.label}
@@ -614,11 +646,15 @@ const EnhancedAccountSettings = () => {
             custom={5}
             className="mt-16 max-w-xl mx-auto"
           >
-            <h2 className="text-lg font-medium mb-6 text-primary-600">CHANGE PASSWORD</h2>
+            <h2 className="text-lg font-medium mb-6 text-primary-600">
+              CHANGE PASSWORD
+            </h2>
 
             <form onSubmit={handlePasswordChange} className="space-y-4">
               <motion.div variants={fadeIn} custom={5.1} className="relative">
-                <label className="text-sm text-gray-500 block mb-1">Current Password</label>
+                <label className="text-sm text-gray-500 block mb-1">
+                  Current Password
+                </label>
                 <div className="relative">
                   <motion.input
                     variants={inputVariants}
@@ -635,16 +671,22 @@ const EnhancedAccountSettings = () => {
                     type="button"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => togglePasswordVisibility('current')}
+                    onClick={() => togglePasswordVisibility("current")}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
                   >
-                    {showPassword.current ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword.current ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
                   </motion.button>
                 </div>
               </motion.div>
 
               <motion.div variants={fadeIn} custom={5.2} className="relative">
-                <label className="text-sm text-gray-500 block mb-1">New Password</label>
+                <label className="text-sm text-gray-500 block mb-1">
+                  New Password
+                </label>
                 <div className="relative">
                   <motion.input
                     variants={inputVariants}
@@ -661,16 +703,22 @@ const EnhancedAccountSettings = () => {
                     type="button"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => togglePasswordVisibility('new')}
+                    onClick={() => togglePasswordVisibility("new")}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
                   >
-                    {showPassword.new ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword.new ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
                   </motion.button>
                 </div>
               </motion.div>
 
               <motion.div variants={fadeIn} custom={5.3} className="relative">
-                <label className="text-sm text-gray-500 block mb-1">Confirm Password</label>
+                <label className="text-sm text-gray-500 block mb-1">
+                  Confirm Password
+                </label>
                 <div className="relative">
                   <motion.input
                     variants={inputVariants}
@@ -687,10 +735,14 @@ const EnhancedAccountSettings = () => {
                     type="button"
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => togglePasswordVisibility('confirm')}
+                    onClick={() => togglePasswordVisibility("confirm")}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
                   >
-                    {showPassword.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword.confirm ? (
+                      <EyeOff size={18} />
+                    ) : (
+                      <Eye size={18} />
+                    )}
                   </motion.button>
                 </div>
               </motion.div>
@@ -726,14 +778,18 @@ const EnhancedAccountSettings = () => {
             >
               {/* Avatar Preview */}
               <img
-                src={tempProfileData.avatarUrl?.startsWith('/api')
-                  ? `${api.defaults.baseURL}${tempProfileData.avatarUrl}`
-                  : (tempProfileData.avatarUrl || "/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png")}
+                src={
+                  tempProfileData.avatarUrl?.startsWith("/api")
+                    ? `${api.defaults.baseURL}${tempProfileData.avatarUrl}`
+                    : tempProfileData.avatarUrl ||
+                      "/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png"
+                }
                 alt="Profile"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = "/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png";
+                  e.target.src =
+                    "/lovable-uploads/ee6f74d2-cb92-47f8-9971-f947f6e0a573.png";
                 }}
               />
 
@@ -752,11 +808,18 @@ const EnhancedAccountSettings = () => {
           </div>
 
           <div>
-            <label className="text-sm text-gray-500 block mb-1">Full Name</label>
+            <label className="text-sm text-gray-500 block mb-1">
+              Full Name
+            </label>
             <input
               type="text"
               value={tempProfileData.fullName}
-              onChange={(e) => setTempProfileData({...tempProfileData, fullName: e.target.value})}
+              onChange={(e) =>
+                setTempProfileData({
+                  ...tempProfileData,
+                  fullName: e.target.value,
+                })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:border-orange-500"
             />
           </div>
@@ -766,18 +829,30 @@ const EnhancedAccountSettings = () => {
             <input
               type="email"
               value={tempProfileData.email}
-              onChange={(e) => setTempProfileData({...tempProfileData, email: e.target.value})}
+              onChange={(e) =>
+                setTempProfileData({
+                  ...tempProfileData,
+                  email: e.target.value,
+                })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:border-orange-500"
               disabled // Email shouldn't be editable
             />
           </div>
 
           <div>
-            <label className="text-sm text-gray-500 block mb-1">Phone Number</label>
+            <label className="text-sm text-gray-500 block mb-1">
+              Phone Number
+            </label>
             <input
               type="tel"
               value={tempProfileData.phoneNumber}
-              onChange={(e) => setTempProfileData({...tempProfileData, phoneNumber: e.target.value})}
+              onChange={(e) =>
+                setTempProfileData({
+                  ...tempProfileData,
+                  phoneNumber: e.target.value,
+                })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:border-orange-500"
             />
           </div>
@@ -786,7 +861,14 @@ const EnhancedAccountSettings = () => {
             <label className="text-sm text-gray-500 block mb-1">City</label>
             <select
               value={tempProfileData.city}
-              onChange={(e) => setTempProfileData({...tempProfileData, city: e.target.value, district: "", ward: ""})}
+              onChange={(e) =>
+                setTempProfileData({
+                  ...tempProfileData,
+                  city: e.target.value,
+                  district: "",
+                  ward: "",
+                })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:border-orange-500"
             >
               <option value="">Select City</option>
@@ -802,7 +884,13 @@ const EnhancedAccountSettings = () => {
             <label className="text-sm text-gray-500 block mb-1">District</label>
             <select
               value={tempProfileData.district}
-              onChange={(e) => setTempProfileData({...tempProfileData, district: e.target.value, ward: ""})}
+              onChange={(e) =>
+                setTempProfileData({
+                  ...tempProfileData,
+                  district: e.target.value,
+                  ward: "",
+                })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:border-orange-500"
               disabled={!tempProfileData.city}
             >
@@ -819,7 +907,9 @@ const EnhancedAccountSettings = () => {
             <label className="text-sm text-gray-500 block mb-1">Ward</label>
             <select
               value={tempProfileData.ward}
-              onChange={(e) => setTempProfileData({...tempProfileData, ward: e.target.value})}
+              onChange={(e) =>
+                setTempProfileData({ ...tempProfileData, ward: e.target.value })
+              }
               className="w-full border border-gray-300 rounded-md px-3 py-2 focus:border-orange-500"
               disabled={!tempProfileData.district}
             >

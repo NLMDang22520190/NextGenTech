@@ -20,21 +20,15 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins", builder =>
     {
-        builder.WithOrigins("https://localhost:3000", "https://nexttgentech.netlify.app") // Cho phép cả hai domain
+        builder.WithOrigins(
+                   "https://localhost:3000",
+                   "http://localhost:3000",
+                   "https://nexttgentech.netlify.app",
+                   "https://nextgentech-73nf.onrender.com"
+               )
                .AllowAnyHeader()
                .AllowAnyMethod()
                .AllowCredentials();
-    });
-
-});
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", builder =>
-    {
-        builder.AllowAnyOrigin()
-               .AllowAnyMethod()
-               .AllowAnyHeader();
     });
 });
 
@@ -84,7 +78,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowSpecificOrigins");
-app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 

@@ -1,73 +1,64 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Form, Input, Button, message } from "antd";
+import { UserOutlined, LockOutlined, MailOutlined } from "@ant-design/icons";
 import LeftPanel from "../../components/Auth/LeftPanel";
 import RightPanel from "../../components/Auth/RightPanel";
 import api from "../../../src/features/AxiosInstance/AxiosInstance";
 
 const SignUp = () => {
-
   const navigate = useNavigate();
+  const [form] = Form.useForm();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // Thêm state loading
-  const [showPassword, setShowPassword] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [error, setError] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values) => {
+    const { email, username, password, confirmPassword } = values;
 
     const passwordRegex =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
     if (!passwordRegex.test(password)) {
-      setError(
+      message.error(
         "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt."
       );
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Mật khẩu không khớp");
+      message.error("Mật khẩu không khớp");
       return;
     }
 
-    setError("");
     setIsLoading(true);
 
     // Save email and password to sessionStorage
     sessionStorage.setItem("signupPassword", password);
 
-    try
-    {
+    try {
       const response = await api.post(
         `api/Account/send-verification-code/${encodeURIComponent(email)}`
       );
       if (response.status === 200 && response.data.status === "success") {
+        message.success("Mã xác thực đã được gửi đến email của bạn!");
         // Redirect to VerifyCode page
         navigate(
           `/auth/verify-code?email=${encodeURIComponent(email)}&type=signup`
         );
       } else {
-        alert("Unable to send verification code. Please try again.");
+        message.error("Không thể gửi mã xác thực. Vui lòng thử lại.");
       }
     } catch (error) {
-      alert(
-        error.response?.data?.message || "An error occurred. Please try again."
+      message.error(
+        error.response?.data?.message || "Có lỗi xảy ra. Vui lòng thử lại."
       );
     } finally {
-      // End code sending process, hide loading
       setIsLoading(false);
     }
   };
 
   return (
     <div className="h-screen w-full md:top-20 flex relative">
-      
       {/* LeftPanel */}
       <motion.div
         className="w-1/2 bg-amber-light flex items-center justify-center h-full"
@@ -107,87 +98,120 @@ const SignUp = () => {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-sm font-normal mb-1">Welcome to Nextgentech</h2>
-            <h1 className="text-4xl font-bold mb-8 text-primary-600">Sign up</h1>
+            <h1 className="text-4xl font-bold mb-8 text-primary-600">
+              Sign up
+            </h1>
 
-            <form onSubmit={handleSubmit}>
-              <div className="mb-6">
-                <label htmlFor="email" className="block text-sm mb-2">
-                  Enter your Email
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+            <Form
+              form={form}
+              onFinish={handleSubmit}
+              layout="vertical"
+              size="large"
+              className="w-full"
+            >
+              <Form.Item
+                name="email"
+                label="Enter your Email"
+                rules={[
+                  { required: true, message: "Please input your email!" },
+                  { type: "email", message: "Please enter a valid email!" },
+                ]}
+                className="mb-6"
+              >
+                <Input
+                  prefix={<MailOutlined className="text-gray-400" />}
                   placeholder="Email address"
-                  required
+                  className="py-3"
                 />
-              </div>
+              </Form.Item>
 
-              <div className="mb-6">
-                <label htmlFor="username" className="block text-sm mb-2">
-                  Enter your Username
-                </label>
-                <input
-                  id="username"
-                  type="text"
-                  className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+              <Form.Item
+                name="username"
+                label="Enter your Username"
+                rules={[
+                  { required: true, message: "Please input your username!" },
+                  {
+                    min: 3,
+                    message: "Username must be at least 3 characters!",
+                  },
+                ]}
+                className="mb-6"
+              >
+                <Input
+                  prefix={<UserOutlined className="text-gray-400" />}
                   placeholder="User name"
-                  required
+                  className="py-3"
                 />
-              </div>
+              </Form.Item>
 
-              <div className="mb-6">
-                <label htmlFor="password" className="block text-sm mb-2">
-                  Enter your Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-                    placeholder="Password"
-                    required
-                  />
-                  <div
-                    className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </div>
-                </div>
-              </div>
+              <Form.Item
+                name="password"
+                label="Enter your Password"
+                rules={[
+                  { required: true, message: "Please input your password!" },
+                  {
+                    pattern:
+                      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                    message:
+                      "Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.",
+                  },
+                ]}
+                className="mb-6"
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="text-gray-400" />}
+                  placeholder="Password"
+                  className="py-3"
+                  autoComplete="new-password"
+                />
+              </Form.Item>
 
-              <div className="mb-6">
-                <label htmlFor="confirmPassword" className="block text-sm mb-2">
-                  Confirm Password
-                </label>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full px-4 py-3 rounded-md border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+              <Form.Item
+                name="confirmPassword"
+                label="Confirm Password"
+                dependencies={["password"]}
+                rules={[
+                  { required: true, message: "Please confirm your password!" },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value || getFieldValue("password") === value) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(new Error("Mật khẩu không khớp!"));
+                    },
+                  }),
+                ]}
+                className="mb-6"
+              >
+                <Input.Password
+                  prefix={<LockOutlined className="text-gray-400" />}
                   placeholder="Confirm Password"
-                  required
+                  className="py-3"
+                  autoComplete="new-password"
                 />
-              </div>
+              </Form.Item>
 
-              {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-
-              <motion.button
-                type="submit"
-                className="w-full cursor-pointer bg-gradient-to-br from-primary to-secondary text-white py-3 rounded-md hover:bg-gradient-to-br hover:from-primary-600 hover:to-secondary-600 transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 mb-6"
+              <motion.div
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                disabled={isLoading}
               >
-                {isLoading ? "Sending code..." : "Sign up"}
-              </motion.button>
-            </form>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    loading={isLoading}
+                    className="w-full h-12 bg-gradient-to-br from-primary to-secondary border-none hover:from-primary-600 hover:to-secondary-600 text-white font-medium mb-6"
+                    style={{
+                      background: isLoading
+                        ? undefined
+                        : "linear-gradient(135deg, #50bbf5 0%, #5069f5 100%)",
+                    }}
+                  >
+                    {isLoading ? "Sending code..." : "Sign up"}
+                  </Button>
+                </Form.Item>
+              </motion.div>
+            </Form>
           </motion.div>
         </div>
       </motion.div>
