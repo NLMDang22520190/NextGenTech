@@ -130,7 +130,7 @@ const ProductDetail = () => {
   //const cartId = 5;
 
   const [product, setProduct] = useState({});
-  const [reviews, setReviews] = useState(mockReviews);
+  const [reviews, setReviews] = useState([]);
   const [quantity, setQuantity] = useState(1);
   const [selectedColor, setSelectedColor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -155,8 +155,8 @@ const ProductDetail = () => {
         categoryName: data.category.categoryName,
         brandId: data.brand.brandId,
         brandName: data.brand.brandName,
-        rating: 4.7,
-        reviewCount: 128,
+        rating: data.rating || 0,
+        reviewCount: data.reviewCount || 0,
         images: [
           "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=2070&auto=format&fit=crop",
           "https://images.unsplash.com/photo-1577174881658-0f30ed549adc?q=80&w=1974&auto=format&fit=crop",
@@ -179,6 +179,27 @@ const ProductDetail = () => {
       mappedData.stockQuantity = totalStock;
       setProduct(mappedData);
       setAvailableStock(totalStock);
+
+      // Map reviews from API response
+      if (data.reviews && data.reviews.length > 0) {
+        const mappedReviews = data.reviews.map((review) => ({
+          id: review.reviewId,
+          userId: review.userId,
+          userName: review.userName || "Anonymous",
+          userAvatar:
+            review.userAvatar ||
+            `https://i.pravatar.cc/150?img=${review.userId}`,
+          productId: review.productId,
+          rating: review.rating,
+          comment: review.comment,
+          createdAt: review.createdAt,
+          helpfulCount: 0, // Default value since it's not in the API
+        }));
+        setReviews(mappedReviews);
+      } else {
+        setReviews([]);
+      }
+
       setLoading(false);
     } catch (error) {
       console.error(error);

@@ -19,7 +19,10 @@ const ProductCard = ({ product }) => {
           <h3 className="text-base font-semibold">{product.name}</h3>
           <p className="text-sm text-gray-500">{product.category}</p>
         </div>
-        <div className="text-xs text-yellow-400">⭐ {product.rating}</div>
+        <div className="text-xs text-yellow-400">
+          ⭐ {product.rating > 0 ? product.rating.toFixed(1) : "0.0"} (
+          {product.reviewCount || 0})
+        </div>
         <p className="text-sm text-gray-600 truncate">{product.description}</p>
         <div className="flex justify-between w-full pr-2 items-center">
           <div className="flex gap-2 items-center">
@@ -44,21 +47,22 @@ const FeatureProductSection = () => {
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
-        const response = await api.get("/api/Product/CustomerGetAllProduct");
+        const response = await api.get("/api/Product/GetFeatureProducts");
         const data = response.data;
         // Map and transform the product data
-        const mappedData = data
-          .slice(0, 8) // Take first 8 products as featured
-          .map((product) => ({
-            id: product.productId,
-            name: product.name,
-            price: product.price,
-            salePrice: product.salePrice,
-            rating: parseFloat((Math.random() * 3 + 2).toFixed(1)),
-            image: `https://picsum.photos/300/300?random=${product.productId}`,
-            category: product.category.categoryName,
-            description: product.description || "No description available",
-          }));
+        const mappedData = data.map((product) => ({
+          id: product.productId,
+          name: product.name,
+          price: product.price,
+          salePrice: product.salePrice,
+          rating: product.rating || 0,
+          reviewCount: product.reviewCount || 0,
+          image:
+            product.imageUrl ||
+            `https://picsum.photos/300/300?random=${product.productId}`,
+          category: product.category.categoryName,
+          description: product.description || "No description available",
+        }));
         setProducts(mappedData);
       } catch (error) {
         console.error(error);

@@ -25,14 +25,9 @@ function App() {
     }
   }, [dispatch, userId]);
 
-  useEffect(() => {
-    console.log("userRole: ", userRole);
-    console.log("isAuthenticated: ", isAuthenticated);
-  }, [userRole, isAuthenticated]);
-
   return (
     <div>
-      {isAuthenticated && userRole === "Admin" ? (
+      {isAuthenticated && userRole?.toLowerCase() === "admin" ? (
         <AdminLayout>
           <AllAdminRoutes />
         </AdminLayout>

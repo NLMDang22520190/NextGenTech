@@ -28,13 +28,21 @@ const CartPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  // Get cart items from Redux store
+  // Get cart items and authentication state from Redux store
   const cartState = useSelector((state) => state.cart);
   const cartItems = cartState?.items || [];
-  const userId = useSelector((state) => state.auth?.user); // Default to user ID 5 if not available
+  const userId = useSelector((state) => state.auth?.user);
+  const isAuthenticated = useSelector((state) => state.auth?.isAuthenticated);
 
-  // Fetch cart details when component mounts
+  // Check authentication and fetch cart details when component mounts
   useEffect(() => {
+    // Check if user is authenticated
+    if (!isAuthenticated || !userId) {
+      // Redirect to login if not authenticated
+      navigate("/auth/login", { state: { from: "/cart" } });
+      return;
+    }
+
     const fetchCartData = async () => {
       setIsLoading(true);
       try {
@@ -49,7 +57,7 @@ const CartPage = () => {
     };
 
     fetchCartData();
-  }, [dispatch, userId]);
+  }, [dispatch, userId, isAuthenticated, navigate]);
 
   // State to track local quantities before API update
   const [localQuantities, setLocalQuantities] = useState({});

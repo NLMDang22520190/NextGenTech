@@ -62,7 +62,13 @@ namespace NextGenTech.Server.Repositories.Implement
                 .FirstOrDefaultAsync(r => r.ReviewId == id);
         }
 
-
-
+        public async Task<List<Review>> GetReviewsByProductIdAsync(int productId)
+        {
+            return await dbContext.Reviews
+                .Include(r => r.User)
+                .Where(r => r.ProductId == productId)
+                .OrderByDescending(r => r.CreatedAt)
+                .ToListAsync();
+        }
     }
 }

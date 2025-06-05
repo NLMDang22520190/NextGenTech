@@ -73,7 +73,8 @@ const ProductCard = ({ product }) => {
               )
             )}
             <span className="text-xs text-gray-500 ml-1">
-              {product.rating.toFixed(1)}
+              {product.rating > 0 ? product.rating.toFixed(1) : "0.0"} (
+              {product.reviewCount || 0})
             </span>
           </div>
 

@@ -22,7 +22,8 @@ namespace NextGenTech.Server.Models.DTO.GET
 
         public ICollection<ProductImageDTO> ProductImages { get; set; } = new List<ProductImageDTO>();
 
-        // public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public decimal Rating { get; set; }
+        public int ReviewCount { get; set; }
 
         public ICollection<CustomerProductPromotionDTO> Promotions { get; set; } = new List<CustomerProductPromotionDTO>();
 

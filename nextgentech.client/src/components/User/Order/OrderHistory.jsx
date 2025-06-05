@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, ArrowLeft, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { ClockIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
-import axios from '../../../features/AxiosInstance/AxiosInstance';
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { ArrowRight, ArrowLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import {
+  ClockIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ExclamationTriangleIcon,
+  CogIcon,
+} from "@heroicons/react/24/outline";
+import axios from "../../../features/AxiosInstance/AxiosInstance";
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
@@ -14,95 +20,119 @@ const OrderHistory = () => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const navigate = useNavigate();
 
-  // Get user ID from Redux store
+  // Get authentication state from Redux store
   const userID = useSelector((state) => state.auth.user);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
+  // Check authentication on component mount
   useEffect(() => {
-    fetchOrders();
-  }, [userID]);
-
-  // Sửa hàm fetchOrders để khớp với cấu trúc dữ liệu API trả về
-const fetchOrders = async () => {
-  setLoading(true);
-  try {
-    if (!userID) {
-      // Redirect to login if no user ID is found
-      navigate('/login', { state: { from: '/order-history' } });
+    if (!isAuthenticated || !userID) {
+      // Redirect to login if not authenticated
+      navigate("/auth/login", { state: { from: "/orderHistory" } });
       return;
     }
+    fetchOrders();
+  }, [userID, isAuthenticated, navigate]);
 
-    const response = await axios.get(`/api/Order/user/${userID}`);
-    
-    if (response.status === 200) {
-      const mappedOrders = response.data.map(order => ({
-        id: order.orderId,
-        status: order.status, 
-        date: new Date(order.orderDate), 
-        total: formatPrice(order.totalAmount), 
-        rawTotal: order.totalAmount 
-      }));
-      
-      // Sort orders by date (newest first)
-      mappedOrders.sort((a, b) => b.date - a.date);
-      
-      setOrders(mappedOrders);
+  // Sửa hàm fetchOrders để khớp với cấu trúc dữ liệu API trả về
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`/api/Order/user/${userID}`);
+
+      if (response.status === 200) {
+        const mappedOrders = response.data.map((order) => ({
+          id: order.orderId,
+          status: order.status,
+          date: new Date(order.orderDate),
+          total: formatPrice(order.totalAmount),
+          rawTotal: order.totalAmount,
+        }));
+
+        // Sort orders by date (newest first)
+        mappedOrders.sort((a, b) => b.date - a.date);
+
+        setOrders(mappedOrders);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.error("Failed to fetch orders:", err);
+      if (err.response && err.response.status === 404) {
+        // No orders found
+        setOrders([]);
+      } else {
+        setError("Unable to load order list. Please try again later.");
+      }
+      setLoading(false);
     }
-    setLoading(false);
-  } catch (err) {
-    console.error("Failed to fetch orders:", err);
-    if (err.response && err.response.status === 404) {
-      // No orders found
-      setOrders([]);
-    } else {
-      setError("Unable to load order list. Please try again later.");
-    }
-    setLoading(false);
-  }
-};
+  };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-      maximumFractionDigits: 0
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+      maximumFractionDigits: 0,
     }).format(price);
   };
 
   const formatDate = (date) => {
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const getStatusColor = (status) => {
     switch (status.toUpperCase()) {
       case "COMPLETED":
-        return "text-green-500";
-      case "IN PROGRESS":
+        return "text-green-600";
       case "PROCESSING":
+        return "text-blue-600";
+      case "PENDING CONFIRM":
       case "PENDING":
-        return "text-orange-500";
+        return "text-amber-600";
+      case "CANCELLED":
       case "CANCELED":
-        return "text-red-500";
+        return "text-red-600";
       default:
-        return "text-gray-500";
+        return "text-gray-600";
     }
   };
 
   const getStatusIcon = (status) => {
     switch (status.toUpperCase()) {
-      case 'COMPLETED':
-        return <CheckCircleIcon className="h-5 w-5 text-green-500"/>;
-      case 'IN PROGRESS':
-      case 'PROCESSING':
-      case 'PENDING':
-        return <ClockIcon className="h-5 w-5 text-orange-500"/>;
-      case 'CANCELED':
-        return <XCircleIcon className="h-5 w-5 text-red-500"/>;
+      case "COMPLETED":
+        return <CheckCircleIcon className="h-5 w-5" />;
+      case "PROCESSING":
+        return <CogIcon className="h-5 w-5" />;
+      case "PENDING CONFIRM":
+      case "PENDING":
+        return <ExclamationTriangleIcon className="h-5 w-5" />;
+      case "CANCELLED":
+      case "CANCELED":
+        return <XCircleIcon className="h-5 w-5" />;
       default:
-        return null;
+        return <ClockIcon className="h-5 w-5" />;
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const baseClasses = "inline-flex items-center px-3 py-1 rounded-full text-xs font-medium";
+
+    switch (status.toUpperCase()) {
+      case "COMPLETED":
+        return `${baseClasses} bg-green-100 text-green-800 border border-green-200`;
+      case "PROCESSING":
+        return `${baseClasses} bg-blue-100 text-blue-800 border border-blue-200`;
+      case "PENDING CONFIRM":
+      case "PENDING":
+        return `${baseClasses} bg-amber-100 text-amber-800 border border-amber-200`;
+      case "CANCELLED":
+      case "CANCELED":
+        return `${baseClasses} bg-red-100 text-red-800 border border-red-200`;
+      default:
+        return `${baseClasses} bg-gray-100 text-gray-800 border border-gray-200`;
     }
   };
 
@@ -123,7 +153,7 @@ const fetchOrders = async () => {
   const getPaginationNumbers = () => {
     const pages = [];
     const maxDisplayedPages = 6;
-    
+
     if (totalPages <= maxDisplayedPages) {
       // Display all pages if total pages <= max display count
       for (let i = 1; i <= totalPages; i++) {
@@ -131,26 +161,31 @@ const fetchOrders = async () => {
       }
     } else {
       // Display a subset of pages with current page in the middle
-      let startPage = Math.max(1, currentPage - Math.floor(maxDisplayedPages / 2));
+      let startPage = Math.max(
+        1,
+        currentPage - Math.floor(maxDisplayedPages / 2)
+      );
       let endPage = Math.min(totalPages, startPage + maxDisplayedPages - 1);
-      
+
       // Adjust if we're near the end
       if (endPage - startPage < maxDisplayedPages - 1) {
         startPage = Math.max(1, endPage - maxDisplayedPages + 1);
       }
-      
+
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
     }
-    
+
     return pages;
   };
 
   if (loading && orders.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <h1 className="text-xl font-bold mb-4 text-primary-700">ORDER HISTORY</h1>
+        <h1 className="text-xl font-bold mb-4 text-primary-700">
+          ORDER HISTORY
+        </h1>
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
         </div>
@@ -161,7 +196,9 @@ const fetchOrders = async () => {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <h1 className="text-xl font-bold mb-4 text-primary-700">ORDER HISTORY</h1>
+        <h1 className="text-xl font-bold mb-4 text-primary-700">
+          ORDER HISTORY
+        </h1>
         <div className="bg-red-50 rounded-lg p-4 text-red-700">
           <p>{error}</p>
           <button
@@ -188,8 +225,12 @@ const fetchOrders = async () => {
           <div className="grid grid-cols-12 bg-gray-100 py-3 px-4 border-b border-gray-200">
             <div className="col-span-2 font-medium text-gray-700">ORDER ID</div>
             <div className="col-span-2 font-medium text-gray-700">STATUS</div>
-            <div className="col-span-3 font-medium text-gray-700">ORDER DATE</div>
-            <div className="col-span-3 font-medium text-gray-700">TOTAL AMOUNT</div>
+            <div className="col-span-3 font-medium text-gray-700">
+              ORDER DATE
+            </div>
+            <div className="col-span-3 font-medium text-gray-700">
+              TOTAL AMOUNT
+            </div>
             <div className="col-span-2 font-medium text-gray-700">ACTIONS</div>
           </div>
 
@@ -199,14 +240,22 @@ const fetchOrders = async () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="grid grid-cols-12 py-3 px-4 border-b border-gray-100 hover:bg-gray-50"
+              className="grid grid-cols-12 py-4 px-4 border-b border-gray-100 hover:bg-white hover:shadow-sm transition-all duration-200"
             >
               <div className="col-span-2 font-medium">#{order.id}</div>
-              <div className={`col-span-2 font-medium flex items-center space-x-2 ${getStatusColor(order.status)}`}>
-                {getStatusIcon(order.status)}
-                <span className="hidden md:inline capitalize">{order.status}</span>
+              <div className="col-span-2 flex items-center">
+                <div className={getStatusBadge(order.status)}>
+                  <span className={`mr-2 ${getStatusColor(order.status)}`}>
+                    {getStatusIcon(order.status)}
+                  </span>
+                  <span className="capitalize">
+                    {order.status}
+                  </span>
+                </div>
               </div>
-              <div className="col-span-3 text-gray-600">{formatDate(order.date)}</div>
+              <div className="col-span-3 text-gray-600">
+                {formatDate(order.date)}
+              </div>
               <div className="col-span-3 text-gray-600">{order.total}</div>
               <div className="col-span-2">
                 <motion.button
@@ -240,7 +289,7 @@ const fetchOrders = async () => {
               <option value={50}>50 items/page</option>
             </select>
           </div>
-          
+
           <div className="flex justify-center items-center space-x-2">
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -258,9 +307,9 @@ const fetchOrders = async () => {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 className={`w-10 h-10 rounded-full flex items-center justify-center cursor-pointer ${
-                  currentPage === page 
-                    ? 'bg-primary-500 text-white' 
-                    : 'border border-gray-300 text-gray-600 hover:bg-gray-100'
+                  currentPage === page
+                    ? "bg-primary-500 text-white"
+                    : "border border-gray-300 text-gray-600 hover:bg-gray-100"
                 } transition-colors`}
                 onClick={() => setCurrentPage(page)}
               >

@@ -10,6 +10,6 @@ namespace NextGenTech.Server.Repositories
         Task<Review?> UpdateReviewAsync(int reviewId, UpdateReviewRequestDTO request);
         Task<bool> DeleteReviewAsync(int reviewId);
         Task<Review?> GetReviewByIdAsync(int id);
-
+        Task<List<Review>> GetReviewsByProductIdAsync(int productId);
     }
 }

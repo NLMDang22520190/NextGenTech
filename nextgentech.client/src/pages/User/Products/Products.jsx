@@ -92,9 +92,11 @@ const Products = ({ initialSearchTerm = "", initialCategory = null }) => {
         name: product.name,
         price: product.salePrice,
         oldPrice: product.price,
-        // rating: product.rating,
-        rating: parseFloat((Math.random() * 3 + 2).toFixed(1)),
-        image: `https://picsum.photos/300/300?random=${product.productId}`,
+        rating: product.rating || 0,
+        reviewCount: product.reviewCount || 0,
+        image:
+          product.imageUrl ||
+          `https://picsum.photos/300/300?random=${product.productId}`,
         category: product.category.categoryName,
         categoryId: product.category.categoryId,
         brand: product.brand.brandName,

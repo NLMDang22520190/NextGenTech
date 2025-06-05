@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
 import { useToast } from '../../../hooks/use-toast';
 
-const RatingModal = ({ isOpen, onClose, orderId, productId, onSubmit }) => {
+const RatingModal = ({ isOpen, onClose, orderId, productId, orderStatus, onSubmit }) => {
   const [rating, setRating] = useState(0);
   const [hoveredRating, setHoveredRating] = useState(0);
   const [feedback, setFeedback] = useState('');
@@ -17,6 +17,16 @@ const RatingModal = ({ isOpen, onClose, orderId, productId, onSubmit }) => {
   }, [isOpen, orderId, productId]);
 
   const handleSubmit = () => {
+    // Check if order is completed before allowing rating
+    if (orderStatus && orderStatus.toUpperCase() !== 'COMPLETED') {
+      toast({
+        title: "Rating Not Allowed",
+        description: "You can only rate products from completed orders.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (rating === 0) {
       toast({
         title: "Rating Required",

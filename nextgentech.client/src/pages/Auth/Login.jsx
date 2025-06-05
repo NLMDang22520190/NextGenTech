@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 
 import { fetchCartIdByCustomerId } from "../../features/Cart/Cart";
 import { login } from "../../features/AxiosInstance/Auth/Auth";
@@ -11,11 +11,15 @@ import RightPanel from "../../components/Auth/RightPanel";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const auth = useSelector((state) => state.auth);
+
+  // Get the redirect path from location state
+  const from = location.state?.from || "/";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +29,7 @@ const Login = () => {
 
       if (login.fulfilled.match(resultAction)) {
         console.log("Login successful: ", resultAction.payload); // Log payload để kiểm tra
-        navigate("/"); // Chuyển hướng sau khi đăng nhập thành công
+        navigate(from); // Redirect to the original page or home
       } else {
         // Log thông tin khi không thành công
         console.log("Login failed: ", resultAction);
